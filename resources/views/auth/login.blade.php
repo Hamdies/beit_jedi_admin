@@ -27,22 +27,268 @@
     <link rel="stylesheet" href="{{dynamicAsset('public/assets/admin')}}/css/theme.minc619.css?v=1.0">
     <link rel="stylesheet" href="{{dynamicAsset('public/assets/admin')}}/css/style.css">
     <link rel="stylesheet" href="{{dynamicAsset('public/assets/admin')}}/css/toastr.css">
+    <style>
+        body {
+            min-height: 100vh;
+            background: radial-gradient(circle at top left, #101727 0, #050814 40%, #02030a 100%);
+            display: flex;
+            align-items: stretch;
+            justify-content: center;
+            font-family: 'Open Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+
+        .main.auth-bg {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem 1.5rem;
+        }
+
+        .auth-shell {
+            width: 100%;
+            max-width: 980px;
+            background: radial-gradient(circle at top left, rgba(255, 255, 255, 0.12), transparent 55%),
+                        linear-gradient(135deg, rgba(13, 27, 56, 0.96), rgba(4, 10, 24, 0.96));
+            border-radius: 1.75rem;
+            box-shadow: 0 28px 80px rgba(0, 0, 0, 0.55);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            overflow: hidden;
+            backdrop-filter: blur(18px);
+            color: #f5f7fb;
+        }
+
+        .auth-shell-inner {
+            display: grid;
+            grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+            gap: 0;
+        }
+
+        @media (max-width: 992px) {
+            .auth-shell-inner {
+                grid-template-columns: minmax(0, 1fr);
+            }
+        }
+
+        .auth-hero {
+            position: relative;
+            padding: 2.75rem 2.5rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            background: radial-gradient(circle at top left, rgba(255, 255, 255, 0.12), transparent 65%);
+        }
+
+        .auth-hero .title {
+            font-size: 1.65rem;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: #e5ecff;
+            margin-bottom: 0.75rem;
+        }
+
+        .auth-hero p {
+            margin: 0;
+            color: #9aa4c9;
+            max-width: 320px;
+        }
+
+        .auth-hero-footer {
+            margin-top: 2.5rem;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.16em;
+            color: #7d8ab5;
+        }
+
+        .auth-right {
+            padding: 2.75rem 2.5rem;
+            background: radial-gradient(circle at top right, rgba(15, 35, 85, 0.65), transparent 60%);
+            border-left: 1px solid rgba(255, 255, 255, 0.04);
+        }
+
+        .auth-wrapper-body {
+            background: transparent;
+            box-shadow: none;
+            border-radius: 0;
+        }
+
+        .auth-logo img {
+            max-height: 52px;
+            filter: drop-shadow(0 12px 22px rgba(0, 0, 0, 0.55));
+        }
+
+        .auth-header .signin-txt {
+            font-size: 1.4rem;
+            font-weight: 600;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            color: #f5f7ff;
+        }
+
+        .auth-header .signin-sub {
+            font-size: 0.86rem;
+            color: #8f9ac3;
+            margin-top: 0.25rem;
+        }
+
+        .auth-version-badge {
+            border-radius: 999px;
+            padding: 0.35rem 0.9rem;
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.14em;
+            background: rgba(5, 25, 68, 0.8);
+            border: 1px solid rgba(93, 118, 191, 0.6);
+            color: #b8c6f0;
+        }
+
+        .form-label {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #ccd3ff;
+        }
+
+        .form-control.form-control-lg {
+            background: rgba(3, 10, 32, 0.9);
+            border-radius: 0.9rem;
+            border: 1px solid rgba(61, 82, 138, 0.6);
+            color: #f5f7ff;
+            padding: 0.8rem 1rem;
+            font-size: 0.9rem;
+        }
+
+        .form-control.form-control-lg::placeholder {
+            color: #707da7;
+        }
+
+        .form-control.form-control-lg:focus {
+            background-color: rgba(6, 16, 46, 0.95);
+            border-color: #2f5ecb;
+            box-shadow: 0 0 0 1px rgba(47, 94, 203, 0.6), 0 0 0 4px rgba(12, 46, 132, 0.45);
+            outline: none;
+        }
+
+        .custom-control-label.text-muted {
+            color: #909bbe !important;
+            font-size: 0.82rem;
+        }
+
+        .auth-meta-row {
+            margin-top: 1.1rem;
+        }
+
+        .auth-meta-row span[data-toggle="modal"] {
+            font-size: 0.82rem;
+            color: #a6b3ff;
+            cursor: pointer;
+            transition: color 0.18s ease, transform 0.18s ease;
+        }
+
+        .auth-meta-row span[data-toggle="modal"]:hover {
+            color: #e4ebff;
+            transform: translateY(-1px);
+        }
+
+        .auth-captcha-row {
+            margin-top: 1.25rem;
+            background: rgba(4, 12, 40, 0.9);
+            border-radius: 0.9rem;
+            border: 1px solid rgba(61, 82, 138, 0.55);
+        }
+
+        .auth-captcha-row .form-control-lg {
+            border-radius: 0.9rem 0 0 0.9rem;
+        }
+
+        .auth-captcha-row .bg-white {
+            background: radial-gradient(circle at top, #ffffff, #dfe6ff) !important;
+        }
+
+        .auth-captcha-row .capcha-spin {
+            color: #233571;
+        }
+
+        .btn-navy-primary {
+            background: linear-gradient(135deg, #102a6b, #04153c);
+            border-color: #102a6b;
+            color: #f5f7ff;
+            border-radius: 999px;
+            padding: 0.85rem 1rem;
+            font-size: 0.95rem;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            box-shadow: 0 14px 30px rgba(3, 16, 66, 0.75);
+            transition: background 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease, border-color 0.18s ease;
+        }
+
+        .btn-navy-primary:hover {
+            background: linear-gradient(135deg, #18398d, #061b4f);
+            border-color: #18398d;
+            color: #ffffff;
+            transform: translateY(-1px);
+            box-shadow: 0 18px 40px rgba(3, 20, 80, 0.9);
+        }
+
+        .btn-navy-primary:focus,
+        .btn-navy-primary:active {
+            background: linear-gradient(135deg, #0b2467, #021131);
+            border-color: #2a4aa4;
+            box-shadow: 0 0 0 1px rgba(144, 169, 255, 0.6), 0 0 0 5px rgba(33, 61, 150, 0.75);
+            outline: none;
+        }
+
+        .btn-navy-primary:disabled {
+            background: linear-gradient(135deg, #101727, #111321);
+            border-color: #262d46;
+            box-shadow: none;
+            opacity: 0.7;
+        }
+
+        .auto-fill-data-copy {
+            background: rgba(3, 12, 38, 0.95);
+            border-radius: 1rem;
+            border: 1px dashed rgba(88, 116, 190, 0.75);
+            color: #d7dfff;
+        }
+
+        .auto-fill-data-copy strong {
+            color: #f5f7ff;
+        }
+
+        .auto-fill-data-copy .btn-primary {
+            border-radius: 999px;
+        }
+
+        .forget-pass-content h4 {
+            color: #111827;
+        }
+
+        .forget-pass-content p {
+            color: #4b5563;
+        }
+    </style>
 </head>
 
 <body>
 <!-- ========== MAIN CONTENT ========== -->
 <main id="content" role="main" class="main auth-bg">
     <!-- Content -->
-    <div class="d-flex flex-wrap align-items-center justify-content-between">
-        <div class="auth-content">
-            <div class="content">
-                <h2 class="title text-uppercase">{{translate('messages.welcome_to')}} {{ $app_name??'STACKFOOD' }}</h2>
-                <p>
-                    {{translate('Manage_your_app_&_website_easily')}}
-                </p>
+    <div class="auth-shell">
+        <div class="auth-shell-inner">
+            <div class="auth-content auth-hero">
+                <div class="content">
+                    <h2 class="title text-uppercase">{{translate('messages.welcome_to')}} {{ $app_name??'STACKFOOD' }}</h2>
+                    <p>
+                        {{translate('Manage_your_app_&_website_easily')}}
+                    </p>
+                </div>
+                <div class="auth-hero-footer">
+                    {{ translate('Secure_restaurant_and_admin_management_panel') }}
+                </div>
             </div>
-        </div>
-        <div class="auth-wrapper">
+            <div class="auth-wrapper auth-right">
             <div class="auth-wrapper-body auth-form-appear">
                 @php($systemlogo=\App\Models\BusinessSetting::where(['key'=>'logo'])->first())
                 @php($role = $role ?? null )
@@ -52,12 +298,13 @@
                     data-onerror-image="{{ dynamicAsset('/public/assets/admin/img/auth-fav.png') }}" alt="image">
                 </a>
                 <div class="text-center">
-                    <div class="auth-header mb-5">
+                    <div class="auth-header mb-2">
                         <h2 class="signin-txt">{{ translate('messages.Signin_To_Your_Panel')}}</h2>
+                        <p class="signin-sub">{{ translate('Access_all_your_tools_from_a_single_modern_dashboard') }}</p>
                     </div>
                 </div>
                 <!-- Content -->
-                <label class="badge badge-soft-success float-right initial-1">
+                <label class="badge badge-soft-success float-right initial-1 auth-version-badge">
                     {{translate('messages.software_version')}} : {{env('SOFTWARE_VERSION')}}
                 </label>
                 <!-- Form -->
@@ -103,7 +350,7 @@
                     </div>
                     <!-- End Form Group -->
                         <div class="mb-2"></div>
-                        <div class="d-flex justify-content-between mt-5">
+                        <div class="d-flex justify-content-between mt-3 auth-meta-row">
                     <!-- Checkbox -->
                         <div class="form-group">
                             <div class="custom-control custom-checkbox">
@@ -149,7 +396,7 @@
                         </div>
 
                     @else
-                        <div class="row p-2" id="reload-captcha">
+                        <div class="row p-2 auth-captcha-row" id="reload-captcha">
                             <div class="col-6 pr-0">
                                 <input type="text" class="form-control form-control-lg border-0" name="custome_recaptcha"
                                        id="custome_recaptcha" required placeholder="{{translate('Enter recaptcha value')}}" autocomplete="off" value="{{env('APP_MODE')=='dev'? session('six_captcha'):''}}">
@@ -163,7 +410,7 @@
                         </div>
                     @endif
 
-                    <button type="submit" class="btn btn-lg btn-block btn-primary" id="signInBtn">{{translate('messages.sign_in')}}</button>
+                    <button type="submit" class="btn btn-lg btn-block btn-primary btn-navy-primary" id="signInBtn">{{translate('messages.sign_in')}}</button>
                 </form>
                 <!-- End Form -->
 
@@ -199,6 +446,7 @@
                     </div>
                 @endif
             @endif
+        </div>
         </div>
     </div>
 </main>
