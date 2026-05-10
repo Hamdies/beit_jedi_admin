@@ -79,63 +79,61 @@ $statusLabels = [
 $statusLabel = $statusLabels[$status] ?? translate(str_replace('_',' ',$status));
 
 /* Visual stepper mapping (data model unchanged).
-   Delivery orders → 4 steps  (handover and pickup/delivery are separate phases)
-   Dine-in / take-away → 3 steps (no rider handoff phase)
+   Always 3 phases — matches what the restaurant can actually trigger.
+   The rider's app updates `picked_up` independently (customer sees it via their own app);
+   restaurant view doesn't expose that as a separate clickable step.
 */
 $isTerminal = in_array($status, ['canceled','failed','refunded','refund_requested','refund_request_canceled']);
 $isDelivery = !in_array($order['order_type'], ['dine_in','take_away']);
 
+$phaseMap = [
+    'pending'    => 1,
+    'confirmed'  => 2,
+    'accepted'   => 2,
+    'processing' => 2,
+    'handover'   => 3,
+    'picked_up'  => 3,
+    'delivered'  => 3,
+];
 if ($isDelivery) {
-    $phaseMap = [
-        'pending'    => 1,
-        'confirmed'  => 2,
-        'accepted'   => 2,
-        'processing' => 2,
-        'handover'   => 3,
-        'picked_up'  => 4,
-        'delivered'  => 4,
-    ];
-    $steps = [
-        ['n' => 1, 'label' => 'القبول'],
-        ['n' => 2, 'label' => 'التجهيز'],
-        ['n' => 3, 'label' => 'تسليم للمندوب'],
-        ['n' => 4, 'label' => 'التوصيل'],
-    ];
+    $finalLabel = 'التوصيل';
+} elseif ($order->order_type == 'dine_in') {
+    $finalLabel = 'الاكتمال';
 } else {
-    $phaseMap = [
-        'pending'    => 1,
-        'confirmed'  => 2,
-        'accepted'   => 2,
-        'processing' => 2,
-        'handover'   => 3,
-        'picked_up'  => 3,
-        'delivered'  => 3,
-    ];
-    $finalLabel = $order->order_type == 'dine_in' ? 'الاكتمال' : 'الاستلام';
-    $steps = [
-        ['n' => 1, 'label' => 'القبول'],
-        ['n' => 2, 'label' => 'التجهيز'],
-        ['n' => 3, 'label' => $finalLabel],
-    ];
+    $finalLabel = 'الاستلام';
 }
+$steps = [
+    ['n' => 1, 'label' => 'القبول'],
+    ['n' => 2, 'label' => 'التجهيز'],
+    ['n' => 3, 'label' => $finalLabel],
+];
 $currentPhase = $phaseMap[$status] ?? 0;
 $isFinalDone = $status === 'delivered';
 $totalSteps = count($steps);
+
+/* Hero status semantic class */
+$statusClass = [
+    'pending'    => 'is-pending',
+    'confirmed'  => 'is-active',
+    'accepted'   => 'is-active',
+    'processing' => 'is-cooking',
+    'handover'   => 'is-ready',
+    'picked_up'  => 'is-en-route',
+    'delivered'  => 'is-done',
+    'canceled'   => 'is-canceled',
+    'failed'     => 'is-canceled',
+][$status] ?? '';
 ?>
 
 <div class="content container-fluid ov-page" id="printableArea">
 
-    {{-- ══════════════════════════════════════════════════════════
-         TOP BAR
-    ══════════════════════════════════════════════════════════ --}}
+    {{-- ── Top bar ─────────────────────────────────────────── --}}
     <div class="ov-topbar">
         <div class="ov-topbar-right">
             <span class="ov-order-id">طلب #{{ $order['id'] }}</span>
-            <span class="ov-order-date">
-                {{ date('d M Y ' . config('timeformat'), strtotime($order['created_at'])) }}
-            </span>
+            <span class="ov-order-date">{{ date('d M Y · ' . config('timeformat'), strtotime($order['created_at'])) }}</span>
             @if ($order->edited)
-                <span class="ov-tag danger">معدّل</span>
+                <span class="ov-tag warn">معدّل</span>
             @endif
             @if ($subscription)
                 <span class="ov-sub-badge"><i class="tio-refresh"></i> اشتراك</span>
@@ -147,8 +145,7 @@ $totalSteps = count($steps);
         <div class="ov-topbar-nav">
             <a class="ov-nav-btn" href="{{ route('vendor.order.details', [$order['id'] - 1]) }}" title="الطلب السابق"><i class="tio-chevron-right"></i></a>
             <a class="ov-nav-btn" href="{{ route('vendor.order.details', [$order['id'] + 1]) }}" title="الطلب التالي"><i class="tio-chevron-left"></i></a>
-            <button type="button"
-                    class="ov-kbd-btn d-none d-sm-inline-flex"
+            <button type="button" class="ov-kbd-btn d-none d-sm-inline-flex"
                     id="ov-kbd-toggle"
                     aria-expanded="false"
                     aria-controls="ov-kbd-panel"
@@ -157,444 +154,346 @@ $totalSteps = count($steps);
                 <span>اختصارات</span>
             </button>
             <a class="ov-print-btn d-none d-sm-inline-flex" href="{{ route('vendor.order.generate-invoice', [$order['id']]) }}">
-                <i class="tio-print"></i> فاتورة طباعة
+                <i class="tio-print"></i> طباعة
             </a>
         </div>
     </div>
 
-    {{-- ══════════════════════════════════════════════════════════
-         KEYBOARD SHORTCUTS PANEL
-    ══════════════════════════════════════════════════════════ --}}
+    {{-- ── Keyboard shortcuts panel ────────────────────────── --}}
     <div class="ov-kbd-panel" id="ov-kbd-panel" hidden>
         <div class="ov-card">
             <div class="ov-card-body">
-                <div class="ov-kbd-row">
-                    <span class="ov-kbd-label">تنفيذ الإجراء التالي</span>
-                    <span class="ov-kbd">Enter</span>
-                    <span class="ov-kbd">Space</span>
-                </div>
-                <div class="ov-kbd-row">
-                    <span class="ov-kbd-label">إلغاء الطلب</span>
-                    <span class="ov-kbd">Esc</span>
-                </div>
-                <div class="ov-kbd-row">
-                    <span class="ov-kbd-label">تعيين مندوب</span>
-                    <span class="ov-kbd">D</span>
-                </div>
-                <div class="ov-kbd-row">
-                    <span class="ov-kbd-label">طباعة الفاتورة</span>
-                    <span class="ov-kbd">P</span>
-                </div>
-                <div class="ov-kbd-row">
-                    <span class="ov-kbd-label">الطلب السابق / التالي</span>
-                    <span class="ov-kbd">←</span>
-                    <span class="ov-kbd">→</span>
-                </div>
-                <div class="ov-kbd-row">
-                    <span class="ov-kbd-label">إظهار / إخفاء هذه القائمة</span>
-                    <span class="ov-kbd">?</span>
-                </div>
+                <div class="ov-kbd-row"><span class="ov-kbd-label">تنفيذ الإجراء التالي</span><span class="ov-kbd">Enter</span><span class="ov-kbd">Space</span></div>
+                <div class="ov-kbd-row"><span class="ov-kbd-label">إلغاء الطلب</span><span class="ov-kbd">Esc</span></div>
+                <div class="ov-kbd-row"><span class="ov-kbd-label">تعيين مندوب</span><span class="ov-kbd">D</span></div>
+                <div class="ov-kbd-row"><span class="ov-kbd-label">طباعة الفاتورة</span><span class="ov-kbd">P</span></div>
+                <div class="ov-kbd-row"><span class="ov-kbd-label">الطلب السابق / التالي</span><span class="ov-kbd">←</span><span class="ov-kbd">→</span></div>
+                <div class="ov-kbd-row"><span class="ov-kbd-label">إظهار / إخفاء</span><span class="ov-kbd">?</span></div>
             </div>
         </div>
     </div>
 
-    {{-- ══════════════════════════════════════════════════════════
-         STATUS STEPPER — visual abstraction over the underlying 7-status data model.
-         Delivery orders show 4 phases; dine-in / take-away show 3.
-    ══════════════════════════════════════════════════════════ --}}
-    @if ($isTerminal)
-        <div class="ov-terminal-banner {{ $status }}">
-            <i class="tio-{{ $status === 'canceled' ? 'clear-circle' : 'warning-outlined' }}"></i>
-            <span>{{ $statusLabel }}</span>
-        </div>
-    @else
-        <div class="ov-stepper" role="list" aria-label="مراحل الطلب">
-            @foreach ($steps as $s)
-                @php
-                    $cls = '';
-                    if ($isFinalDone) {
-                        $cls = 'done';
-                    } elseif ($currentPhase > $s['n']) {
-                        $cls = 'done';
-                    } elseif ($currentPhase === $s['n']) {
-                        $cls = 'active';
-                    }
-                @endphp
-                <div class="ov-step {{ $cls }}" role="listitem" aria-current="{{ $cls === 'active' ? 'step' : 'false' }}">
-                    <span class="ov-step-num" aria-hidden="true">
-                        @if ($cls === 'done')
-                            <i class="tio-checkmark"></i>
+    {{-- ── Hero card: status + summary + primary action ────── --}}
+    <section class="ov-hero">
+        <div class="ov-hero-top">
+            <div class="ov-hero-left">
+                <div class="ov-hero-status {{ $statusClass }}">
+                    <span class="ov-dot"></span>
+                    {{ $statusLabel }}
+                </div>
+                <h1 class="ov-hero-title">{{ \App\CentralLogics\Helpers::format_currency($order['order_amount']) }}</h1>
+                <div class="ov-hero-meta">
+                    <span class="ov-hero-meta-item">
+                        <span class="k">الدفع</span>
+                        @if ($order['payment_status'] == 'paid')
+                            <span class="v paid">مدفوع · {{ translate(str_replace('_',' ',$order['payment_method'])) }}</span>
+                        @elseif ($order['payment_status'] == 'partially_paid')
+                            @if ($order->payments()->where('payment_status','unpaid')->exists())
+                                <span class="v partial">جزئي · {{ translate(str_replace('_',' ',$order['payment_method'])) }}</span>
+                            @else
+                                <span class="v paid">مدفوع · {{ translate(str_replace('_',' ',$order['payment_method'])) }}</span>
+                            @endif
                         @else
-                            {{ $s['n'] }}
+                            <span class="v unpaid">غير مدفوع · {{ translate(str_replace('_',' ',$order['payment_method'])) }}</span>
                         @endif
                     </span>
-                    <span class="ov-step-label">{{ $s['label'] }}</span>
-                </div>
-            @endforeach
-        </div>
-    @endif
-
-    {{-- ══════════════════════════════════════════════════════════
-         STATUS HERO
-    ══════════════════════════════════════════════════════════ --}}
-    <div class="ov-status-hero">
-        <div class="ov-status-hero-info">
-            <span class="ov-status-badge status-{{ $status }} status-default">
-                <span class="dot"></span>
-                {{ $statusLabel }}
-            </span>
-
-            <div class="ov-status-meta">
-                <div class="ov-meta-chip">
-                    <span class="ov-meta-label">طريقة الدفع</span>
-                    <span class="ov-meta-value">{{ translate(str_replace('_',' ',$order['payment_method'])) }}</span>
-                </div>
-                <div class="ov-meta-chip">
-                    <span class="ov-meta-label">حالة الدفع</span>
-                    @if ($order['payment_status'] == 'paid')
-                        <span class="ov-meta-value paid">مدفوع ✓</span>
-                    @elseif ($order['payment_status'] == 'partially_paid')
-                        @if ($order->payments()->where('payment_status','unpaid')->exists())
-                            <span class="ov-meta-value partial">مدفوع جزئياً</span>
-                        @else
-                            <span class="ov-meta-value paid">مدفوع ✓</span>
-                        @endif
-                    @else
-                        <span class="ov-meta-value unpaid">غير مدفوع</span>
+                    <span class="ov-hero-meta-item">
+                        <span class="k">النوع</span>
+                        <span class="v">{{ translate(str_replace('_',' ',$order['order_type'])) }}</span>
+                    </span>
+                    @if ($order->schedule_at && ($order->scheduled || $subscription))
+                    <span class="ov-hero-meta-item">
+                        <span class="k">مجدول</span>
+                        <span class="v">{{ date('d M · ' . config('timeformat'), strtotime($order['schedule_at'])) }}</span>
+                    </span>
+                    @endif
+                    @if ($c_address)
+                    <button class="ov-map-btn" data-toggle="modal" data-target="#locationModal">
+                        <i class="tio-poi-outlined"></i> عرض الموقع
+                    </button>
                     @endif
                 </div>
-                <div class="ov-meta-chip">
-                    <span class="ov-meta-label">نوع الطلب</span>
-                    <span class="ov-meta-value">{{ translate(str_replace('_',' ',$order['order_type'])) }}</span>
-                </div>
-                <div class="ov-meta-chip">
-                    <span class="ov-meta-label">الإجمالي</span>
-                    <span class="ov-meta-value">{{ \App\CentralLogics\Helpers::format_currency($order['order_amount']) }}</span>
-                </div>
-                @if ($order->schedule_at && ($order->scheduled || $subscription))
-                <div class="ov-meta-chip">
-                    <span class="ov-meta-label">مجدول</span>
-                    <span class="ov-meta-value">{{ date('d M Y ' . config('timeformat'), strtotime($order['schedule_at'])) }}</span>
-                </div>
-                @endif
             </div>
 
-            @if ($c_address)
-                <button class="ov-map-btn" data-toggle="modal" data-target="#locationModal">
-                    <i class="tio-poi-outlined"></i> عرض الموقع
-                </button>
+            @if ($order['order_status'] != 'delivered' && $order['order_status'] != 'canceled' && $order['order_status'] != 'failed')
+            <div class="ov-hero-actions">
+                @include('vendor-views.order.partials._status-actions')
+            </div>
             @endif
         </div>
 
-        @if ($order['order_status'] != 'delivered' && $order['order_status'] != 'canceled' && $order['order_status'] != 'failed')
-        <div class="ov-status-hero-action">
-            @include('vendor-views.order.partials._status-actions')
-        </div>
+        @if ($isTerminal)
+            <div class="ov-banner {{ $status }}">
+                <i class="tio-{{ $status === 'canceled' ? 'clear-circle' : 'warning-outlined' }}"></i>
+                <span>{{ $statusLabel }}</span>
+            </div>
+        @else
+            <div class="ov-progress" role="group" aria-label="مراحل الطلب">
+                <div class="ov-progress-bar" aria-hidden="true">
+                    @foreach ($steps as $s)
+                        @php
+                            $segCls = '';
+                            if ($isFinalDone || $currentPhase > $s['n']) { $segCls = 'done'; }
+                            elseif ($currentPhase === $s['n']) { $segCls = 'active'; }
+                        @endphp
+                        <div class="ov-progress-seg {{ $segCls }}"></div>
+                    @endforeach
+                </div>
+                <div class="ov-progress-labels">
+                    @foreach ($steps as $s)
+                        @php
+                            $labCls = '';
+                            if ($isFinalDone || $currentPhase > $s['n']) { $labCls = 'done'; }
+                            elseif ($currentPhase === $s['n']) { $labCls = 'active'; }
+                        @endphp
+                        <span class="ov-progress-label {{ $labCls }}" aria-current="{{ $labCls === 'active' ? 'step' : 'false' }}">{{ $s['label'] }}</span>
+                    @endforeach
+                </div>
+            </div>
         @endif
-    </div>
+    </section>
 
-    {{-- ══════════════════════════════════════════════════════════
-         NOTES / INSTRUCTIONS
-    ══════════════════════════════════════════════════════════ --}}
+    {{-- ── Notes / instructions ────────────────────────────── --}}
     @if($order['order_note'])
-    <div class="ov-note-strip mb-2"><i class="tio-comment-outlined ov-icon-fixed"></i> <strong>ملاحظة الطلب:</strong>&nbsp;{{ $order['order_note'] }}</div>
+    <div class="ov-note"><i class="tio-comment-outlined"></i><strong>ملاحظة الطلب:</strong>&nbsp;{{ $order['order_note'] }}</div>
     @endif
     @if ($order['delivery_instruction'])
-    <div class="ov-note-strip mb-2"><i class="tio-info-outlined ov-icon-fixed"></i> <strong>تعليمات التوصيل:</strong>&nbsp;{{ translate($order->delivery_instruction) }}</div>
+    <div class="ov-note info"><i class="tio-info-outlined"></i><strong>تعليمات التوصيل:</strong>&nbsp;{{ translate($order->delivery_instruction) }}</div>
     @endif
     @if ($order['unavailable_item_note'])
-    <div class="ov-note-strip mb-2"><i class="tio-warning-outlined ov-icon-fixed"></i> <strong>إذا لم يتوفر الصنف:</strong>&nbsp;{{ translate($order->unavailable_item_note) }}</div>
+    <div class="ov-note warn"><i class="tio-warning-outlined"></i><strong>إذا لم يتوفر:</strong>&nbsp;{{ translate($order->unavailable_item_note) }}</div>
     @endif
 
-    {{-- ══════════════════════════════════════════════════════════
-         MAIN GRID
-    ══════════════════════════════════════════════════════════ --}}
-    {{-- Canceled order details: full-width below hero so it dominates when relevant --}}
+    {{-- ── Cancellation block (full-width when relevant) ───── --}}
     @if ($order->order_status == 'canceled')
-    <div class="ov-card mb-3">
-        <div class="ov-card-header">
-            <span class="ov-card-title danger"><i class="tio-clear"></i> تفاصيل الإلغاء</span>
+    <section class="ov-card">
+        <div class="ov-card-head">
+            <h2 class="ov-card-title danger">تفاصيل الإلغاء</h2>
         </div>
         <div class="ov-card-body">
-            <div class="ov-cancel-info">
+            <div class="ov-cancel">
                 @if($order->cancellation_reason)
-                <div class="ov-cancel-info-row"><span class="k">السبب</span><span class="v">{{ $order->cancellation_reason }}</span></div>
+                <div class="row"><span class="k">السبب</span><span class="v">{{ $order->cancellation_reason }}</span></div>
                 @endif
                 @if($order->cancellation_note)
-                <div class="ov-cancel-info-row"><span class="k">ملاحظة</span><span class="v">{{ $order->cancellation_note }}</span></div>
+                <div class="row"><span class="k">ملاحظة</span><span class="v">{{ $order->cancellation_note }}</span></div>
                 @endif
-                <div class="ov-cancel-info-row"><span class="k">بواسطة</span><span class="v">{{ translate($order->canceled_by) }}</span></div>
+                <div class="row"><span class="k">بواسطة</span><span class="v">{{ translate($order->canceled_by) }}</span></div>
             </div>
             @if ($order->payment_status == 'paid' || $order->payment_status == 'partially_paid')
                 @if ($order?->payments)
-                    @php($pay_infos = $order->payments()->where('payment_status','paid')->get())
-                    @foreach ($pay_infos as $pay_info)
-                    <div class="ov-info-row mt-1">
-                        <span class="ov-info-label">المبلغ المدفوع ({{ translate($pay_info->payment_method) }})</span>
-                        <span class="ov-info-value">{{ \App\CentralLogics\Helpers::format_currency($pay_info->amount) }}</span>
+                    @foreach ($order->payments()->where('payment_status','paid')->get() as $pay_info)
+                    <div class="ov-detail">
+                        <span class="k">المبلغ المدفوع ({{ translate($pay_info->payment_method) }})</span>
+                        <span class="v">{{ \App\CentralLogics\Helpers::format_currency($pay_info->amount) }}</span>
                     </div>
                     @endforeach
                 @endif
-                <div class="ov-info-row">
-                    <div>
-                        <div class="ov-info-label">المبلغ المُعاد للمحفظة</div>
-                        @if ($order?->payments)
-                            @php($amount = $order->payments()->where('payment_status','paid')->sum('amount'))
-                            <div class="ov-info-value paid">{{ \App\CentralLogics\Helpers::format_currency($amount) }}</div>
-                        @else
-                            <div class="ov-info-value paid">{{ \App\CentralLogics\Helpers::format_currency($order->order_amount) }}</div>
-                        @endif
-                    </div>
+                <div class="ov-detail">
+                    <span class="k">المبلغ المُعاد للمحفظة</span>
+                    @if ($order?->payments)
+                        @php($amount = $order->payments()->where('payment_status','paid')->sum('amount'))
+                        <span class="v paid">{{ \App\CentralLogics\Helpers::format_currency($amount) }}</span>
+                    @else
+                        <span class="v paid">{{ \App\CentralLogics\Helpers::format_currency($order->order_amount) }}</span>
+                    @endif
                 </div>
             @endif
         </div>
-    </div>
+    </section>
     @endif
 
     <div class="ov-grid">
 
-        {{-- ── COL 1: ORDER ITEMS ─────────────────────────────────── --}}
+        {{-- ── COL 1: ITEMS + TOTALS ─────────────────────────── --}}
         <div class="ov-col-items">
-            <div class="ov-card">
-                <div class="ov-card-header">
-                    <span class="ov-card-title"><i class="tio-restaurant"></i> تفاصيل الأصناف</span>
-                    <a class="ov-print-btn d-sm-none" href="{{ route('vendor.order.generate-invoice', [$order['id']]) }}"><i class="tio-print"></i></a>
+            <section class="ov-card">
+                <div class="ov-card-head">
+                    <h2 class="ov-card-title">الأصناف</h2>
+                    <a class="ov-card-action d-sm-none" href="{{ route('vendor.order.generate-invoice', [$order['id']]) }}">طباعة</a>
                 </div>
-                <div class="ov-items-wrap">
-                    <table class="ov-items-table">
-                        <thead>
-                            <tr>
-                                <th>الصنف</th>
-                                <th>الإضافات</th>
-                                <th>الكمية</th>
-                                <th>السعر</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        @foreach ($order->details as $key => $detail)
-                            @if (isset($detail->food_id))
-                                @php($detail->food = json_decode($detail->food_details, true))
-                                @php($food = \App\Models\Food::where(['id' => $detail->food['id']])->first())
-                                <tr>
-                                    <td>
-                                        <div class="ov-item-info">
-                                            <a href="{{ route('vendor.food.view', $detail->food['id']) }}">
-                                                <img class="ov-item-img onerror-image"
-                                                     src="{{ $food['image_full_url'] ?? dynamicAsset('public/assets/admin/img/100x100/food-default-image.png') }}"
-                                                     data-onerror-image="{{ dynamicAsset('public/assets/admin/img/160x160/img2.jpg') }}"
-                                                     alt="">
-                                            </a>
-                                            <div>
-                                                <div class="ov-item-name">{{ Str::limit($detail->food['name'], 28, '…') }}</div>
-                                                @if (count(json_decode($detail['variation'], true)) > 0)
-                                                @foreach(json_decode($detail['variation'],true) as $variation)
-                                                    @if (isset($variation['name']) && isset($variation['values']))
-                                                    <div class="ov-item-sub">{{ $variation['name'] }}:
-                                                        @foreach ($variation['values'] as $value){{ $value['label'] }} ({{ \App\CentralLogics\Helpers::format_currency($value['optionPrice']) }}) @endforeach
-                                                    </div>
-                                                    @break
-                                                    @endif
-                                                @endforeach
-                                                @endif
-                                                <div class="ov-item-sub">{{ \App\CentralLogics\Helpers::format_currency($detail['price']) }} / وحدة</div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        @foreach (json_decode($detail['add_ons'], true) as $addon)
-                                            <span class="ov-addon-tag">{{ Str::limit($addon['name'],20,'…') }} ×{{ $addon['quantity'] }}</span>
+                <ul class="ov-items">
+                @foreach ($order->details as $key => $detail)
+                    @if (isset($detail->food_id))
+                        @php($detail->food = json_decode($detail->food_details, true))
+                        @php($food = \App\Models\Food::where(['id' => $detail->food['id']])->first())
+                        <li class="ov-item">
+                            <a href="{{ route('vendor.food.view', $detail->food['id']) }}">
+                                <img class="ov-item-img onerror-image"
+                                     src="{{ $food['image_full_url'] ?? dynamicAsset('public/assets/admin/img/100x100/food-default-image.png') }}"
+                                     data-onerror-image="{{ dynamicAsset('public/assets/admin/img/160x160/img2.jpg') }}"
+                                     alt="">
+                            </a>
+                            <div class="ov-item-body">
+                                <div class="ov-item-name">{{ Str::limit($detail->food['name'], 36, '…') }}</div>
+                                <div class="ov-item-meta">
+                                    <span class="qty">×{{ $detail['quantity'] }}</span>
+                                    <span>{{ \App\CentralLogics\Helpers::format_currency($detail['price']) }} للوحدة</span>
+                                    @if (count(json_decode($detail['variation'], true)) > 0)
+                                        @foreach(json_decode($detail['variation'],true) as $variation)
+                                            @if (isset($variation['name']) && isset($variation['values']))
+                                                <span>{{ $variation['name'] }}:
+                                                    @foreach ($variation['values'] as $value){{ $value['label'] }}@if (!$loop->last), @endif @endforeach
+                                                </span>
+                                            @break
+                                            @endif
                                         @endforeach
-                                    </td>
-                                    <td><span class="ov-badge-qty">{{ $detail['quantity'] }}</span></td>
-                                    <td class="ov-item-price">{{ \App\CentralLogics\Helpers::format_currency($detail['price'] * $detail['quantity']) }}</td>
-                                </tr>
-                            @elseif(isset($detail->item_campaign_id))
-                                @php($detail->campaign = json_decode($detail->food_details, true))
-                                @php($campaign = \App\Models\ItemCampaign::where(['id' => $detail->campaign['id']])->first())
-                                <tr>
-                                    <td>
-                                        <div class="ov-item-info">
-                                            <img class="ov-item-img onerror-image"
-                                                 src="{{ $campaign['image_full_url'] ?? dynamicAsset('public/assets/admin/img/100x100/food-default-image.png') }}"
-                                                 data-onerror-image="{{ dynamicAsset('public/assets/admin/img/160x160/img2.jpg') }}"
-                                                 alt="">
-                                            <div>
-                                                <div class="ov-item-name">{{ Str::limit($detail->campaign['name'], 28, '…') }}</div>
-                                                <div class="ov-item-sub">{{ \App\CentralLogics\Helpers::format_currency($detail['price']) }} / وحدة</div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        @foreach (json_decode($detail['add_ons'], true) as $addon)
-                                            <span class="ov-addon-tag">{{ Str::limit($addon['name'],20,'…') }} ×{{ $addon['quantity'] }}</span>
-                                        @endforeach
-                                    </td>
-                                    <td><span class="ov-badge-qty">{{ $detail['quantity'] }}</span></td>
-                                    <td class="ov-item-price">{{ \App\CentralLogics\Helpers::format_currency($detail['price'] * $detail['quantity']) }}</td>
-                                </tr>
-                            @endif
-                        @endforeach
-                        </tbody>
-                    </table>
-                </div>
+                                    @endif
+                                </div>
+                                @php($addons = json_decode($detail['add_ons'], true))
+                                @if (count($addons))
+                                <div class="ov-item-addons">
+                                    @foreach ($addons as $addon)
+                                        <span class="ov-addon">{{ Str::limit($addon['name'],20,'…') }} ×{{ $addon['quantity'] }}</span>
+                                    @endforeach
+                                </div>
+                                @endif
+                            </div>
+                            <div class="ov-item-price">{{ \App\CentralLogics\Helpers::format_currency($detail['price'] * $detail['quantity']) }}</div>
+                        </li>
+                    @elseif(isset($detail->item_campaign_id))
+                        @php($detail->campaign = json_decode($detail->food_details, true))
+                        <li class="ov-item">
+                            <img class="ov-item-img onerror-image"
+                                 src="{{ $detail->campaign['image_full_url'] ?? dynamicAsset('public/assets/admin/img/100x100/food-default-image.png') }}"
+                                 data-onerror-image="{{ dynamicAsset('public/assets/admin/img/160x160/img2.jpg') }}"
+                                 alt="">
+                            <div class="ov-item-body">
+                                <div class="ov-item-name">{{ Str::limit($detail->campaign['name'], 36, '…') }}</div>
+                                <div class="ov-item-meta">
+                                    <span class="qty">×{{ $detail['quantity'] }}</span>
+                                    <span>{{ \App\CentralLogics\Helpers::format_currency($detail['price']) }} للوحدة</span>
+                                </div>
+                                @php($addons = json_decode($detail['add_ons'], true))
+                                @if (count($addons))
+                                <div class="ov-item-addons">
+                                    @foreach ($addons as $addon)
+                                        <span class="ov-addon">{{ Str::limit($addon['name'],20,'…') }} ×{{ $addon['quantity'] }}</span>
+                                    @endforeach
+                                </div>
+                                @endif
+                            </div>
+                            <div class="ov-item-price">{{ \App\CentralLogics\Helpers::format_currency($detail['price'] * $detail['quantity']) }}</div>
+                        </li>
+                    @endif
+                @endforeach
+                </ul>
 
                 {{-- Totals breakdown --}}
                 <div class="ov-totals">
-                    <div class="ov-total-row">
-                        <span class="label">سعر الأصناف</span>
-                        <span class="val">{{ \App\CentralLogics\Helpers::format_currency($product_price) }}</span>
-                    </div>
+                    <div class="ov-total-row"><span>سعر الأصناف</span><span class="v">{{ \App\CentralLogics\Helpers::format_currency($product_price) }}</span></div>
                     @if ($total_addon_price > 0)
-                    <div class="ov-total-row">
-                        <span class="label">الإضافات</span>
-                        <span class="val">{{ \App\CentralLogics\Helpers::format_currency($total_addon_price) }}</span>
-                    </div>
+                    <div class="ov-total-row"><span>الإضافات</span><span class="v">{{ \App\CentralLogics\Helpers::format_currency($total_addon_price) }}</span></div>
                     @endif
                     @if ($restaurant_discount_amount > 0)
-                    <div class="ov-total-row discount">
-                        <span class="label">خصم المطعم</span>
-                        <span class="val">- {{ \App\CentralLogics\Helpers::format_currency($restaurant_discount_amount) }}</span>
-                    </div>
+                    <div class="ov-total-row discount"><span>خصم المطعم</span><span class="v">− {{ \App\CentralLogics\Helpers::format_currency($restaurant_discount_amount) }}</span></div>
                     @endif
                     @if ($coupon_discount_amount > 0)
-                    <div class="ov-total-row discount">
-                        <span class="label">خصم القسيمة</span>
-                        <span class="val">- {{ \App\CentralLogics\Helpers::format_currency($coupon_discount_amount) }}</span>
-                    </div>
+                    <div class="ov-total-row discount"><span>خصم القسيمة</span><span class="v">− {{ \App\CentralLogics\Helpers::format_currency($coupon_discount_amount) }}</span></div>
                     @endif
                     @if ($order['ref_bonus_amount'] > 0)
-                    <div class="ov-total-row discount">
-                        <span class="label">خصم الإحالة</span>
-                        <span class="val">- {{ \App\CentralLogics\Helpers::format_currency($order['ref_bonus_amount']) }}</span>
-                    </div>
+                    <div class="ov-total-row discount"><span>خصم الإحالة</span><span class="v">− {{ \App\CentralLogics\Helpers::format_currency($order['ref_bonus_amount']) }}</span></div>
                     @endif
                     @if ($order->tax_status == 'excluded' || $order->tax_status == null)
-                    <div class="ov-total-row">
-                        <span class="label">ضريبة القيمة المضافة</span>
-                        <span class="val">+ {{ \App\CentralLogics\Helpers::format_currency($total_tax_amount) }}</span>
-                    </div>
+                    <div class="ov-total-row"><span>ضريبة القيمة المضافة</span><span class="v">{{ \App\CentralLogics\Helpers::format_currency($total_tax_amount) }}</span></div>
                     @endif
                     @if ($order['dm_tips'] > 0)
-                    <div class="ov-total-row">
-                        <span class="label">نصائح المندوب</span>
-                        <span class="val">+ {{ \App\CentralLogics\Helpers::format_currency($order['dm_tips']) }}</span>
-                    </div>
+                    <div class="ov-total-row"><span>إكرامية المندوب</span><span class="v">{{ \App\CentralLogics\Helpers::format_currency($order['dm_tips']) }}</span></div>
                     @endif
-                    <div class="ov-total-row">
-                        <span class="label">رسوم التوصيل</span>
-                        <span class="val">+ {{ \App\CentralLogics\Helpers::format_currency($order['delivery_charge']) }}</span>
-                    </div>
+                    <div class="ov-total-row"><span>رسوم التوصيل</span><span class="v">{{ \App\CentralLogics\Helpers::format_currency($order['delivery_charge']) }}</span></div>
                     @if ($additional_charge_status)
-                    <div class="ov-total-row">
-                        <span class="label">{{ \App\CentralLogics\Helpers::get_business_data('additional_charge_name') ?? translate('messages.additional_charge') }}</span>
-                        <span class="val">+ {{ \App\CentralLogics\Helpers::format_currency($order['additional_charge']) }}</span>
-                    </div>
+                    <div class="ov-total-row"><span>{{ \App\CentralLogics\Helpers::get_business_data('additional_charge_name') ?? translate('messages.additional_charge') }}</span><span class="v">{{ \App\CentralLogics\Helpers::format_currency($order['additional_charge']) }}</span></div>
                     @endif
                     @if ($order['extra_packaging_amount'] > 0)
-                    <div class="ov-total-row">
-                        <span class="label">تغليف إضافي</span>
-                        <span class="val">+ {{ \App\CentralLogics\Helpers::format_currency($order['extra_packaging_amount']) }}</span>
-                    </div>
+                    <div class="ov-total-row"><span>تغليف إضافي</span><span class="v">{{ \App\CentralLogics\Helpers::format_currency($order['extra_packaging_amount']) }}</span></div>
                     @endif
 
-                    {{-- Payment lines --}}
-                    @if ($order?->payments)
-                    <div class="ov-totals-sep"></div>
+                    @if ($order?->payments && count($order->payments))
+                    <div class="ov-totals-divider"></div>
                     @foreach ($order->payments as $payment)
                     <div class="ov-total-row">
-                        <span class="label">
+                        <span>
                             @if ($payment->payment_status == 'paid')
                                 {{ $payment->payment_method == 'cash_on_delivery' ? 'دفع نقدي عند التوصيل' : 'دفع عبر ' . translate($payment->payment_method) }}
                             @else
                                 مبلغ مستحق ({{ $payment->payment_method == 'cash_on_delivery' ? 'COD' : translate($payment->payment_method) }})
                             @endif
                         </span>
-                        <span class="val">{{ \App\CentralLogics\Helpers::format_currency($payment->amount) }}</span>
+                        <span class="v">{{ \App\CentralLogics\Helpers::format_currency($payment->amount) }}</span>
                     </div>
                     @endforeach
                     @endif
+
+                    <div class="ov-grand">
+                        <span class="k">الإجمالي</span>
+                        <span class="v">{{ \App\CentralLogics\Helpers::format_currency($order['order_amount']) }}</span>
+                    </div>
                 </div>
 
                 @if ($order->bring_change_amount > 0)
-                <div class="ov-change-alert ov-change-alert--inset">
+                <div class="ov-change-alert">
                     <i class="tio-money"></i>
                     {{ translate('Please instruct the delivery man to collect ' . \App\CentralLogics\Helpers::format_currency($order->bring_change_amount) . ' in change upon delivery') }}
                 </div>
                 @endif
+            </section>
+        </div>
 
-                <div class="ov-grand-total">
-                    <span class="label">الإجمالي</span>
-                    <span class="val">{{ \App\CentralLogics\Helpers::format_currency($order['order_amount']) }}</span>
-                </div>
-            </div>
-        </div>{{-- /col-items --}}
-
-        {{-- ── COL 2: CUSTOMER & DELIVERY & EXTRAS ─────────────────── --}}
+        {{-- ── COL 2: SIDEBAR (customer, address, delivery man, extras) ── --}}
         <div class="ov-col-details">
 
             {{-- Dine-in table data --}}
             @if ($order->order_type == 'dine_in')
-            <div class="ov-card mb-3">
-                <div class="ov-card-header">
-                    <span class="ov-card-title"><i class="tio-restaurant"></i> بيانات الطاولة</span>
-                </div>
+            <section class="ov-card">
+                <div class="ov-card-head"><h2 class="ov-card-title">بيانات الطاولة</h2></div>
                 <div class="ov-card-body">
                     <form action="{{ route('vendor.order.add_dine_in_table_number', [$order['id']]) }}" method="post">
                         @method('PUT') @csrf
-                        <div class="form-group mb-3">
-                            <label class="ov-info-label d-block mb-1">{{ translate('Table_Number') }}</label>
-                            <input type="text" @readonly(in_array($order['order_status'],['failed','delivered','refund_requested','canceled','refunded','refund_request_canceled'])) maxlength="20" value="{{ $order?->OrderReference?->table_number }}" name="table_number" class="form-control form-control-sm" placeholder="مثال: 10">
+                        <div class="ov-field">
+                            <label class="ov-field-label">{{ translate('Table_Number') }}</label>
+                            <input type="text" class="ov-input" @readonly(in_array($order['order_status'],['failed','delivered','refund_requested','canceled','refunded','refund_request_canceled'])) maxlength="20" value="{{ $order?->OrderReference?->table_number }}" name="table_number" placeholder="مثال: 10">
                         </div>
-                        <div class="form-group mb-3">
-                            <label class="ov-info-label d-block mb-1">{{ translate('Token_Number') }}</label>
-                            <input type="text" @readonly(in_array($order['order_status'],['failed','delivered','refund_requested','canceled','refunded','refund_request_canceled'])) maxlength="20" value="{{ $order?->OrderReference?->token_number }}" name="token_number" class="form-control form-control-sm" placeholder="مثال: 32">
+                        <div class="ov-field">
+                            <label class="ov-field-label">{{ translate('Token_Number') }}</label>
+                            <input type="text" class="ov-input" @readonly(in_array($order['order_status'],['failed','delivered','refund_requested','canceled','refunded','refund_request_canceled'])) maxlength="20" value="{{ $order?->OrderReference?->token_number }}" name="token_number" placeholder="مثال: 32">
                         </div>
                         @if (!in_array($order['order_status'],['failed','delivered','refund_requested','canceled','refunded','refund_request_canceled']))
-                        <button type="submit" class="ov-action-primary ov-action-primary--inline">{{ translate('messages.Save') }}</button>
+                        <button type="submit" class="ov-btn-primary ov-btn-primary--block">{{ translate('messages.Save') }}</button>
                         @endif
                     </form>
                 </div>
-            </div>
+            </section>
             @endif
 
-            {{-- Cutlery --}}
-            <div class="ov-note-strip {{ $order->cutlery ? 'success' : 'muted' }}">
+            {{-- Cutlery indicator --}}
+            <div class="ov-note {{ $order->cutlery ? 'success' : '' }}">
                 <i class="tio-cutlery"></i>
-                <strong>أدوات المائدة:</strong>
+                <strong>أدوات المائدة</strong>
                 <span class="v">{{ $order->cutlery ? 'مطلوبة' : 'غير مطلوبة' }}</span>
             </div>
 
             {{-- Customer --}}
-            <div class="ov-card mb-3">
-                <div class="ov-card-header">
-                    <span class="ov-card-title"><i class="tio-user"></i> معلومات العميل</span>
-                </div>
+            <section class="ov-card">
+                <div class="ov-card-head"><h2 class="ov-card-title">العميل</h2></div>
                 <div class="ov-card-body">
                     @if ($order->customer && $order->is_guest == 0)
-                    <div class="ov-avatar-row">
-                        <img class="ov-avatar onerror-image"
+                    <div class="ov-person">
+                        <img class="ov-person-img onerror-image"
                              src="{{ $order->customer?->image_full_url ?? dynamicAsset('public/assets/admin/img/160x160/img1.jpg') }}"
                              data-onerror-image="{{ dynamicAsset('public/assets/admin/img/160x160/img1.jpg') }}" alt="">
-                        <div class="ov-avatar-text">
-                            <div class="ov-avatar-name">{{ $order->customer['f_name'] . ' ' . $order->customer['l_name'] }}</div>
-                            <div class="ov-avatar-sub">{{ $order->customer->orders_count }} طلبات</div>
+                        <div class="ov-person-text">
+                            <div class="ov-person-name">{{ $order->customer['f_name'] . ' ' . $order->customer['l_name'] }}</div>
+                            <div class="ov-person-sub">{{ $order->customer->orders_count }} طلب</div>
                         </div>
-                        <span class="ov-avatar-badge">{{ $order->customer->orders_count }}</span>
                     </div>
-                    <div class="ov-info-row">
-                        <span class="ov-info-icon"><i class="tio-call"></i></span>
-                        <div>
-                            <div class="ov-info-label">الهاتف</div>
-                            <div class="ov-info-value"><a href="tel:{{ $order->customer['phone'] }}">{{ $order->customer['phone'] }}</a></div>
-                        </div>
+                    <div class="ov-detail">
+                        <span class="k">الهاتف</span>
+                        <span class="v"><a href="tel:{{ $order->customer['phone'] }}">{{ $order->customer['phone'] }}</a></span>
                     </div>
                     @if ($order->customer['email'])
-                    <div class="ov-info-row">
-                        <span class="ov-info-icon"><i class="tio-email"></i></span>
-                        <div>
-                            <div class="ov-info-label">البريد</div>
-                            <div class="ov-info-value">{{ $order->customer['email'] }}</div>
-                        </div>
+                    <div class="ov-detail">
+                        <span class="k">البريد</span>
+                        <span class="v">{{ $order->customer['email'] }}</span>
                     </div>
                     @endif
                     @elseif($order->is_guest)
@@ -603,131 +502,95 @@ $totalSteps = count($steps);
                     <p class="ov-empty">لم يُعثر على العميل</p>
                     @endif
                 </div>
-            </div>
+            </section>
 
             {{-- Delivery address --}}
             @if ($order->delivery_address)
             @php($address = json_decode($order->delivery_address, true))
-            <div class="ov-card mb-3">
-                <div class="ov-card-header">
-                    <span class="ov-card-title"><i class="tio-poi-outlined"></i> {{ $order->order_type == 'dine_in' ? 'بيانات الطلب' : 'عنوان التوصيل' }}</span>
-                </div>
+            <section class="ov-card">
+                <div class="ov-card-head"><h2 class="ov-card-title">{{ $order->order_type == 'dine_in' ? 'بيانات الطلب' : 'عنوان التوصيل' }}</h2></div>
                 <div class="ov-card-body">
                     @if (isset($address))
-                    <div class="ov-info-row">
-                        <span class="ov-info-icon"><i class="tio-user"></i></span>
-                        <div>
-                            <div class="ov-info-label">المستلم</div>
-                            <div class="ov-info-value">{{ $address['contact_person_name'] ?? '' }}</div>
-                        </div>
+                    <div class="ov-detail">
+                        <span class="k">المستلم</span>
+                        <span class="v">{{ $address['contact_person_name'] ?? '' }}</span>
                     </div>
-                    <div class="ov-info-row">
-                        <span class="ov-info-icon"><i class="tio-call"></i></span>
-                        <div>
-                            <div class="ov-info-label">الاتصال</div>
-                            <div class="ov-info-value"><a href="tel:{{ $address['contact_person_number'] ?? '' }}">{{ $address['contact_person_number'] ?? '' }}</a></div>
-                        </div>
+                    <div class="ov-detail">
+                        <span class="k">الاتصال</span>
+                        <span class="v"><a href="tel:{{ $address['contact_person_number'] ?? '' }}">{{ $address['contact_person_number'] ?? '' }}</a></span>
                     </div>
                     @if ($order->order_type != 'dine_in')
                         @if (isset($address['road']) && $address['road'])
-                        <div class="ov-info-row">
-                            <span class="ov-info-icon"><i class="tio-road"></i></span>
-                            <div>
-                                <div class="ov-info-label">الشارع</div>
-                                <div class="ov-info-value">{{ $address['road'] }}</div>
-                            </div>
-                        </div>
+                        <div class="ov-detail"><span class="k">الشارع</span><span class="v">{{ $address['road'] }}</span></div>
                         @endif
                         @if (isset($address['house']) && $address['house'])
-                        <div class="ov-info-row">
-                            <span class="ov-info-icon"><i class="tio-home"></i></span>
-                            <div>
-                                <div class="ov-info-label">المبنى / الشقة</div>
-                                <div class="ov-info-value">{{ $address['house'] }}</div>
-                            </div>
-                        </div>
+                        <div class="ov-detail"><span class="k">المبنى / الشقة</span><span class="v">{{ $address['house'] }}</span></div>
                         @endif
                         @if (isset($address['floor']) && $address['floor'])
-                        <div class="ov-info-row">
-                            <span class="ov-info-icon"><i class="tio-layers"></i></span>
-                            <div>
-                                <div class="ov-info-label">الطابق</div>
-                                <div class="ov-info-value">{{ $address['floor'] }}</div>
-                            </div>
-                        </div>
+                        <div class="ov-detail"><span class="k">الطابق</span><span class="v">{{ $address['floor'] }}</span></div>
                         @endif
                     @endif
                     @endif
                 </div>
-            </div>
+            </section>
             @endif
 
             {{-- Delivery man --}}
             @if (!in_array($order['order_type'],['dine_in','take_away']))
-            <div class="ov-card mb-3">
-                <div class="ov-card-header">
-                    <span class="ov-card-title"><i class="tio-bike"></i> مندوب التوصيل</span>
+            <section class="ov-card">
+                <div class="ov-card-head">
+                    <h2 class="ov-card-title">المندوب</h2>
                     @if ($order->delivery_man && !in_array($order['order_status'], ['handover','delivered','refund_requested','canceled','refunded','refund_request_canceled']) && (isset($order->restaurant) && (($order->restaurant->restaurant_model == 'commission' && $order->restaurant->self_delivery_system) || ($order->restaurant->restaurant_model == 'subscription' && isset($order->restaurant->restaurant_sub) && $order->restaurant->restaurant_sub->self_delivery == 1))))
-                    <button class="ov-change-link" data-toggle="modal" data-target="#myModal">تغيير</button>
+                    <button class="ov-card-action" data-toggle="modal" data-target="#myModal">تغيير</button>
                     @endif
                 </div>
                 <div class="ov-card-body">
                     @if ($order->delivery_man)
-                    <div class="ov-avatar-row">
-                        <img class="ov-avatar onerror-image"
+                    <div class="ov-person">
+                        <img class="ov-person-img onerror-image"
                              src="{{ $order->delivery_man?->image_full_url ?? dynamicAsset('public/assets/admin/img/160x160/img3.jpg') }}"
                              data-onerror-image="{{ dynamicAsset('public/assets/admin/img/160x160/img3.jpg') }}" alt="">
-                        <div class="ov-avatar-text">
-                            <div class="ov-avatar-name">{{ $order->delivery_man['f_name'] . ' ' . $order->delivery_man['l_name'] }}</div>
-                            <div class="ov-avatar-sub">{{ $order->delivery_man->orders_count }} طلبات</div>
+                        <div class="ov-person-text">
+                            <div class="ov-person-name">{{ $order->delivery_man['f_name'] . ' ' . $order->delivery_man['l_name'] }}</div>
+                            <div class="ov-person-sub">{{ $order->delivery_man->orders_count }} طلب</div>
                         </div>
                     </div>
-                    <div class="ov-info-row">
-                        <span class="ov-info-icon"><i class="tio-call"></i></span>
-                        <div>
-                            <div class="ov-info-label">الهاتف</div>
-                            <div class="ov-info-value"><a href="tel:{{ $order->delivery_man['phone'] }}">{{ $order->delivery_man['phone'] }}</a></div>
-                        </div>
+                    <div class="ov-detail">
+                        <span class="k">الهاتف</span>
+                        <span class="v"><a href="tel:{{ $order->delivery_man['phone'] }}">{{ $order->delivery_man['phone'] }}</a></span>
                     </div>
-                    @if (!in_array($order['order_type'],['dine_in','take_away']))
-                        @php($dm_loc = $order->dm_last_location)
-                        <div class="ov-info-row">
-                            <span class="ov-info-icon"><i class="tio-poi-outlined"></i></span>
-                            <div>
-                                <div class="ov-info-label">آخر موقع</div>
-                                <div class="ov-info-value">
-                                    @if (isset($dm_loc))
-                                        <a target="_blank" href="http://maps.google.com/maps?z=12&t=m&q=loc:{{ $dm_loc['latitude'] }}+{{ $dm_loc['longitude'] }}">{{ $dm_loc['location'] }}</a>
-                                    @else
-                                        <span class="ov-info-value muted">الموقع غير متاح</span>
-                                    @endif
-                                </div>
-                            </div>
-                        </div>
-                    @endif
+                    @php($dm_loc = $order->dm_last_location)
+                    <div class="ov-detail">
+                        <span class="k">آخر موقع</span>
+                        @if (isset($dm_loc))
+                            <span class="v"><a target="_blank" href="http://maps.google.com/maps?z=12&t=m&q=loc:{{ $dm_loc['latitude'] }}+{{ $dm_loc['longitude'] }}">{{ $dm_loc['location'] }}</a></span>
+                        @else
+                            <span class="v muted">غير متاح</span>
+                        @endif
+                    </div>
                     @else
-                    <p class="ov-empty ov-empty--pad">لم يُعيَّن مندوب بعد</p>
+                    <p class="ov-empty">لم يُعيَّن مندوب بعد</p>
                     @endif
                 </div>
-            </div>
+            </section>
             @endif
 
             {{-- Delivery proof --}}
             @if ($order->order_type != 'dine_in')
-            <div class="ov-card mb-3">
-                <div class="ov-card-header">
-                    <span class="ov-card-title"><i class="tio-photo-camera"></i> إثبات التوصيل</span>
+            <section class="ov-card">
+                <div class="ov-card-head">
+                    <h2 class="ov-card-title">إثبات التوصيل</h2>
                     @if (($restaurant->restaurant_model == 'commission' && $restaurant->self_delivery_system) || ($restaurant->restaurant_model == 'subscription' && $restaurant?->restaurant_sub?->self_delivery == 1))
-                    <button class="ov-change-link" data-toggle="modal" data-target=".order-proof-modal"><i class="tio-add"></i> إضافة</button>
+                    <button class="ov-card-action" data-toggle="modal" data-target=".order-proof-modal">+ إضافة</button>
                     @endif
                 </div>
                 <div class="ov-card-body">
                     @php($data = isset($order->order_proof) ? json_decode($order->order_proof, true) : 0)
                     @if ($data)
-                    <div class="ov-proof-grid">
+                    <div class="ov-proof">
                         @foreach ($data as $key => $img)
                             @php($img = is_array($img) ? $img : ['img'=>$img,'storage'=>'public'])
-                            <img class="ov-proof-thumb onerror-image"
+                            <img class="onerror-image"
                                  data-toggle="modal" data-target="#imagemodal{{ $key }}"
                                  src="{{ \App\CentralLogics\Helpers::get_full_url('order',$img['img'],$img['storage']) }}"
                                  data-onerror-image="{{ dynamicAsset('public/assets/admin/img/160x160/img2.jpg') }}"
@@ -746,23 +609,23 @@ $totalSteps = count($steps);
                         @endforeach
                     </div>
                     @else
-                    <p class="ov-empty ov-empty--tight">لا توجد صور بعد</p>
+                    <p class="ov-empty">لا توجد صور بعد</p>
                     @endif
                 </div>
-            </div>
+            </section>
             @endif
 
             {{-- Subscription info --}}
             @if (isset($order->subscription))
             @php($subStatus = $order->subscription->status)
-            <div class="ov-note-strip {{ $subStatus == 'active' ? 'success' : ($subStatus == 'paused' ? 'warn' : 'muted') }}">
+            <div class="ov-note {{ $subStatus == 'active' ? 'success' : ($subStatus == 'paused' ? 'warn' : '') }}">
                 <i class="tio-refresh"></i>
-                <strong>الاشتراك:</strong>
+                <strong>الاشتراك</strong>
                 <span class="v">{{ translate('messages.' . $subStatus) }}</span>
             </div>
             @endif
 
-        </div>{{-- /col-details --}}
+        </div>
 
     </div>{{-- /ov-grid --}}
 
