@@ -84,7 +84,7 @@
         /* ─── SPLIT LAYOUT ───────────────────────────────────────────── */
         .auth-layout {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: 5fr 7fr;
             min-height: 100vh;
         }
 
@@ -94,7 +94,7 @@
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            padding: 3rem 3.5rem;
+            padding: 2.5rem 2.75rem;
             position: relative;
             overflow: hidden;
         }
@@ -186,12 +186,12 @@
         }
 
         .brand-tagline {
-            font-size: 2.6rem;
+            font-size: 2.1rem;
             font-weight: 800;
             color: var(--text-inv);
-            line-height: 1.15;
+            line-height: 1.18;
             letter-spacing: -0.03em;
-            max-width: 380px;
+            max-width: 320px;
         }
 
         .brand-tagline em {
@@ -201,10 +201,10 @@
 
         .brand-desc {
             margin-top: 1.25rem;
-            font-size: 0.9rem;
-            color: oklch(80% 0.010 258);
+            font-size: 0.85rem;
+            color: oklch(75% 0.010 258);
             line-height: 1.7;
-            max-width: 340px;
+            max-width: 290px;
         }
 
         /* Feature pills */

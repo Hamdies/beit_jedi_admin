@@ -168,9 +168,6 @@ class LoginController extends Controller
                     },
                 ],
             ]);
-        } else if (strtolower(session('six_captcha')) != strtolower($request->custome_recaptcha)) {
-            Toastr::error(translate('messages.ReCAPTCHA Failed'));
-            return back();
         }
         if($request->role == 'admin_employee'){
             $data= Admin::where('email', $request->email)->where('role_id',1)->exists();
