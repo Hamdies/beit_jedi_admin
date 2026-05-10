@@ -13,8 +13,8 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 
+    <link rel="stylesheet" href="{{ dynamicAsset('public/assets/admin') }}/css/fonts.css">
     <link rel="stylesheet" href="{{ dynamicAsset('public/assets/admin') }}/css/vendor.min.css">
     <link rel="stylesheet" href="{{ dynamicAsset('public/assets/admin') }}/vendor/icon-set/style.css">
     <link rel="stylesheet" href="{{ dynamicAsset('public/assets/admin') }}/css/bootstrap.min.css">
@@ -30,38 +30,35 @@
             --gold:        #B8922A;
             --gold-bright: #D4A843;
             --gold-pale:   #F5EDD6;
-            --gold-line:   #E8C96A;
-            --white:       #FFFFFF;
-            --off-white:   #F7F8FC;
+            --off-white:   #F4F6FA;
             --surface:     #FFFFFF;
-            --border:      #E2E6EF;
-            --border-soft: #EEF0F6;
+            --border:      #DDE1EC;
+            --border-soft: #ECEEF5;
             --text-primary:#0D1B2A;
             --text-mid:    #2C3E5A;
             --text-muted:  #6B7A99;
-            --error:       #C0392B;
-            --font:        'Noto Sans Arabic', 'Cairo', sans-serif;
-            --radius-sm:   8px;
-            --radius-md:   12px;
-            --radius-lg:   20px;
+            --font:        'Thmanyah Sans', 'Open Sans', sans-serif;
+            --radius-sm:   9px;
+            --radius-md:   14px;
+            --radius-lg:   18px;
         }
 
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-        html {
-            height: 100%;
-            direction: rtl;
-            font-family: var(--font);
+        html, body, button, input, select, textarea {
+            font-family: var(--font) !important;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
         }
+
+        html { height: 100%; direction: rtl; }
 
         body {
             min-height: 100vh;
             background-color: var(--off-white);
             background-image:
-                radial-gradient(ellipse 70% 50% at 20% 0%, rgba(15, 34, 68, 0.06) 0%, transparent 60%),
-                radial-gradient(ellipse 50% 40% at 90% 100%, rgba(184, 146, 42, 0.07) 0%, transparent 55%);
+                radial-gradient(ellipse 60% 45% at 15% 0%,   rgba(15,34,68,0.055) 0%, transparent 65%),
+                radial-gradient(ellipse 45% 35% at 90% 100%, rgba(184,146,42,0.06) 0%, transparent 60%);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -69,237 +66,156 @@
             padding: 2rem 1.5rem;
         }
 
-        /* ── SPLIT LAYOUT ── */
-        .login-wrap {
+        /* ── CARD ── */
+        .login-card {
             width: 100%;
-            max-width: 900px;
-            display: grid;
-            grid-template-columns: 1fr 420px;
-            min-height: 560px;
+            max-width: 440px;
+            background: var(--surface);
             border-radius: var(--radius-lg);
-            overflow: hidden;
             box-shadow:
-                0 0 0 1px rgba(15, 34, 68, 0.08),
-                0 4px 8px rgba(15, 34, 68, 0.06),
-                0 24px 64px rgba(15, 34, 68, 0.12);
-            animation: rise 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+                0 0 0 1px rgba(15,34,68,0.07),
+                0 4px 8px  rgba(15,34,68,0.05),
+                0 20px 52px rgba(15,34,68,0.11);
+            overflow: hidden;
+            animation: rise 0.5s cubic-bezier(0.22,1,0.36,1) both;
         }
 
         @keyframes rise {
-            from { opacity: 0; transform: translateY(18px); }
+            from { opacity: 0; transform: translateY(16px); }
             to   { opacity: 1; transform: translateY(0); }
         }
 
-        /* ── LEFT PANEL ── */
-        .panel-left {
-            background: var(--navy);
-            padding: 3rem 2.5rem;
+        /* gold top bar */
+        .card-gold-bar {
+            height: 3px;
+            background: linear-gradient(90deg, var(--navy) 0%, var(--gold) 55%, var(--gold-bright) 100%);
+        }
+
+        .card-body {
+            padding: 2.5rem 2.25rem 2rem;
+        }
+
+        /* ── BRAND ── */
+        .brand-row {
             display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            position: relative;
-            overflow: hidden;
+            align-items: center;
+            gap: 0.85rem;
+            margin-bottom: 2rem;
         }
 
-        /* geometric accent shapes */
-        .panel-left::before {
-            content: '';
-            position: absolute;
-            top: -80px;
-            left: -80px;
-            width: 300px;
-            height: 300px;
-            border-radius: 50%;
-            border: 1px solid rgba(232, 201, 106, 0.12);
-        }
-
-        .panel-left::after {
-            content: '';
-            position: absolute;
-            bottom: -60px;
-            right: -60px;
-            width: 220px;
-            height: 220px;
-            border-radius: 50%;
-            border: 1px solid rgba(232, 201, 106, 0.08);
-        }
-
-        .panel-brand {
-            position: relative;
-            z-index: 1;
-        }
-
-        .panel-logo-wrap {
-            width: 52px;
-            height: 52px;
-            border-radius: 14px;
-            background: rgba(255,255,255,0.07);
-            border: 1px solid rgba(232, 201, 106, 0.25);
+        .brand-logo-wrap {
+            width: 44px;
+            height: 44px;
+            border-radius: 11px;
+            background: var(--off-white);
+            border: 1.5px solid var(--border);
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-bottom: 1.5rem;
+            flex-shrink: 0;
             overflow: hidden;
         }
 
-        .panel-logo-wrap img {
-            width: 38px;
-            height: 38px;
+        .brand-logo-wrap img {
+            width: 32px;
+            height: 32px;
             object-fit: contain;
         }
 
-        .panel-name {
-            font-size: 1.5rem;
-            font-weight: 800;
-            color: #fff;
-            line-height: 1.2;
-            letter-spacing: -0.01em;
-            margin-bottom: 0.5rem;
-        }
+        .brand-text-col { display: flex; flex-direction: column; }
 
-        .panel-tagline {
-            font-size: 0.82rem;
-            font-weight: 400;
-            color: rgba(255,255,255,0.5);
-            line-height: 1.6;
-            max-width: 200px;
-        }
-
-        /* gold divider */
-        .panel-divider {
-            width: 32px;
-            height: 2px;
-            background: var(--gold-line);
-            margin: 1.5rem 0;
-            border-radius: 1px;
-        }
-
-        .panel-feature-list {
-            list-style: none;
-            display: flex;
-            flex-direction: column;
-            gap: 0.85rem;
-            position: relative;
-            z-index: 1;
-        }
-
-        .panel-feature-list li {
-            display: flex;
-            align-items: center;
-            gap: 0.65rem;
-            font-size: 0.82rem;
-            color: rgba(255,255,255,0.6);
-            font-weight: 400;
-        }
-
-        .feature-dot {
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            background: var(--gold-line);
-            flex-shrink: 0;
-        }
-
-        .panel-footer-note {
-            position: relative;
-            z-index: 1;
-            font-size: 0.7rem;
-            color: rgba(255,255,255,0.25);
-            letter-spacing: 0.05em;
-        }
-
-        /* ── RIGHT PANEL (FORM) ── */
-        .panel-right {
-            background: var(--surface);
-            padding: 2.75rem 2.5rem 2.25rem;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            border-right: 1px solid var(--border-soft);
-        }
-
-        /* gold top accent line */
-        .right-accent {
-            height: 3px;
-            background: linear-gradient(90deg, var(--gold) 0%, var(--gold-bright) 60%, transparent 100%);
-            margin: -2.75rem -2.5rem 2.5rem;
-        }
-
-        .form-eyebrow {
-            font-size: 0.68rem;
+        .brand-name {
+            font-size: 1rem;
             font-weight: 700;
-            letter-spacing: 0.12em;
-            text-transform: uppercase;
-            color: var(--gold);
-            margin-bottom: 0.6rem;
+            color: var(--text-primary);
+            line-height: 1.2;
         }
 
+        .brand-sub {
+            font-size: 0.7rem;
+            font-weight: 400;
+            color: var(--text-muted);
+            margin-top: 1px;
+        }
+
+        /* version pill — sits next to brand on the other side */
+        .brand-version {
+            margin-right: auto;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            background: var(--gold-pale);
+            color: var(--gold);
+            border-radius: 999px;
+            padding: 0.18rem 0.6rem;
+            font-size: 0.62rem;
+            font-weight: 700;
+            letter-spacing: 0.09em;
+            text-transform: uppercase;
+        }
+
+        .brand-version-dot {
+            width: 4px;
+            height: 4px;
+            background: var(--gold);
+            border-radius: 50%;
+        }
+
+        /* ── HEADING ── */
         .form-heading {
-            font-size: 1.6rem;
+            font-size: 1.55rem;
             font-weight: 900;
             color: var(--text-primary);
             line-height: 1.15;
             letter-spacing: -0.02em;
-            margin-bottom: 0.4rem;
+            margin-bottom: 0.3rem;
         }
 
         .form-sub {
-            font-size: 0.83rem;
+            font-size: 0.82rem;
             color: var(--text-muted);
             line-height: 1.65;
-            margin-bottom: 2.25rem;
+            margin-bottom: 1.75rem;
         }
 
         /* ── FIELDS ── */
-        .field {
-            margin-bottom: 1.1rem;
-        }
+        .field { margin-bottom: 1.05rem; }
 
         .field-label {
             display: block;
-            font-size: 0.75rem;
+            font-size: 0.74rem;
             font-weight: 700;
             color: var(--text-mid);
-            margin-bottom: 0.5rem;
-            letter-spacing: 0.02em;
+            margin-bottom: 0.45rem;
+            letter-spacing: 0.01em;
         }
 
-        .field-wrap {
-            position: relative;
-        }
+        .field-wrap { position: relative; }
 
         .field-input {
             width: 100%;
             background: var(--off-white);
             border: 1.5px solid var(--border);
             border-radius: var(--radius-sm);
-            padding: 0.75rem 1rem;
+            padding: 0.74rem 1rem;
             font-size: 0.875rem;
-            font-family: var(--font);
-            font-weight: 500;
+            font-family: var(--font) !important;
+            font-weight: 400;
             color: var(--text-primary);
-            transition:
-                border-color 0.2s ease,
-                background 0.2s ease,
-                box-shadow 0.2s ease;
+            transition: border-color 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
             outline: none;
             appearance: none;
         }
 
-        .field-input::placeholder {
-            color: var(--text-muted);
-            font-weight: 400;
-        }
+        .field-input::placeholder { color: var(--text-muted); }
 
         .field-input:focus {
             background: #fff;
             border-color: var(--navy-light);
-            box-shadow: 0 0 0 3px rgba(37, 63, 120, 0.10);
+            box-shadow: 0 0 0 3px rgba(37,63,120,0.09);
         }
 
-        .field-input.has-toggle {
-            padding-left: 2.75rem;
-        }
+        .field-input.has-toggle { padding-left: 2.75rem; }
 
         .field-toggle {
             position: absolute;
@@ -325,37 +241,36 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin: 0.4rem 0 1.75rem;
+            margin: 0.3rem 0 1.5rem;
         }
 
         .remember-label {
             display: flex;
             align-items: center;
-            gap: 0.5rem;
-            font-size: 0.79rem;
+            gap: 0.45rem;
+            font-size: 0.78rem;
             color: var(--text-muted);
             cursor: pointer;
             user-select: none;
         }
 
         .remember-label input[type="checkbox"] {
-            width: 15px;
-            height: 15px;
+            width: 14px;
+            height: 14px;
             accent-color: var(--navy);
             cursor: pointer;
         }
 
         .forgot-btn {
-            font-size: 0.79rem;
+            font-size: 0.78rem;
             font-weight: 600;
             color: var(--gold);
             background: none;
             border: none;
             cursor: pointer;
             padding: 0;
-            font-family: var(--font);
+            font-family: var(--font) !important;
             transition: color 0.18s ease;
-            text-decoration: none;
         }
 
         .forgot-btn:hover { color: var(--gold-bright); }
@@ -363,98 +278,63 @@
         /* ── SUBMIT ── */
         .btn-submit {
             width: 100%;
-            padding: 0.875rem 1rem;
+            padding: 0.85rem 1rem;
             background: var(--navy);
             color: #fff;
             border: none;
             border-radius: var(--radius-sm);
             font-size: 0.9rem;
-            font-weight: 800;
-            font-family: var(--font);
-            letter-spacing: 0.04em;
+            font-weight: 700;
+            font-family: var(--font) !important;
             cursor: pointer;
             position: relative;
             overflow: hidden;
-            transition:
-                background 0.22s ease,
-                transform 0.15s ease,
-                box-shadow 0.22s ease;
-            box-shadow: 0 2px 10px rgba(15, 34, 68, 0.22);
+            transition: background 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+            box-shadow: 0 2px 10px rgba(15,34,68,0.20);
         }
 
-        /* gold shimmer on hover */
         .btn-submit::after {
             content: '';
             position: absolute;
             inset: 0;
-            background: linear-gradient(
-                110deg,
-                transparent 20%,
-                rgba(212, 168, 67, 0.15) 50%,
-                transparent 80%
-            );
+            background: linear-gradient(105deg, transparent 25%, rgba(212,168,67,0.13) 50%, transparent 75%);
             opacity: 0;
-            transition: opacity 0.3s ease;
+            transition: opacity 0.28s ease;
         }
 
         .btn-submit:hover {
             background: var(--navy-mid);
             transform: translateY(-1px);
-            box-shadow: 0 6px 20px rgba(15, 34, 68, 0.30);
+            box-shadow: 0 6px 18px rgba(15,34,68,0.28);
         }
 
         .btn-submit:hover::after { opacity: 1; }
+        .btn-submit:active { transform: translateY(0); box-shadow: 0 1px 5px rgba(15,34,68,0.16); }
+        .btn-submit:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
 
-        .btn-submit:active {
-            transform: translateY(0);
-            box-shadow: 0 1px 6px rgba(15, 34, 68, 0.18);
-        }
-
-        .btn-submit:focus-visible {
-            outline: 2px solid var(--gold);
-            outline-offset: 3px;
-        }
-
-        /* ── BOTTOM VERSION ROW ── */
-        .version-row {
+        /* ── CARD FOOTER ── */
+        .card-footer-strip {
+            border-top: 1px solid var(--border-soft);
+            padding: 0.9rem 2.25rem;
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            margin-top: 2rem;
-            padding-top: 1.25rem;
-            border-top: 1px solid var(--border-soft);
+            justify-content: center;
+            gap: 0.55rem;
         }
 
-        .version-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.35rem;
-            background: var(--gold-pale);
-            color: var(--gold);
-            border-radius: 999px;
-            padding: 0.2rem 0.65rem;
-            font-size: 0.63rem;
-            font-weight: 700;
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
-        }
+        .footer-text { font-size: 0.68rem; color: var(--text-muted); }
 
-        .version-badge-dot {
-            width: 4px;
-            height: 4px;
-            background: var(--gold);
+        .footer-sep {
+            width: 3px;
+            height: 3px;
             border-radius: 50%;
-        }
-
-        .version-copy {
-            font-size: 0.68rem;
-            color: var(--text-muted);
-            letter-spacing: 0.03em;
+            background: var(--gold);
+            opacity: 0.55;
         }
 
         /* ── DEMO BOX ── */
         .demo-box {
-            margin-top: 1.1rem;
+            margin-top: 1rem;
             background: var(--off-white);
             border: 1px dashed var(--border);
             border-radius: var(--radius-sm);
@@ -469,14 +349,11 @@
         .modal-content {
             border: 1px solid var(--border);
             border-radius: var(--radius-md);
-            box-shadow: 0 20px 60px rgba(15, 34, 68, 0.12);
-            font-family: var(--font);
+            box-shadow: 0 20px 56px rgba(15,34,68,0.12);
+            font-family: var(--font) !important;
         }
 
-        .modal-header {
-            border-bottom: 1px solid var(--border);
-            padding: 1rem 1.5rem;
-        }
+        .modal-header { border-bottom: 1px solid var(--border); padding: 1rem 1.5rem; }
 
         .close-modal-icon {
             cursor: pointer;
@@ -487,25 +364,18 @@
 
         .close-modal-icon:hover { color: var(--text-primary); }
 
-        .forget-pass-content {
-            text-align: center;
-            padding: 1.5rem 1rem 2rem;
-        }
-
-        .forget-pass-content img {
-            max-height: 72px;
-            margin-bottom: 1.25rem;
-        }
+        .forget-pass-content { text-align: center; padding: 1.5rem 1rem 2rem; }
+        .forget-pass-content img { max-height: 72px; margin-bottom: 1.25rem; }
 
         .forget-pass-content h4 {
             font-size: 1rem;
-            font-weight: 800;
+            font-weight: 700;
             color: var(--text-primary);
             margin-bottom: 0.5rem;
         }
 
         .forget-pass-content p {
-            font-size: 0.84rem;
+            font-size: 0.83rem;
             color: var(--text-muted);
             line-height: 1.7;
         }
@@ -514,9 +384,9 @@
             background: var(--off-white);
             border: 1.5px solid var(--border);
             border-radius: var(--radius-sm);
-            font-family: var(--font);
+            font-family: var(--font) !important;
             font-size: 0.88rem;
-            padding: 0.75rem 1rem;
+            padding: 0.74rem 1rem;
             color: var(--text-primary);
             margin-top: 1rem;
             outline: none;
@@ -526,7 +396,7 @@
 
         .forget-pass-content .form-control:focus {
             border-color: var(--navy-light);
-            box-shadow: 0 0 0 3px rgba(37, 63, 120, 0.10);
+            box-shadow: 0 0 0 3px rgba(37,63,120,0.09);
         }
 
         .btn--primary {
@@ -536,8 +406,8 @@
             color: #fff;
             border: none;
             border-radius: var(--radius-sm);
-            font-family: var(--font);
-            font-weight: 800;
+            font-family: var(--font) !important;
+            font-weight: 700;
             font-size: 0.88rem;
             padding: 0.78rem 1rem;
             margin-top: 1rem;
@@ -547,36 +417,18 @@
             text-decoration: none;
         }
 
-        .btn--primary:hover {
-            background: var(--navy-mid);
-            color: #fff;
-        }
+        .btn--primary:hover { background: var(--navy-mid); color: #fff; }
 
         /* ── RESPONSIVE ── */
-        @media (max-width: 700px) {
-            .login-wrap {
-                grid-template-columns: 1fr;
-                max-width: 440px;
-            }
-            .panel-left { display: none; }
-            .panel-right {
-                padding: 2.25rem 1.75rem 2rem;
-                border-right: none;
-            }
-            .right-accent {
-                margin: -2.25rem -1.75rem 2.25rem;
-            }
-        }
-
-        @media (max-width: 420px) {
-            body { padding: 1rem; }
-            .panel-right { padding: 2rem 1.4rem 1.75rem; }
-            .right-accent { margin: -2rem -1.4rem 2rem; }
+        @media (max-width: 480px) {
+            body { padding: 1.25rem 1rem; }
+            .card-body { padding: 2rem 1.5rem 1.75rem; }
+            .card-footer-strip { padding: 0.85rem 1.5rem; }
             .form-heading { font-size: 1.35rem; }
         }
 
         @media (prefers-reduced-motion: reduce) {
-            .login-wrap { animation: none; }
+            .login-card { animation: none; }
             * { transition-duration: 0.01ms !important; }
         }
 
@@ -590,50 +442,39 @@
             background: transparent !important;
             min-height: 100vh;
         }
-
-        .text-center { text-align: center !important; }
     </style>
 </head>
 
 <body>
 <main id="content" role="main" class="main auth-bg">
 
-    <div class="login-wrap">
+    <div class="login-card">
+        <div class="card-gold-bar"></div>
 
-        <!-- ── LEFT BRAND PANEL ── -->
-        <div class="panel-left">
-            <div class="panel-brand">
-                @php($systemlogo = \App\Models\BusinessSetting::where(['key'=>'logo'])->first())
-                <div class="panel-logo-wrap">
+        <div class="card-body">
+            @php($systemlogo = \App\Models\BusinessSetting::where(['key'=>'logo'])->first())
+            @php($role = $role ?? null)
+
+            <!-- Brand row -->
+            <div class="brand-row">
+                <div class="brand-logo-wrap">
                     <img class="onerror-image"
                         src="{{ \App\CentralLogics\Helpers::get_full_url('business', $systemlogo?->value, $systemlogo?->storage[0]?->value ?? 'public', 'authfav') }}"
                         data-onerror-image="{{ dynamicAsset('/public/assets/admin/img/auth-fav.png') }}"
                         alt="بيت جدي">
                 </div>
-                <div class="panel-name">بيت جدي</div>
-                <div class="panel-divider"></div>
-                <div class="panel-tagline">منصة إدارة المطاعم والمتاجر بكفاءة عالية</div>
+                <div class="brand-text-col">
+                    <span class="brand-name">بيت جدي</span>
+                    <span class="brand-sub">لوحة الإدارة</span>
+                </div>
+                <span class="brand-version">
+                    <span class="brand-version-dot"></span>
+                    v{{ env('SOFTWARE_VERSION') }}
+                </span>
             </div>
 
-            <ul class="panel-feature-list">
-                <li><span class="feature-dot"></span>إدارة الطلبات والمنيو بسهولة</li>
-                <li><span class="feature-dot"></span>تقارير ومبيعات في الوقت الفعلي</li>
-                <li><span class="feature-dot"></span>إشعارات فورية وتتبع التوصيل</li>
-                <li><span class="feature-dot"></span>دعم فني على مدار الساعة</li>
-            </ul>
-
-            <div class="panel-footer-note">بيت جدي · {{ date('Y') }}</div>
-        </div>
-
-        <!-- ── RIGHT FORM PANEL ── -->
-        <div class="panel-right">
-            @php($role = $role ?? null)
-
-            <div class="right-accent"></div>
-
-            <div class="form-eyebrow">لوحة التحكم</div>
             <h1 class="form-heading">تسجيل الدخول</h1>
-            <p class="form-sub">أدخل بياناتك للوصول إلى حسابك</p>
+            <p class="form-sub">أدخل بياناتك للوصول إلى لوحة التحكم</p>
 
             <!-- Form -->
             <form class="login_form" action="{{ route('login_post') }}" method="post" id="form-id">
@@ -705,7 +546,7 @@
 
                 <!-- Submit -->
                 <button type="submit" class="btn-submit" id="signInBtn" tabindex="3">
-                    دخول إلى لوحة التحكم
+                    تسجيل الدخول
                 </button>
             </form>
 
@@ -734,17 +575,16 @@
                     </div>
                 @endif
             @endif
-
-            <!-- Version row -->
-            <div class="version-row">
-                <span class="version-badge">
-                    <span class="version-badge-dot"></span>
-                    v{{ env('SOFTWARE_VERSION') }}
-                </span>
-                <span class="version-copy">نظام الإدارة · بيت جدي</span>
-            </div>
         </div>
 
+        <!-- Card footer -->
+        <div class="card-footer-strip">
+            <span class="footer-text">بيت جدي</span>
+            <span class="footer-sep"></span>
+            <span class="footer-text">نظام الإدارة</span>
+            <span class="footer-sep"></span>
+            <span class="footer-text">{{ date('Y') }}</span>
+        </div>
     </div>
 
 </main>

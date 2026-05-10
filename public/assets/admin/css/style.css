@@ -6,6 +6,16 @@
     --primary-clr: #006fbd;
 }
 
+/* ── Global font override: Thmanyah Sans ── */
+html, body,
+button, input, select, textarea, label,
+h1, h2, h3, h4, h5, h6,
+.navbar, .sidebar, .card, .table,
+.btn, .form-control, .dropdown-menu,
+.nav-link, .breadcrumb, .badge, .alert {
+    font-family: 'Thmanyah Sans', 'Open Sans', sans-serif !important;
+}
+
 .scroll-bar {
     max-height: calc(100vh - 100px);
     overflow-y: auto !important;
