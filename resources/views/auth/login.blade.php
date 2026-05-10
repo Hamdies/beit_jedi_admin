@@ -57,25 +57,25 @@
             min-height: 100vh;
             background-color: var(--off-white);
             background-image:
-                radial-gradient(ellipse 60% 45% at 15% 0%,   rgba(15,34,68,0.055) 0%, transparent 65%),
-                radial-gradient(ellipse 45% 35% at 90% 100%, rgba(184,146,42,0.06) 0%, transparent 60%);
+                radial-gradient(ellipse 70% 50% at 10% 0%,   rgba(15,34,68,0.07) 0%, transparent 65%),
+                radial-gradient(ellipse 55% 40% at 92% 100%, rgba(184,146,42,0.08) 0%, transparent 60%);
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 2rem 1.5rem;
+            padding: 3rem 1.5rem;
         }
 
         /* ── CARD ── */
         .login-card {
             width: 100%;
-            max-width: 440px;
+            max-width: 520px;
             background: var(--surface);
             border-radius: var(--radius-lg);
             box-shadow:
                 0 0 0 1px rgba(15,34,68,0.07),
-                0 4px 8px  rgba(15,34,68,0.05),
-                0 20px 52px rgba(15,34,68,0.11);
+                0 4px 12px rgba(15,34,68,0.06),
+                0 28px 64px rgba(15,34,68,0.13);
             overflow: hidden;
             animation: rise 0.5s cubic-bezier(0.22,1,0.36,1) both;
         }
@@ -92,21 +92,21 @@
         }
 
         .card-body {
-            padding: 2.5rem 2.25rem 2rem;
+            padding: 3rem 3rem 2.5rem;
         }
 
         /* ── BRAND ── */
         .brand-row {
             display: flex;
             align-items: center;
-            gap: 0.85rem;
-            margin-bottom: 2rem;
+            gap: 1rem;
+            margin-bottom: 2.5rem;
         }
 
         .brand-logo-wrap {
-            width: 44px;
-            height: 44px;
-            border-radius: 11px;
+            width: 52px;
+            height: 52px;
+            border-radius: 13px;
             background: var(--off-white);
             border: 1.5px solid var(--border);
             display: flex;
@@ -117,76 +117,76 @@
         }
 
         .brand-logo-wrap img {
-            width: 32px;
-            height: 32px;
+            width: 38px;
+            height: 38px;
             object-fit: contain;
         }
 
         .brand-text-col { display: flex; flex-direction: column; }
 
         .brand-name {
-            font-size: 1rem;
+            font-size: 1.1rem;
             font-weight: 700;
             color: var(--text-primary);
             line-height: 1.2;
         }
 
         .brand-sub {
-            font-size: 0.7rem;
+            font-size: 0.75rem;
             font-weight: 400;
             color: var(--text-muted);
-            margin-top: 1px;
+            margin-top: 2px;
         }
 
-        /* version pill — sits next to brand on the other side */
+        /* version pill */
         .brand-version {
             margin-right: auto;
             display: inline-flex;
             align-items: center;
-            gap: 0.3rem;
+            gap: 0.35rem;
             background: var(--gold-pale);
             color: var(--gold);
             border-radius: 999px;
-            padding: 0.18rem 0.6rem;
-            font-size: 0.62rem;
+            padding: 0.22rem 0.75rem;
+            font-size: 0.68rem;
             font-weight: 700;
             letter-spacing: 0.09em;
             text-transform: uppercase;
         }
 
         .brand-version-dot {
-            width: 4px;
-            height: 4px;
+            width: 5px;
+            height: 5px;
             background: var(--gold);
             border-radius: 50%;
         }
 
         /* ── HEADING ── */
         .form-heading {
-            font-size: 1.55rem;
+            font-size: 1.9rem;
             font-weight: 900;
             color: var(--text-primary);
             line-height: 1.15;
             letter-spacing: -0.02em;
-            margin-bottom: 0.3rem;
+            margin-bottom: 0.4rem;
         }
 
         .form-sub {
-            font-size: 0.82rem;
+            font-size: 0.9rem;
             color: var(--text-muted);
             line-height: 1.65;
-            margin-bottom: 1.75rem;
+            margin-bottom: 2rem;
         }
 
         /* ── FIELDS ── */
-        .field { margin-bottom: 1.05rem; }
+        .field { margin-bottom: 1.25rem; }
 
         .field-label {
             display: block;
-            font-size: 0.74rem;
+            font-size: 0.82rem;
             font-weight: 700;
             color: var(--text-mid);
-            margin-bottom: 0.45rem;
+            margin-bottom: 0.5rem;
             letter-spacing: 0.01em;
         }
 
@@ -197,8 +197,8 @@
             background: var(--off-white);
             border: 1.5px solid var(--border);
             border-radius: var(--radius-sm);
-            padding: 0.74rem 1rem;
-            font-size: 0.875rem;
+            padding: 0.9rem 1.1rem;
+            font-size: 0.95rem;
             font-family: var(--font) !important;
             font-weight: 400;
             color: var(--text-primary);
@@ -215,18 +215,18 @@
             box-shadow: 0 0 0 3px rgba(37,63,120,0.09);
         }
 
-        .field-input.has-toggle { padding-left: 2.75rem; }
+        .field-input.has-toggle { padding-left: 3rem; }
 
         .field-toggle {
             position: absolute;
             top: 50%;
-            left: 0.85rem;
+            left: 1rem;
             transform: translateY(-50%);
             background: none;
             border: none;
             cursor: pointer;
             color: var(--text-muted);
-            font-size: 1rem;
+            font-size: 1.1rem;
             padding: 0;
             line-height: 1;
             display: flex;
@@ -241,28 +241,28 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin: 0.3rem 0 1.5rem;
+            margin: 0.25rem 0 1.75rem;
         }
 
         .remember-label {
             display: flex;
             align-items: center;
-            gap: 0.45rem;
-            font-size: 0.78rem;
+            gap: 0.5rem;
+            font-size: 0.85rem;
             color: var(--text-muted);
             cursor: pointer;
             user-select: none;
         }
 
         .remember-label input[type="checkbox"] {
-            width: 14px;
-            height: 14px;
+            width: 16px;
+            height: 16px;
             accent-color: var(--navy);
             cursor: pointer;
         }
 
         .forgot-btn {
-            font-size: 0.78rem;
+            font-size: 0.85rem;
             font-weight: 600;
             color: var(--gold);
             background: none;
@@ -278,12 +278,12 @@
         /* ── SUBMIT ── */
         .btn-submit {
             width: 100%;
-            padding: 0.85rem 1rem;
+            padding: 1rem 1rem;
             background: var(--navy);
             color: #fff;
             border: none;
             border-radius: var(--radius-sm);
-            font-size: 0.9rem;
+            font-size: 1rem;
             font-weight: 700;
             font-family: var(--font) !important;
             cursor: pointer;
@@ -315,14 +315,14 @@
         /* ── CARD FOOTER ── */
         .card-footer-strip {
             border-top: 1px solid var(--border-soft);
-            padding: 0.9rem 2.25rem;
+            padding: 1rem 3rem;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 0.55rem;
+            gap: 0.6rem;
         }
 
-        .footer-text { font-size: 0.68rem; color: var(--text-muted); }
+        .footer-text { font-size: 0.75rem; color: var(--text-muted); }
 
         .footer-sep {
             width: 3px;
@@ -420,10 +420,15 @@
         .btn--primary:hover { background: var(--navy-mid); color: #fff; }
 
         /* ── RESPONSIVE ── */
-        @media (max-width: 480px) {
-            body { padding: 1.25rem 1rem; }
-            .card-body { padding: 2rem 1.5rem 1.75rem; }
-            .card-footer-strip { padding: 0.85rem 1.5rem; }
+        @media (max-width: 560px) {
+            body { padding: 1.5rem 1rem; }
+            .card-body { padding: 2.25rem 1.75rem 2rem; }
+            .card-footer-strip { padding: 0.9rem 1.75rem; }
+            .form-heading { font-size: 1.55rem; }
+        }
+
+        @media (max-width: 400px) {
+            .card-body { padding: 2rem 1.25rem 1.75rem; }
             .form-heading { font-size: 1.35rem; }
         }
 
