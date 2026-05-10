@@ -13,7 +13,7 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 
     <link rel="stylesheet" href="{{ dynamicAsset('public/assets/admin') }}/css/vendor.min.css">
     <link rel="stylesheet" href="{{ dynamicAsset('public/assets/admin') }}/vendor/icon-set/style.css">
@@ -24,22 +24,26 @@
 
     <style>
         :root {
-            --ink:          oklch(16% 0.025 258);
-            --ink-mid:      oklch(22% 0.030 258);
-            --ink-surface:  oklch(19% 0.028 258);
-            --gold:         oklch(72% 0.12 80);
-            --gold-dim:     oklch(55% 0.09 80);
-            --gold-pale:    oklch(90% 0.05 80);
-            --surface:      oklch(99% 0.005 258);
-            --muted:        oklch(55% 0.015 258);
-            --border:       oklch(88% 0.010 258);
-            --border-focus: oklch(40% 0.12 258);
-            --text:         oklch(18% 0.020 258);
-            --error:        oklch(52% 0.20 25);
-            --font:         'Cairo', 'Noto Sans Arabic', sans-serif;
-            --radius-sm:    8px;
-            --radius-md:    12px;
-            --radius-lg:    16px;
+            --navy:        #0F2244;
+            --navy-mid:    #1A3360;
+            --navy-light:  #253F78;
+            --gold:        #B8922A;
+            --gold-bright: #D4A843;
+            --gold-pale:   #F5EDD6;
+            --gold-line:   #E8C96A;
+            --white:       #FFFFFF;
+            --off-white:   #F7F8FC;
+            --surface:     #FFFFFF;
+            --border:      #E2E6EF;
+            --border-soft: #EEF0F6;
+            --text-primary:#0D1B2A;
+            --text-mid:    #2C3E5A;
+            --text-muted:  #6B7A99;
+            --error:       #C0392B;
+            --font:        'Noto Sans Arabic', 'Cairo', sans-serif;
+            --radius-sm:   8px;
+            --radius-md:   12px;
+            --radius-lg:   20px;
         }
 
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -49,14 +53,15 @@
             direction: rtl;
             font-family: var(--font);
             -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
 
         body {
             min-height: 100vh;
-            background-color: var(--ink);
+            background-color: var(--off-white);
             background-image:
-                radial-gradient(ellipse 80% 60% at 50% 0%, oklch(22% 0.032 258) 0%, transparent 70%),
-                radial-gradient(ellipse 60% 40% at 80% 100%, oklch(20% 0.025 80 / 0.18) 0%, transparent 60%);
+                radial-gradient(ellipse 70% 50% at 20% 0%, rgba(15, 34, 68, 0.06) 0%, transparent 60%),
+                radial-gradient(ellipse 50% 40% at 90% 100%, rgba(184, 146, 42, 0.07) 0%, transparent 55%);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -64,125 +69,199 @@
             padding: 2rem 1.5rem;
         }
 
-        /* ── CARD ── */
-        .login-card {
+        /* ── SPLIT LAYOUT ── */
+        .login-wrap {
             width: 100%;
-            max-width: 440px;
-            background: var(--surface);
+            max-width: 900px;
+            display: grid;
+            grid-template-columns: 1fr 420px;
+            min-height: 560px;
             border-radius: var(--radius-lg);
-            box-shadow:
-                0 0 0 1px oklch(100% 0 0 / 0.06),
-                0 4px 6px -1px oklch(0% 0 0 / 0.25),
-                0 20px 60px -12px oklch(0% 0 0 / 0.45);
             overflow: hidden;
-            animation: lift 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+            box-shadow:
+                0 0 0 1px rgba(15, 34, 68, 0.08),
+                0 4px 8px rgba(15, 34, 68, 0.06),
+                0 24px 64px rgba(15, 34, 68, 0.12);
+            animation: rise 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
         }
 
-        @keyframes lift {
-            from { opacity: 0; transform: translateY(20px); }
+        @keyframes rise {
+            from { opacity: 0; transform: translateY(18px); }
             to   { opacity: 1; transform: translateY(0); }
         }
 
-        /* gold header bar — structural, not decorative */
-        .card-header-bar {
-            height: 3px;
-            background: var(--gold);
-        }
-
-        .card-body {
-            padding: 2.5rem 2.25rem 2rem;
-        }
-
-        /* ── BRAND MARK ── */
-        .brand-mark {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            margin-bottom: 2.25rem;
-        }
-
-        .brand-logo {
-            width: 40px;
-            height: 40px;
-            border-radius: 10px;
-            object-fit: contain;
-            background: var(--ink-surface);
-            padding: 4px;
-        }
-
-        .brand-text {
+        /* ── LEFT PANEL ── */
+        .panel-left {
+            background: var(--navy);
+            padding: 3rem 2.5rem;
             display: flex;
             flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            overflow: hidden;
         }
 
-        .brand-name {
-            font-size: 1.05rem;
+        /* geometric accent shapes */
+        .panel-left::before {
+            content: '';
+            position: absolute;
+            top: -80px;
+            left: -80px;
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            border: 1px solid rgba(232, 201, 106, 0.12);
+        }
+
+        .panel-left::after {
+            content: '';
+            position: absolute;
+            bottom: -60px;
+            right: -60px;
+            width: 220px;
+            height: 220px;
+            border-radius: 50%;
+            border: 1px solid rgba(232, 201, 106, 0.08);
+        }
+
+        .panel-brand {
+            position: relative;
+            z-index: 1;
+        }
+
+        .panel-logo-wrap {
+            width: 52px;
+            height: 52px;
+            border-radius: 14px;
+            background: rgba(255,255,255,0.07);
+            border: 1px solid rgba(232, 201, 106, 0.25);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+            overflow: hidden;
+        }
+
+        .panel-logo-wrap img {
+            width: 38px;
+            height: 38px;
+            object-fit: contain;
+        }
+
+        .panel-name {
+            font-size: 1.5rem;
             font-weight: 800;
-            color: var(--text);
+            color: #fff;
             line-height: 1.2;
-            letter-spacing: 0.01em;
-        }
-
-        .brand-sub {
-            font-size: 0.72rem;
-            font-weight: 500;
-            color: var(--muted);
-            letter-spacing: 0.06em;
-            margin-top: 1px;
-        }
-
-        /* ── HEADING ── */
-        .form-heading {
-            font-size: 1.55rem;
-            font-weight: 900;
-            color: var(--text);
-            line-height: 1.2;
-            margin-bottom: 0.35rem;
             letter-spacing: -0.01em;
+            margin-bottom: 0.5rem;
+        }
+
+        .panel-tagline {
+            font-size: 0.82rem;
+            font-weight: 400;
+            color: rgba(255,255,255,0.5);
+            line-height: 1.6;
+            max-width: 200px;
+        }
+
+        /* gold divider */
+        .panel-divider {
+            width: 32px;
+            height: 2px;
+            background: var(--gold-line);
+            margin: 1.5rem 0;
+            border-radius: 1px;
+        }
+
+        .panel-feature-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.85rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .panel-feature-list li {
+            display: flex;
+            align-items: center;
+            gap: 0.65rem;
+            font-size: 0.82rem;
+            color: rgba(255,255,255,0.6);
+            font-weight: 400;
+        }
+
+        .feature-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--gold-line);
+            flex-shrink: 0;
+        }
+
+        .panel-footer-note {
+            position: relative;
+            z-index: 1;
+            font-size: 0.7rem;
+            color: rgba(255,255,255,0.25);
+            letter-spacing: 0.05em;
+        }
+
+        /* ── RIGHT PANEL (FORM) ── */
+        .panel-right {
+            background: var(--surface);
+            padding: 2.75rem 2.5rem 2.25rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            border-right: 1px solid var(--border-soft);
+        }
+
+        /* gold top accent line */
+        .right-accent {
+            height: 3px;
+            background: linear-gradient(90deg, var(--gold) 0%, var(--gold-bright) 60%, transparent 100%);
+            margin: -2.75rem -2.5rem 2.5rem;
+        }
+
+        .form-eyebrow {
+            font-size: 0.68rem;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--gold);
+            margin-bottom: 0.6rem;
+        }
+
+        .form-heading {
+            font-size: 1.6rem;
+            font-weight: 900;
+            color: var(--text-primary);
+            line-height: 1.15;
+            letter-spacing: -0.02em;
+            margin-bottom: 0.4rem;
         }
 
         .form-sub {
-            font-size: 0.85rem;
-            color: var(--muted);
-            line-height: 1.6;
-            margin-bottom: 2rem;
+            font-size: 0.83rem;
+            color: var(--text-muted);
+            line-height: 1.65;
+            margin-bottom: 2.25rem;
         }
 
-        /* ── VERSION PILL ── */
-        .version-pill {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.35rem;
-            background: var(--gold-pale);
-            color: var(--gold-dim);
-            border-radius: 999px;
-            padding: 0.22rem 0.7rem;
-            font-size: 0.65rem;
-            font-weight: 700;
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
-            margin-bottom: 1.5rem;
-        }
-
-        .version-pill-dot {
-            width: 5px;
-            height: 5px;
-            background: var(--gold);
-            border-radius: 50%;
-        }
-
-        /* ── FIELD ── */
+        /* ── FIELDS ── */
         .field {
             margin-bottom: 1.1rem;
         }
 
         .field-label {
             display: block;
-            font-size: 0.78rem;
+            font-size: 0.75rem;
             font-weight: 700;
-            color: var(--text);
-            margin-bottom: 0.45rem;
-            letter-spacing: 0.01em;
+            color: var(--text-mid);
+            margin-bottom: 0.5rem;
+            letter-spacing: 0.02em;
         }
 
         .field-wrap {
@@ -191,31 +270,31 @@
 
         .field-input {
             width: 100%;
-            background: oklch(96% 0.006 258);
+            background: var(--off-white);
             border: 1.5px solid var(--border);
             border-radius: var(--radius-sm);
-            padding: 0.78rem 0.9rem;
-            font-size: 0.88rem;
+            padding: 0.75rem 1rem;
+            font-size: 0.875rem;
             font-family: var(--font);
             font-weight: 500;
-            color: var(--text);
+            color: var(--text-primary);
             transition:
-                border-color 0.18s ease,
-                background 0.18s ease,
-                box-shadow 0.18s ease;
+                border-color 0.2s ease,
+                background 0.2s ease,
+                box-shadow 0.2s ease;
             outline: none;
             appearance: none;
         }
 
         .field-input::placeholder {
-            color: oklch(72% 0.010 258);
+            color: var(--text-muted);
             font-weight: 400;
         }
 
         .field-input:focus {
             background: #fff;
-            border-color: var(--border-focus);
-            box-shadow: 0 0 0 3px oklch(40% 0.12 258 / 0.10);
+            border-color: var(--navy-light);
+            box-shadow: 0 0 0 3px rgba(37, 63, 120, 0.10);
         }
 
         .field-input.has-toggle {
@@ -225,12 +304,12 @@
         .field-toggle {
             position: absolute;
             top: 50%;
-            left: 0.8rem;
+            left: 0.85rem;
             transform: translateY(-50%);
             background: none;
             border: none;
             cursor: pointer;
-            color: var(--muted);
+            color: var(--text-muted);
             font-size: 1rem;
             padding: 0;
             line-height: 1;
@@ -239,144 +318,158 @@
             transition: color 0.18s ease;
         }
 
-        .field-toggle:hover { color: var(--text); }
+        .field-toggle:hover { color: var(--navy); }
 
         /* ── META ROW ── */
         .meta-row {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin: 0.5rem 0 1.6rem;
+            margin: 0.4rem 0 1.75rem;
         }
 
         .remember-label {
             display: flex;
             align-items: center;
-            gap: 0.45rem;
-            font-size: 0.8rem;
-            color: var(--muted);
+            gap: 0.5rem;
+            font-size: 0.79rem;
+            color: var(--text-muted);
             cursor: pointer;
             user-select: none;
         }
 
         .remember-label input[type="checkbox"] {
-            width: 14px;
-            height: 14px;
-            accent-color: var(--ink-mid);
+            width: 15px;
+            height: 15px;
+            accent-color: var(--navy);
             cursor: pointer;
         }
 
         .forgot-btn {
-            font-size: 0.8rem;
+            font-size: 0.79rem;
             font-weight: 600;
-            color: var(--gold-dim);
+            color: var(--gold);
             background: none;
             border: none;
             cursor: pointer;
             padding: 0;
             font-family: var(--font);
             transition: color 0.18s ease;
+            text-decoration: none;
         }
 
-        .forgot-btn:hover { color: var(--gold); }
+        .forgot-btn:hover { color: var(--gold-bright); }
 
         /* ── SUBMIT ── */
         .btn-submit {
             width: 100%;
-            padding: 0.88rem 1rem;
-            background: var(--ink-mid);
+            padding: 0.875rem 1rem;
+            background: var(--navy);
             color: #fff;
             border: none;
             border-radius: var(--radius-sm);
-            font-size: 0.92rem;
+            font-size: 0.9rem;
             font-weight: 800;
             font-family: var(--font);
-            letter-spacing: 0.03em;
+            letter-spacing: 0.04em;
             cursor: pointer;
-            transition:
-                background 0.2s ease,
-                transform 0.15s ease,
-                box-shadow 0.2s ease;
-            box-shadow: 0 2px 12px oklch(0% 0 0 / 0.20);
             position: relative;
-        }
-
-        .btn-submit:hover {
-            background: var(--ink);
-            transform: translateY(-1px);
-            box-shadow: 0 6px 20px oklch(0% 0 0 / 0.28);
-        }
-
-        .btn-submit:active {
-            transform: translateY(0);
-            box-shadow: 0 1px 6px oklch(0% 0 0 / 0.16);
-        }
-
-        .btn-submit:focus-visible {
-            outline: 2px solid var(--border-focus);
-            outline-offset: 3px;
+            overflow: hidden;
+            transition:
+                background 0.22s ease,
+                transform 0.15s ease,
+                box-shadow 0.22s ease;
+            box-shadow: 0 2px 10px rgba(15, 34, 68, 0.22);
         }
 
         /* gold shimmer on hover */
-        .btn-submit::before {
+        .btn-submit::after {
             content: '';
             position: absolute;
             inset: 0;
-            border-radius: inherit;
             background: linear-gradient(
-                90deg,
-                transparent 0%,
-                oklch(72% 0.12 80 / 0.08) 50%,
-                transparent 100%
+                110deg,
+                transparent 20%,
+                rgba(212, 168, 67, 0.15) 50%,
+                transparent 80%
             );
             opacity: 0;
             transition: opacity 0.3s ease;
         }
 
-        .btn-submit:hover::before { opacity: 1; }
+        .btn-submit:hover {
+            background: var(--navy-mid);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(15, 34, 68, 0.30);
+        }
 
-        /* ── CARD FOOTER ── */
-        .card-footer-strip {
-            border-top: 1px solid var(--border);
-            padding: 1rem 2.25rem;
+        .btn-submit:hover::after { opacity: 1; }
+
+        .btn-submit:active {
+            transform: translateY(0);
+            box-shadow: 0 1px 6px rgba(15, 34, 68, 0.18);
+        }
+
+        .btn-submit:focus-visible {
+            outline: 2px solid var(--gold);
+            outline-offset: 3px;
+        }
+
+        /* ── BOTTOM VERSION ROW ── */
+        .version-row {
             display: flex;
             align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
+            justify-content: space-between;
+            margin-top: 2rem;
+            padding-top: 1.25rem;
+            border-top: 1px solid var(--border-soft);
         }
 
-        .footer-text {
-            font-size: 0.7rem;
-            color: var(--muted);
-            letter-spacing: 0.04em;
+        .version-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            background: var(--gold-pale);
+            color: var(--gold);
+            border-radius: 999px;
+            padding: 0.2rem 0.65rem;
+            font-size: 0.63rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
         }
 
-        .footer-sep {
-            width: 2px;
-            height: 2px;
-            border-radius: 50%;
+        .version-badge-dot {
+            width: 4px;
+            height: 4px;
             background: var(--gold);
-            opacity: 0.6;
+            border-radius: 50%;
+        }
+
+        .version-copy {
+            font-size: 0.68rem;
+            color: var(--text-muted);
+            letter-spacing: 0.03em;
         }
 
         /* ── DEMO BOX ── */
         .demo-box {
-            margin-top: 1.25rem;
-            background: oklch(96% 0.006 258);
+            margin-top: 1.1rem;
+            background: var(--off-white);
             border: 1px dashed var(--border);
             border-radius: var(--radius-sm);
-            padding: 0.85rem 1rem;
-            font-size: 0.8rem;
-            color: var(--muted);
+            padding: 0.8rem 1rem;
+            font-size: 0.78rem;
+            color: var(--text-muted);
         }
 
-        .demo-box strong { color: var(--text); }
+        .demo-box strong { color: var(--text-primary); }
 
         /* ── MODALS ── */
         .modal-content {
             border: 1px solid var(--border);
-            border-radius: var(--radius-lg);
-            box-shadow: 0 20px 60px oklch(0% 0 0 / 0.14);
+            border-radius: var(--radius-md);
+            box-shadow: 0 20px 60px rgba(15, 34, 68, 0.12);
             font-family: var(--font);
         }
 
@@ -387,12 +480,12 @@
 
         .close-modal-icon {
             cursor: pointer;
-            color: var(--muted);
+            color: var(--text-muted);
             font-size: 1.1rem;
             transition: color 0.18s ease;
         }
 
-        .close-modal-icon:hover { color: var(--text); }
+        .close-modal-icon:hover { color: var(--text-primary); }
 
         .forget-pass-content {
             text-align: center;
@@ -407,24 +500,24 @@
         .forget-pass-content h4 {
             font-size: 1rem;
             font-weight: 800;
-            color: var(--text);
+            color: var(--text-primary);
             margin-bottom: 0.5rem;
         }
 
         .forget-pass-content p {
             font-size: 0.84rem;
-            color: var(--muted);
+            color: var(--text-muted);
             line-height: 1.7;
         }
 
         .forget-pass-content .form-control {
-            background: oklch(96% 0.006 258);
+            background: var(--off-white);
             border: 1.5px solid var(--border);
             border-radius: var(--radius-sm);
             font-family: var(--font);
             font-size: 0.88rem;
             padding: 0.75rem 1rem;
-            color: var(--text);
+            color: var(--text-primary);
             margin-top: 1rem;
             outline: none;
             width: 100%;
@@ -432,14 +525,14 @@
         }
 
         .forget-pass-content .form-control:focus {
-            border-color: var(--border-focus);
-            box-shadow: 0 0 0 3px oklch(40% 0.12 258 / 0.10);
+            border-color: var(--navy-light);
+            box-shadow: 0 0 0 3px rgba(37, 63, 120, 0.10);
         }
 
         .btn--primary {
             display: block;
             width: 100%;
-            background: var(--ink-mid);
+            background: var(--navy);
             color: #fff;
             border: none;
             border-radius: var(--radius-sm);
@@ -455,20 +548,35 @@
         }
 
         .btn--primary:hover {
-            background: var(--ink);
+            background: var(--navy-mid);
             color: #fff;
         }
 
         /* ── RESPONSIVE ── */
-        @media (max-width: 520px) {
-            body { padding: 1.25rem 1rem; }
-            .card-body { padding: 2rem 1.5rem 1.5rem; }
-            .card-footer-strip { padding: 0.9rem 1.5rem; }
-            .form-heading { font-size: 1.3rem; }
+        @media (max-width: 700px) {
+            .login-wrap {
+                grid-template-columns: 1fr;
+                max-width: 440px;
+            }
+            .panel-left { display: none; }
+            .panel-right {
+                padding: 2.25rem 1.75rem 2rem;
+                border-right: none;
+            }
+            .right-accent {
+                margin: -2.25rem -1.75rem 2.25rem;
+            }
+        }
+
+        @media (max-width: 420px) {
+            body { padding: 1rem; }
+            .panel-right { padding: 2rem 1.4rem 1.75rem; }
+            .right-accent { margin: -2rem -1.4rem 2rem; }
+            .form-heading { font-size: 1.35rem; }
         }
 
         @media (prefers-reduced-motion: reduce) {
-            .login-card { animation: none; }
+            .login-wrap { animation: none; }
             * { transition-duration: 0.01ms !important; }
         }
 
@@ -490,35 +598,42 @@
 <body>
 <main id="content" role="main" class="main auth-bg">
 
-    <div class="login-card">
-        <div class="card-header-bar"></div>
+    <div class="login-wrap">
 
-        <div class="card-body">
-            @php($systemlogo = \App\Models\BusinessSetting::where(['key'=>'logo'])->first())
+        <!-- ── LEFT BRAND PANEL ── -->
+        <div class="panel-left">
+            <div class="panel-brand">
+                @php($systemlogo = \App\Models\BusinessSetting::where(['key'=>'logo'])->first())
+                <div class="panel-logo-wrap">
+                    <img class="onerror-image"
+                        src="{{ \App\CentralLogics\Helpers::get_full_url('business', $systemlogo?->value, $systemlogo?->storage[0]?->value ?? 'public', 'authfav') }}"
+                        data-onerror-image="{{ dynamicAsset('/public/assets/admin/img/auth-fav.png') }}"
+                        alt="بيت جدي">
+                </div>
+                <div class="panel-name">بيت جدي</div>
+                <div class="panel-divider"></div>
+                <div class="panel-tagline">منصة إدارة المطاعم والمتاجر بكفاءة عالية</div>
+            </div>
+
+            <ul class="panel-feature-list">
+                <li><span class="feature-dot"></span>إدارة الطلبات والمنيو بسهولة</li>
+                <li><span class="feature-dot"></span>تقارير ومبيعات في الوقت الفعلي</li>
+                <li><span class="feature-dot"></span>إشعارات فورية وتتبع التوصيل</li>
+                <li><span class="feature-dot"></span>دعم فني على مدار الساعة</li>
+            </ul>
+
+            <div class="panel-footer-note">بيت جدي · {{ date('Y') }}</div>
+        </div>
+
+        <!-- ── RIGHT FORM PANEL ── -->
+        <div class="panel-right">
             @php($role = $role ?? null)
 
-            <!-- Brand mark -->
-            <div class="brand-mark">
-                <img class="brand-logo onerror-image"
-                    src="{{ \App\CentralLogics\Helpers::get_full_url('business', $systemlogo?->value, $systemlogo?->storage[0]?->value ?? 'public', 'authfav') }}"
-                    data-onerror-image="{{ dynamicAsset('/public/assets/admin/img/auth-fav.png') }}"
-                    alt="بيت جدي">
-                <div class="brand-text">
-                    <span class="brand-name">بيت جدي</span>
-                    <span class="brand-sub">لوحة الإدارة</span>
-                </div>
-            </div>
+            <div class="right-accent"></div>
 
-            <!-- Version -->
-            <div>
-                <span class="version-pill">
-                    <span class="version-pill-dot"></span>
-                    إصدار {{ env('SOFTWARE_VERSION') }}
-                </span>
-            </div>
-
+            <div class="form-eyebrow">لوحة التحكم</div>
             <h1 class="form-heading">تسجيل الدخول</h1>
-            <p class="form-sub">أدخل بياناتك للوصول إلى لوحة التحكم</p>
+            <p class="form-sub">أدخل بياناتك للوصول إلى حسابك</p>
 
             <!-- Form -->
             <form class="login_form" action="{{ route('login_post') }}" method="post" id="form-id">
@@ -590,7 +705,7 @@
 
                 <!-- Submit -->
                 <button type="submit" class="btn-submit" id="signInBtn" tabindex="3">
-                    تسجيل الدخول
+                    دخول إلى لوحة التحكم
                 </button>
             </form>
 
@@ -619,16 +734,17 @@
                     </div>
                 @endif
             @endif
+
+            <!-- Version row -->
+            <div class="version-row">
+                <span class="version-badge">
+                    <span class="version-badge-dot"></span>
+                    v{{ env('SOFTWARE_VERSION') }}
+                </span>
+                <span class="version-copy">نظام الإدارة · بيت جدي</span>
+            </div>
         </div>
 
-        <!-- Footer strip -->
-        <div class="card-footer-strip">
-            <span class="footer-text">بيت جدي</span>
-            <span class="footer-sep"></span>
-            <span class="footer-text">نظام الإدارة</span>
-            <span class="footer-sep"></span>
-            <span class="footer-text">{{ date('Y') }}</span>
-        </div>
     </div>
 
 </main>
