@@ -48,54 +48,12 @@
                                                 required>
                                     </div>
                                 </div>
-                                <div class="col-sm-6">
-                                    <div class="form-group mb-0">
-                                        <label class="form-label" for="exampleFormControlInput1">{{translate('messages.identity_type')}}</label>
-                                        <select name="identity_type" class="form-control h--45px">
-                                            <option
-                                                value="passport" {{$delivery_man['identity_type']=='passport'?'selected':''}}>
-                                                {{translate('messages.passport')}}
-                                            </option>
-                                            <option
-                                                value="driving_license" {{$delivery_man['identity_type']=='driving_license'?'selected':''}}>
-                                                {{translate('messages.driving_license')}}
-                                            </option>
-                                            <option value="nid" {{$delivery_man['identity_type']=='nid'?'selected':''}}>{{translate('messages.nid')}}
-                                            </option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="col-sm-6">
-                                    <div class="form-group mb-0">
-                                        <label class="form-label" for="exampleFormControlInput1">{{translate('messages.identity_number')}}</label>
-                                        <input type="text" name="identity_number" value="{{$delivery_man['identity_number']}}"
-                                                class="form-control h--45px"
-                                                placeholder="{{ translate('messages.Ex :') }} DH-23434-LS"
-                                                required>
-                                    </div>
-                                </div>
+                                
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="col-lg-6">
-                    <div class="card h-100">
-                        <div class="card-header">
-                            <h5 class="form-label m-0" for="exampleFormControlInput1">{{translate('messages.identity_image')}}
-                                <small class="text-danger">* ( {{translate('messages.ratio')}} 190x120 )</small></h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="row g-2" id="coba">
-                                @foreach($delivery_man['identity_image_full_url'] as $img)
-                                    <div class="col-6 col-sm-4 spartan_item_wrapper">
-                                        <img class="initial-77" src="{{$img}}">
-                                    </div>
-                                @endforeach
-                            </div>
-                        </div>
-                    </div>
-                </div>
                 <div class="col-lg-6">
                     <div class="card h-100">
                         <div class="card-header py-3">
@@ -198,48 +156,10 @@
 @endsection
 
 @push('script_2')
-    <script src="{{dynamicAsset('public/assets/admin/js/spartan-multi-image-picker.js')}}"></script>
     <script>
         "use strict";
         $("#customFileEg1").change(function () {
             readURL(this);
-        });
-
-
-        $(function () {
-            $("#coba").spartanMultiImagePicker({
-                fieldName: 'identity_image[]',
-                maxCount: 5,
-                rowHeight: '120px',
-                groupClassName: 'col-6 col-sm-4',
-                maxFileSize: '',
-                placeholderImage: {
-                    image: '{{dynamicAsset('public/assets/admin/img/100x100/user2.png')}}',
-                    width: '100%'
-                },
-                dropFileLabel: "Drop Here",
-                onAddRow: function (index, file) {
-
-                },
-                onRenderedPreview: function (index) {
-
-                },
-                onRemoveRow: function (index) {
-
-                },
-                onExtensionErr: function (index, file) {
-                    toastr.error('Please only input png or jpg type file', {
-                        CloseButton: true,
-                        ProgressBar: true
-                    });
-                },
-                onSizeErr: function (index, file) {
-                    toastr.error('File size too big', {
-                        CloseButton: true,
-                        ProgressBar: true
-                    });
-                }
-            });
         });
 
         $('#deliaveryman_form').on('submit', function () {
