@@ -27,43 +27,274 @@ $max_processing_time = $order->restaurant?explode('-', $order->restaurant['deliv
         $tax_included =0;
     ?>
 
+<style>
+/* ── Order Detail Redesign ── */
+.ov-hero {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+.ov-hero-id {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #111827;
+    letter-spacing: -0.02em;
+    flex: 1;
+    min-width: 180px;
+}
+.ov-hero-id small {
+    display: block;
+    font-size: 0.78rem;
+    font-weight: 400;
+    color: #6b7280;
+    letter-spacing: 0;
+    margin-top: 2px;
+}
+.ov-meta-pills {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+.ov-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    border: 1.5px solid transparent;
+}
+.ov-pill-type    { background:#f0f4ff; color:#3b5bdb; border-color:#c5d0fc; }
+.ov-pill-unpaid  { background:#fff1f0; color:#c0392b; border-color:#fca5a5; }
+.ov-pill-paid    { background:#f0fdf4; color:#16a34a; border-color:#86efac; }
+.ov-pill-method  { background:#f9fafb; color:#374151; border-color:#e5e7eb; }
+.ov-hero-actions { display:flex; gap:8px; margin-right: auto; }
+
+/* Status stepper */
+.ov-stepper {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    position: relative;
+}
+.ov-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 10px 0;
+    position: relative;
+}
+.ov-step:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    right: auto;
+    left: 15px;
+    top: 36px;
+    width: 2px;
+    height: calc(100% - 8px);
+    background: #e5e7eb;
+}
+[dir="rtl"] .ov-step:not(:last-child)::after {
+    left: auto;
+    right: 15px;
+}
+.ov-step-dot {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 700;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 1;
+    border: 2px solid #e5e7eb;
+    background: #fff;
+    color: #9ca3af;
+}
+.ov-step.done .ov-step-dot {
+    background: #16a34a;
+    border-color: #16a34a;
+    color: #fff;
+}
+.ov-step.active .ov-step-dot {
+    background: #1a3c5e;
+    border-color: #1a3c5e;
+    color: #fff;
+    box-shadow: 0 0 0 4px rgba(26,60,94,0.12);
+}
+.ov-step-label {
+    padding-top: 5px;
+    font-size: 0.82rem;
+    color: #6b7280;
+    font-weight: 500;
+}
+.ov-step.done .ov-step-label { color: #16a34a; font-weight: 600; }
+.ov-step.active .ov-step-label { color: #111827; font-weight: 700; font-size: 0.88rem; }
+
+/* Action CTA */
+.ov-cta-primary {
+    width: 100%;
+    padding: 13px 20px;
+    border-radius: 10px;
+    background: #1a3c5e;
+    color: #fff;
+    font-size: 0.95rem;
+    font-weight: 700;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: background 0.18s, transform 0.12s;
+}
+.ov-cta-primary:hover { background: #0f2740; transform: translateY(-1px); color:#fff; }
+.ov-cta-primary:disabled, .ov-cta-primary.disabled {
+    background: #e5e7eb;
+    color: #9ca3af;
+    cursor: not-allowed;
+    transform: none;
+}
+.ov-cta-secondary {
+    width: 100%;
+    padding: 10px 20px;
+    border-radius: 10px;
+    background: transparent;
+    color: #374151;
+    font-size: 0.85rem;
+    font-weight: 600;
+    border: 1.5px solid #d1d5db;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: border-color 0.18s, background 0.18s;
+    margin-top: 8px;
+}
+.ov-cta-secondary:hover { border-color: #9ca3af; background: #f9fafb; color:#374151; }
+.ov-cta-secondary.disabled { opacity: 0.45; pointer-events: none; }
+
+/* Product card (replaces table) */
+.ov-item-card {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px 0;
+    border-bottom: 1px solid #f3f4f6;
+}
+.ov-item-card:last-child { border-bottom: none; }
+.ov-item-img {
+    width: 56px;
+    height: 56px;
+    border-radius: 10px;
+    object-fit: cover;
+    flex-shrink: 0;
+    border: 1px solid #f3f4f6;
+}
+.ov-item-name { font-size: 0.92rem; font-weight: 700; color: #111827; margin-bottom: 3px; }
+.ov-item-meta { font-size: 0.78rem; color: #6b7280; }
+.ov-item-qty {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    border-radius: 8px;
+    background: #f0f4ff;
+    color: #3b5bdb;
+    font-size: 0.78rem;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+.ov-item-price { font-size: 0.95rem; font-weight: 700; color: #111827; margin-right: auto; text-align: left; }
+[dir="rtl"] .ov-item-price { margin-right: 0; margin-left: auto; text-align: right; }
+
+/* Section heading inside card */
+.ov-section-label {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #9ca3af;
+    margin-bottom: 10px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid #f3f4f6;
+}
+</style>
+
     <div class="content container-fluid initial-39">
-        <!-- Page Header -->
-        <div class="page-header d-print-none">
+        @php
+        $refund_amount = $order->order_amount - $order->delivery_charge - $order->dm_tips;
+        $refund= \App\Models\BusinessSetting::where(['key'=>'refund_active_status'])->first()->value
+        @endphp
 
-            <h1 class="page-header-title text-capitalize">
-                <div class="card-header-icon d-inline-flex mr-2 img">
-                    <img src="{{dynamicAsset('/public/assets/admin/img/orders.png')}}" alt="public">
-                </div>
-                <span>
-                    {{translate('messages.order_details')}}
+        <!-- ── Redesigned Order Hero Bar ── -->
+        <div class="ov-hero d-print-none">
+            <div class="ov-hero-id">
+                {{ translate('messages.order_id_#')}}{{ $order['id'] }}
+                @if ($order->edited)
+                    <span class="badge badge-soft-danger ml-2" style="font-size:0.65rem;">{{ translate('messages.edited') }}</span>
+                @endif
+                <small>
+                    {{ date('d M Y ' . config('timeformat'), strtotime($order['created_at'])) }}
+                    @if (isset($order->restaurant))
+                        &nbsp;·&nbsp; <i class="tio-shop" style="font-size:0.8em;"></i> {{ Str::limit($order->restaurant->name, 30, '...') }}
+                    @endif
+                </small>
+            </div>
+
+            <div class="ov-meta-pills">
+                <span class="ov-pill ov-pill-type">
+                    <i class="tio-delivery-van" style="font-size:0.85em;"></i>
+                    {{ translate(str_replace('_', ' ', $order['order_type'])) }}
                 </span>
-                <div class="d-flex ml-auto">
-                    <a class="btn btn-icon btn-sm badge-soft-primary rounded-circle justify-content-center mr-1"
-                        href="{{ route('admin.order.details', [$order['id'] - 1]) }}" data-toggle="tooltip"
-                        data-placement="top" title="{{ translate('Previous_order') }}">
-                        <i class="tio-chevron-left m-0"></i>
-                    </a>
-                    <a class="btn btn-icon btn-sm badge-soft-primary rounded-circle justify-content-center"
-                        href="{{ route('admin.order.details', [$order['id'] + 1]) }}" data-toggle="tooltip"
-                        data-placement="top" title="{{ translate('Next_order') }}">
-                        <i class="tio-chevron-right m-0"></i>
-                    </a>
-                </div>
-            </h1>
+                @if ($order['payment_status'] == 'paid')
+                    <span class="ov-pill ov-pill-paid"><i class="tio-checkmark-circle"></i> {{ translate('messages.paid') }}</span>
+                @elseif ($order['payment_status'] == 'partially_paid')
+                    <span class="ov-pill ov-pill-unpaid"><i class="tio-warning-outlined"></i> {{ translate('messages.partially_paid') }}</span>
+                @else
+                    <span class="ov-pill ov-pill-unpaid"><i class="tio-warning-outlined"></i> {{ translate('messages.unpaid') }}</span>
+                @endif
+                <span class="ov-pill ov-pill-method">
+                    {{ translate(str_replace('_', ' ', $order['payment_method'])) }}
+                </span>
+                @if ($subscription)
+                    <span class="ov-pill" style="background:#fef3c7;color:#92400e;border-color:#fcd34d;">{{ translate('messages.subscription_order') }}</span>
+                @endif
+            </div>
 
-            <div class="row align-items-center">
-                <div class="col-sm mb-2 mb-sm-0">
-                    <div class="mt-2">
-                        @php
-                        $refund_amount = $order->order_amount - $order->delivery_charge - $order->dm_tips;
-                        $refund= \App\Models\BusinessSetting::where(['key'=>'refund_active_status'])->first()->value
-                        @endphp
-                    </div>
-                </div>
+            <div class="ov-hero-actions">
+                @if (!$subscription && !$editing && $order?->ref_bonus_amount == 0 && $order->payment_method == 'cash_on_delivery' && in_array($order->order_status, ['pending', 'confirmed', 'processing', 'accepted']) && $order->restaurant)
+                    <button class="btn btn-outline-primary btn-sm edit-order print--btn" type="button">
+                        <i class="tio-edit"></i> {{ translate('messages.edit_order') }}
+                    </button>
+                @endif
+                <a class="btn btn-sm btn-outline-secondary print--btn" href="{{ route('admin.order.generate-invoice', [$order['id']]) }}">
+                    <i class="tio-print mr-1"></i> {{ translate('messages.print_invoice') }}
+                </a>
+                <a class="btn btn-icon btn-sm badge-soft-primary rounded-circle justify-content-center mr-1"
+                    href="{{ route('admin.order.details', [$order['id'] - 1]) }}" data-toggle="tooltip" data-placement="top" title="{{ translate('Previous_order') }}">
+                    <i class="tio-chevron-left m-0"></i>
+                </a>
+                <a class="btn btn-icon btn-sm badge-soft-primary rounded-circle justify-content-center"
+                    href="{{ route('admin.order.details', [$order['id'] + 1]) }}" data-toggle="tooltip" data-placement="top" title="{{ translate('Next_order') }}">
+                    <i class="tio-chevron-right m-0"></i>
+                </a>
             </div>
         </div>
-        <!-- End Page Header -->
+        <!-- End Hero Bar -->
 
         <div class="row g-1" id="printableArea">
             <div class="col-lg-8 order-print-area-left">
@@ -71,127 +302,59 @@ $max_processing_time = $order->restaurant?explode('-', $order->restaurant['deliv
                 <div class="card mb-3 mb-lg-5">
                     <!-- Header -->
                     <div class="card-header border-0 align-items-start flex-wrap">
-                        <div class="order-invoice-left">
-                            <h1 class="page-header-title mt-2">
-                                <span class="font--max-sm">{{ translate('messages.order_id_#')}}{{ $order['id'] }}</span>
-                                <!-- Static -->
-                                @if ($order->edited)
-                                    <span class="badge badge-soft-danger text-capitalize my-2 ml-2">
-                                        {{ translate('messages.edited') }}
-                                    </span>
-                                @endif
-                                <!-- Static -->
-                                <div class="d-sm-none d-flex flex-wrap ml-auto align-items-center justify-content-end initial-39-2">
-                                    @if (!$subscription && !$editing && $order?->ref_bonus_amount == 0 && $order->payment_method == 'cash_on_delivery'  &&  in_array($order->order_status, ['pending', 'confirmed', 'processing', 'accepted']) && $order->restaurant)
-                                            <button class="btn bn--primary btn-outline-primary m-1 print--btn edit-order" type="button">
-                                                <i class="tio-edit"></i> <span>{{ translate('messages.edit_order') }}</span>
-                                            </button>
-                                    @endif
-                                    <a class="btn btn-primary m-1 print--btn" href={{ route('admin.order.generate-invoice', [$order['id']]) }}>
-                                        <i class="tio-print mr-1"></i> <span>{{ translate('messages.print_invoice') }}</span>
-                                    </a>
-                                </div>
-                            </h1>
-                            <span class="mt-2 d-block text--title">
-                                {{ translate('messages.Placed_Date') }} :
-                                <span class="font-semibold">
-                                    {{ date('d M Y ' . config('timeformat'), strtotime($order['created_at'])) }}</span>
-                            </span>
-                            @if ($order->order_type == 'dine_in')
-                            <span class="mt-2 d-block text--title">
-                                {{ translate('messages.Din-in_Date') }} :
-                                <span class="font-semibold">
-                                    {{ date('d M Y ' . config('timeformat'), strtotime($order['schedule_at'])) }}
-                                </span>
-                            </span>
-                            @endif
-                            @if ($subscription)
-                            <span>
-                                <strong class="text-primary"> {{ translate('messages.subscription_order') }}</strong>
-                            </span>
-                            <br>
-                            @endif
+                        <div class="order-invoice-left" style="width:100%;">
+                            <!-- Scheduled / special badges -->
                             @if ($order->schedule_at && ($order->scheduled || $subscription))
-                                <span>
-                                    <span>{{ translate('messages.scheduled_at') }} :</span>
-                                    <strong class="text-warning">
-                                        {{ date('d M Y ' . config('timeformat'), strtotime($order['schedule_at'])) }}
-                                    </strong>
+                            <div class="mb-2">
+                                <span class="badge badge-soft-warning">
+                                    <i class="tio-calendar-month mr-1"></i>
+                                    {{ translate('messages.scheduled_at') }}: {{ date('d M Y ' . config('timeformat'), strtotime($order['schedule_at'])) }}
                                 </span>
+                            </div>
                             @endif
-                            @if (isset($order->restaurant))
-                                <h6 class="mt-2 pt-1 mb-2">
-                                    <i class="tio-shop"></i>
-                                    {{ translate('messages.restaurant') }} : <label
-                                        class="badge badge-soft-info font-regular m-0">{{ Str::limit($order->restaurant->name, 25, '...') }}</label>
-                                </h6>
-                            @else
-                                <h6 class="mt-2 pt-1 mb-2">
-                                    <i class="tio-shop"></i>
-                                    {{ translate('messages.restaurant') }} : <label
-                                        class="badge badge-soft-danger font-regular m-0">{{ Str::limit(translate('messages.Restaurant_deleted!'), 25, '...') }}</label>
-                                </h6>
+                            @if ($order->order_type == 'dine_in')
+                            <div class="mb-2">
+                                <span class="badge badge-soft-info">
+                                    {{ translate('messages.Din-in_Date') }}: {{ date('d M Y ' . config('timeformat'), strtotime($order['schedule_at'])) }}
+                                </span>
+                            </div>
                             @endif
-                                <h6 class="m-0">
                             @if ($campaign_order)
-                                    <span class="badge badge-soft-primary ml-sm-3">
-                                        {{ translate('messages.campaign_order') }}
-                                    </span>
+                            <div class="mb-2">
+                                <span class="badge badge-soft-primary">{{ translate('messages.campaign_order') }}</span>
+                            </div>
                             @endif
-                                </h6>
-                                <div class="hs-unfold mt-2">
-                                    <button class="btn order--details-btn-sm btn--primary btn-outline-primary btn--sm" data-toggle="modal" data-target="#locationModal"><i
-                                            class="tio-poi-outlined"></i> <span class="ml-1">{{ translate('messages.show_locations_on_map') }}</span> </button>
 
-                                </div>
-                            <div class="order--note mt-3">
+                            <div class="hs-unfold mb-2">
+                                <button class="btn btn-outline-primary btn--sm" style="font-size:0.8rem;padding:5px 12px;" data-toggle="modal" data-target="#locationModal">
+                                    <i class="tio-poi-outlined"></i> {{ translate('messages.show_locations_on_map') }}
+                                </button>
+                            </div>
 
+                            <div class="order--note">
                                 @if($order['order_note'])
-                                <h6 class="my-2 ml-2">
-                                    <strong class="text--title">{{ translate('messages.Order_note') }} :</strong>
-                                    <span>{{ $order['order_note'] }}</span>
-                                </h6>
+                                <div class="alert alert-soft-secondary p-2 mb-1" style="font-size:0.82rem;">
+                                    <strong>{{ translate('messages.Order_note') }}:</strong> {{ $order['order_note'] }}
+                                </div>
                                 @endif
-                                @if($order?->offline_payments && $order?->offline_payments->status == 'denied' && $order?->offline_payments->note )
-                                <h6 class="w-100 badge-soft-warning">
-                                    <span class="text-dark">
-                                        {{ translate('messages.Offline_payment_rejection_note') }} :
-                                    </span>
-                                        {{  $order?->offline_payments->note }}
-                                    </h6>
+                                @if($order?->offline_payments && $order?->offline_payments->status == 'denied' && $order?->offline_payments->note)
+                                <div class="alert alert-warning p-2 mb-1" style="font-size:0.82rem;">
+                                    {{ translate('messages.Offline_payment_rejection_note') }}: {{ $order?->offline_payments->note }}
+                                </div>
                                 @endif
                                 @if ($order['unavailable_item_note'])
-                                <h6 class="my-2 ml-2">
-                                    <span class="text--title">
-                                        {{ translate('messages.if_item_is_not_available') }} :
-                                    </span>
-                                    {{ translate($order->unavailable_item_note) }}
-                                </h6>
+                                <div class="mb-1" style="font-size:0.82rem;color:#6b7280;">
+                                    <strong>{{ translate('messages.if_item_is_not_available') }}:</strong> {{ translate($order->unavailable_item_note) }}
+                                </div>
                                 @endif
                                 @if ($order['delivery_instruction'])
-                                    <h6 class="my-2 ml-2">
-                                        <span class="text--title">
-                                            {{ translate('messages.order_delivery_instruction') }} :
-                                        </span>
-                                        {{ translate($order->delivery_instruction)  }}
-                                    </h6>
+                                <div class="mb-1" style="font-size:0.82rem;color:#6b7280;">
+                                    <strong>{{ translate('messages.order_delivery_instruction') }}:</strong> {{ translate($order->delivery_instruction) }}
+                                </div>
                                 @endif
-
-
                             </div>
                         </div>
-                        <div class="order-invoice-right">
-                            <div class="d-none d-sm-flex flex-wrap ml-auto align-items-center justify-content-end initial-39-1">
-                                @if (!$subscription && !$editing && $order->payment_method == 'cash_on_delivery' && in_array($order->order_status, ['pending', 'confirmed', 'processing', 'accepted']) && $order->restaurant)
-                                        <button class="btn bn--primary btn-outline-primary m-2 print--btn edit-order" type="button">
-                                            <i class="tio-edit"></i> <span>{{ translate('messages.edit_order') }}</span>
-                                        </button>
-
-                                @endif
-                                <a class="btn btn-primary m-2 print--btn" href={{ route('admin.order.generate-invoice', [$order['id']]) }}>
-                                    <i class="tio-print mr-1"></i> <span>{{ translate('messages.print_invoice') }}</span>
-                                </a>
-                            </div>
+                        <div class="order-invoice-right" style="display:none;">
                             <div class="text-right mt-3 order-invoice-right-contents text-capitalize">
                                 <h6>
                                     <span>{{ translate('messages.order_type') }} :</span>
@@ -429,265 +592,146 @@ $max_processing_time = $order->restaurant?explode('-', $order->restaurant['deliv
                                     }
                                 }
                             ?>
-                    <div class="table-responsive">
-                        <table class="table table-borderless table-thead-bordered table-nowrap table-align-middle card-table dataTable no-footer mb-0">
-                            <thead class="thead-light">
-                                <th>{{translate('sl')}}</th>
-                                <th>{{translate('item_details')}}</th>
-                                <th>{{translate('addons')}}</th>
-                                <th class="text-right">{{translate('price')}}</th>
-                            </thead>
-                            <tbody>
-                                @forelse ($details as $key => $detail)
-                                @if (isset($detail->food_id) && $detail->status )
-                                    <?php
-                                    if (!$editing) {
-                                        $deleted_food = $detail->food == null?1:0;
-                                        $detail->food = json_decode($detail->food_details, true);
-                                    }
-                                    $food = \App\Models\Food::where(['id' => $detail?->food['id']])->first();
-                                    ?>
-                                    <!-- Media -->
-                                    <tr>
-                                        <td>
-                                            <!-- Static Count Number -->
-                                            <div>
-                                                {{$key+1}}
-                                            </div>
-                                            <!-- Static Count Number -->
-                                        </td>
-                                        <td>
-                                            <div class="media media--sm">
-                                            @if($editing )
-                                                        @if($detail->food == null)
-                                                            <div class="avatar avatar-xl mr-3 cursor-pointer">
-                                                                <img class="img-fluid rounded"
-                                                                src="{{ dynamicAsset('public/assets/admin/img/100x100/food-default-image.png') }}"
-                                                                alt="Image Description">
-                                                            @else
-                                                            <div class="avatar avatar-xl mr-3 cursor-pointer quick_view_cart_item"
-                                                                 data-key="{{ $key }}"
-                                                                title="{{ translate('messages.click_to_edit_this_item') }}">
-                                                            <span class="avatar-status avatar-lg-status avatar-status-dark"><i
-                                                                    class="tio-edit"></i></span>
-                                                                <img class="img-fluid rounded onerror-image"
-                                                                     src="{{ $food['image_full_url'] ?? dynamicAsset('public/assets/admin/img/100x100/food-default-image.png') }}"
-                                                                     data-onerror-image="{{dynamicAsset('public/assets/admin/img/100x100/food-default-image.png')}}"
-                                                                alt="Image Description">
-                                                        @endif
-                                                        </div>
-                                                @else
-                                                        @if(!$deleted_food)
-                                                                <a class="avatar avatar-xl mr-3"
-                                                                href="{{ route('admin.food.view', $detail->food['id']) }}">
-                                                                    <img class="img-fluid rounded onerror-image"
-                                                                        src="{{ $food['image_full_url'] ?? dynamicAsset('public/assets/admin/img/100x100/food-default-image.png') }}"
-                                                                        data-onerror-image="{{dynamicAsset('public/assets/admin/img/100x100/food-default-image.png')}}"
-                                                                        alt="Image Description">
-                                                                    </a>
-                                                            @else
-                                                                <div class="avatar avatar-xl mr-3">
-                                                                    <img class="img-fluid rounded"
-                                                                        src="{{ dynamicAsset('public/assets/admin/img/100x100/food-default-image.png') }}"
-                                                                        alt="Image Description">
-                                                                    </div>
-                                                            @endif
-                                                @endif
-                                                <div class="media-body">
-                                                    <div>
-                                                        <strong class="line--limit-1"> {{ $detail->food == null?'Not Found':$detail->food['name'] }}</strong>
-                                                        @if (isset($detail['variation']) ? json_decode($detail['variation'], true) : [] )
-                                                            @foreach(json_decode($detail['variation'],true) as  $variation)
-                                                                @if (isset($variation['name'])  && isset($variation['values']))
-                                                                        <span class="d-block text-capitalize">
-                                                                            <strong>
-                                                                                {{  $variation['name']}} -
-                                                                            </strong>
-                                                                        </span>
-                                                                        @foreach ($variation['values'] as $value)
-                                                                                <span class="d-block text-capitalize">
-                                                                                    &nbsp;   &nbsp; {{ $value['label']}} :
-                                                                                    <strong>{{\App\CentralLogics\Helpers::format_currency( $value['optionPrice'])}}</strong>
-                                                                                </span>
-                                                                        @endforeach
-                                                                @else
-                                                                            @if (isset(json_decode($detail['variation'],true)[0]))
-                                                                                <strong><u> {{  translate('messages.Variation') }} : </u></strong>
-                                                                                @foreach(json_decode($detail['variation'],true)[0] as $key1 =>$variation)
-                                                                                    <div class="font-size-sm text-body">
-                                                                                        <span>{{$key1}} :  </span>
-                                                                                        <span class="font-weight-bold">{{$variation}}</span>
-                                                                                    </div>
-                                                                                @endforeach
-                                                                            @endif
-                                                                @endif
-                                                            @endforeach
-                                                        @endif
-
-                                                        <h6>
-                                                            {{translate('qty')}} : {{ $detail['quantity'] }}
-                                                        </h6>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div>
-                                                @foreach (json_decode($detail['add_ons'], true) as $key2 => $addon)
-                                                    <div class="font-size-sm text-body">
-                                                        <span>{{ Str::limit($addon['name'], 20, '...') }} : </span>
-                                                        <span class="font-weight-bold">
-                                                            {{ $addon['quantity'] }} x
-                                                            {{ \App\CentralLogics\Helpers::format_currency($addon['price']) }}
-                                                        </span>
-
-                                                    </div>
-                                                    @php($total_addon_price += $addon['price'] * $addon['quantity'])
-                                                @endforeach
-                                            </div>
-                                        </td>
-                                        <td class="text-right">
-                                            <div>
-                                                @php($amount = $detail['price'] * $detail['quantity'])
-                                                <h5>{{ \App\CentralLogics\Helpers::format_currency($amount) }}</h5>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    @php($product_price += $amount)
-                                    @php($restaurant_discount_amount += $detail['discount_on_food'] * $detail['quantity'])
-                                    <!-- End Media -->
-                                @elseif(isset($detail->item_campaign_id) && $detail->status)
-                                {{-- {{ dd($detail) }} --}}
-                                    <?php
-                                    if (!$editing) {
-                                        $deleted_food = $detail->campaign == null?1:0;
-                                        $detail->campaign = json_decode($detail->food_details, true);
-                                        $campaign = \App\Models\ItemCampaign::where(['id' => $detail->campaign['id']])->first();
-                                    }
-                                    ?>
-                                    <!-- Media -->
-                                    <tr>
-                                        <td>
-                                            <!-- Static Count Number -->
-                                            <div>
-                                                {{$key+1}}
-                                            </div>
-                                            <!-- Static Count Number -->
-                                        </td>
-                                        <td>
-                                            <div class="media media--sm">
-                                                @if ($editing)
-                                                @if($detail->campaign == null)
-                                                <div class="avatar avatar-xl mr-3  cursor-pointer">
-                                                            <img class="img-fluid rounded"
-                                                            src="{{ dynamicAsset('public/assets/admin/img/100x100/food-default-image.png') }}"
-                                                            alt="Image Description">
-                                                            @else
-                                                            <div class="avatar avatar-xl mr-3  cursor-pointer quick_view_cart_item"
-                                                            data-key="{{ $key }}"
-                                                            title="{{ translate('messages.click_to_edit_this_item') }}">
-                                                            <span class="avatar-status avatar-lg-status avatar-status-dark">
-                                                            <i class="tio-edit"></i></span>
-                                                                <img class="img-fluid onerror-image"
-                                                                     src="{{ $campaign['image_full_url'] ?? dynamicAsset('public/assets/admin/img/100x100/food-default-image.png') }}"
-                                                                     data-onerror-image="{{dynamicAsset('public/assets/admin/img/100x100/food-default-image.png')}}"
-                                                                     alt="Image Description">
-                                                            @endif
-                                                    </div>
-                                                @else
-                                                    @if(!$deleted_food)
-                                                    <a class="avatar avatar-xl mr-3"
-                                                    href="{{ route('admin.campaign.view', ['item', $detail->campaign['id']]) }}">
-                                                        <img class="img-fluid rounded onerror-image"
-                                                             src="{{ $campaign['image_full_url'] ?? dynamicAsset('public/assets/admin/img/100x100/food-default-image.png') }}"
-                                                             data-onerror-image="{{dynamicAsset('public/assets/admin/img/100x100/food-default-image.png')}}"
-                                                             alt="Image Description">
-                                                        </a>
-                                                    @else
-                                                        <div class="avatar avatar-xl mr-3">
-                                                            <img class="img-fluid"
-                                                                src="{{ dynamicAsset('public/assets/admin/img/100x100/food-default-image.png') }}"
-                                                                alt="Image Description">
-                                                        </div>
-                                                    @endif
-                                                @endif
-                                                <div class="media-body">
-                                                    <div>
-                                                        <strong class="line--limit-1"> {{ $detail->campaign == null?'Not Found':$detail->campaign['name'] }}</strong>
-                                                        @if (count(json_decode($detail['variation'], true)) > 0)
-                                                        @foreach(json_decode($detail['variation'],true) as  $variation)
-                                                        @if ( isset($variation['name'])  && isset($variation['values']))
-                                                            <span class="d-block text-capitalize">
-                                                                    <strong>
-                                                                {{  $variation['name']}} -
-                                                                    </strong>
-                                                            </span>
-                                                            @foreach ($variation['values'] as $value)
-                                                            <span class="d-block text-capitalize">
-                                                                &nbsp;   &nbsp; {{ $value['label']}} :
-                                                                <strong>{{\App\CentralLogics\Helpers::format_currency( $value['optionPrice'])}}</strong>
-                                                                </span>
-                                                            @endforeach
-                                                        @else
-                                                            @if (isset(json_decode($detail['variation'],true)[0]))
-                                                            <strong><u> {{  translate('messages.Variation') }} : </u></strong>
-                                                                @foreach(json_decode($detail['variation'],true)[0] as $key1 =>$variation)
-                                                                    <div class="font-size-sm text-body">
-                                                                        <span>{{$key1}} :  </span>
-                                                                        <span class="font-weight-bold">{{$variation}}</span>
-                                                                    </div>
-                                                                @endforeach
-                                                            @endif
-                                                                @break
-                                                        @endif
-                                                                @endforeach
-                                                    @endif
-                                                        <h6>
-                                                            {{ $detail['quantity'] }} x {{ \App\CentralLogics\Helpers::format_currency($detail['price']) }}
-                                                        </h6>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div>
-                                                @foreach (json_decode($detail['add_ons'], true) as $key2 => $addon)
-                                                    @if ($key2 == 0)
-                                                        <strong><u>{{ translate('messages.addons') }} : </u></strong>
-                                                    @endif
-                                                    <div class="font-size-sm text-body">
-                                                        <span class="font-weight-bold">
-                                                            {{ $addon['quantity'] }} x
-                                                            {{ \App\CentralLogics\Helpers::format_currency($addon['price']) }}
-                                                        </span>
-                                                        <span>{{ Str::limit($addon['name'], 20, '...') }} : </span>
-                                                    </div>
-                                                    @php($total_addon_price += $addon['price'] * $addon['quantity'])
-                                                @endforeach
-                                            </div>
-                                        </td>
-                                        <td class="text-right">
-                                            <div>
-                                                @php($amount = $detail['price'] * $detail['quantity'])
-                                                <h5>{{ \App\CentralLogics\Helpers::format_currency($amount) }}</h5>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    @php($product_price += $amount)
-                                    @php($restaurant_discount_amount += $detail['discount_on_food'] * $detail['quantity'])
-                                    <!-- End Media -->
+                    <!-- ── Product Cards (replaces table) ── -->
+                    <div class="px-4 pt-2 pb-0">
+                        <div class="ov-section-label">{{ translate('item_details') }}</div>
+                        @forelse ($details as $key => $detail)
+                        @if (isset($detail->food_id) && $detail->status)
+                            <?php
+                            if (!$editing) {
+                                $deleted_food = $detail->food == null ? 1 : 0;
+                                $detail->food = json_decode($detail->food_details, true);
+                            }
+                            $food = \App\Models\Food::where(['id' => $detail?->food['id']])->first();
+                            $amount = $detail['price'] * $detail['quantity'];
+                            $addons_list = json_decode($detail['add_ons'], true);
+                            $variations_list = isset($detail['variation']) ? json_decode($detail['variation'], true) : [];
+                            ?>
+                            <div class="ov-item-card">
+                                @if($editing)
+                                    @if($detail->food == null)
+                                        <img class="ov-item-img" src="{{ dynamicAsset('public/assets/admin/img/100x100/food-default-image.png') }}" alt="">
+                                    @else
+                                        <img class="ov-item-img onerror-image cursor-pointer quick_view_cart_item"
+                                            data-key="{{ $key }}"
+                                            title="{{ translate('messages.click_to_edit_this_item') }}"
+                                            src="{{ $food['image_full_url'] ?? dynamicAsset('public/assets/admin/img/100x100/food-default-image.png') }}"
+                                            data-onerror-image="{{ dynamicAsset('public/assets/admin/img/100x100/food-default-image.png') }}" alt="">
+                                    @endif
+                                @else
+                                    @if(!$deleted_food)
+                                        <a href="{{ route('admin.food.view', $detail->food['id']) }}">
+                                            <img class="ov-item-img onerror-image"
+                                                src="{{ $food['image_full_url'] ?? dynamicAsset('public/assets/admin/img/100x100/food-default-image.png') }}"
+                                                data-onerror-image="{{ dynamicAsset('public/assets/admin/img/100x100/food-default-image.png') }}" alt="">
+                                        </a>
+                                    @else
+                                        <img class="ov-item-img" src="{{ dynamicAsset('public/assets/admin/img/100x100/food-default-image.png') }}" alt="">
+                                    @endif
                                 @endif
-                                    @empty
-                                        <tr>
-                                            <td>
-                                                {{ translate('Food_was_deleted') }}
+                                <div style="flex:1;min-width:0;">
+                                    <div class="ov-item-name">{{ $detail->food == null ? translate('Food_was_deleted') : $detail->food['name'] }}</div>
+                                    @foreach($variations_list as $variation)
+                                        @if(isset($variation['name']) && isset($variation['values']))
+                                            <span class="ov-item-meta">{{ $variation['name'] }}:
+                                                @foreach($variation['values'] as $value) {{ $value['label'] }} ({{ \App\CentralLogics\Helpers::format_currency($value['optionPrice']) }}) @endforeach
+                                            </span>
+                                        @elseif(isset($variations_list[0]))
+                                            @foreach($variations_list[0] as $k1 => $v1)
+                                            <span class="ov-item-meta d-block">{{ $k1 }}: <strong>{{ $v1 }}</strong></span>
+                                            @endforeach
+                                            @break
+                                        @endif
+                                    @endforeach
+                                    @if(count($addons_list) > 0)
+                                    <div class="ov-item-meta mt-1">
+                                        + @foreach($addons_list as $key2 => $addon)
+                                            {{ $addon['name'] }} ×{{ $addon['quantity'] }}{{ !$loop->last ? ', ' : '' }}
+                                            @php($total_addon_price += $addon['price'] * $addon['quantity'])
+                                        @endforeach
+                                    </div>
+                                    @else
+                                        @foreach($addons_list as $addon)
+                                            @php($total_addon_price += $addon['price'] * $addon['quantity'])
+                                        @endforeach
+                                    @endif
+                                </div>
+                                <span class="ov-item-qty">{{ $detail['quantity'] }}</span>
+                                <div class="ov-item-price">{{ \App\CentralLogics\Helpers::format_currency($amount) }}</div>
+                            </div>
+                            @php($product_price += $amount)
+                            @php($restaurant_discount_amount += $detail['discount_on_food'] * $detail['quantity'])
 
-                                            </td>
-                                        </tr>
-                                    @endforelse
-                                </tbody>
-                        </table>
-                        </div>
+                        @elseif(isset($detail->item_campaign_id) && $detail->status)
+                            <?php
+                            if (!$editing) {
+                                $deleted_food = $detail->campaign == null ? 1 : 0;
+                                $detail->campaign = json_decode($detail->food_details, true);
+                                $campaign = \App\Models\ItemCampaign::where(['id' => $detail->campaign['id']])->first();
+                            }
+                            $amount = $detail['price'] * $detail['quantity'];
+                            $addons_list = json_decode($detail['add_ons'], true);
+                            $variations_list = isset($detail['variation']) ? json_decode($detail['variation'], true) : [];
+                            ?>
+                            <div class="ov-item-card">
+                                @if($editing)
+                                    @if($detail->campaign == null)
+                                        <img class="ov-item-img" src="{{ dynamicAsset('public/assets/admin/img/100x100/food-default-image.png') }}" alt="">
+                                    @else
+                                        <img class="ov-item-img onerror-image cursor-pointer quick_view_cart_item"
+                                            data-key="{{ $key }}"
+                                            src="{{ $campaign['image_full_url'] ?? dynamicAsset('public/assets/admin/img/100x100/food-default-image.png') }}"
+                                            data-onerror-image="{{ dynamicAsset('public/assets/admin/img/100x100/food-default-image.png') }}" alt="">
+                                    @endif
+                                @else
+                                    @if(!$deleted_food)
+                                        <a href="{{ route('admin.campaign.view', ['item', $detail->campaign['id']]) }}">
+                                            <img class="ov-item-img onerror-image"
+                                                src="{{ $campaign['image_full_url'] ?? dynamicAsset('public/assets/admin/img/100x100/food-default-image.png') }}"
+                                                data-onerror-image="{{ dynamicAsset('public/assets/admin/img/100x100/food-default-image.png') }}" alt="">
+                                        </a>
+                                    @else
+                                        <img class="ov-item-img" src="{{ dynamicAsset('public/assets/admin/img/100x100/food-default-image.png') }}" alt="">
+                                    @endif
+                                @endif
+                                <div style="flex:1;min-width:0;">
+                                    <div class="ov-item-name">{{ $detail->campaign == null ? translate('Food_was_deleted') : $detail->campaign['name'] }}</div>
+                                    @foreach($variations_list as $variation)
+                                        @if(isset($variation['name']) && isset($variation['values']))
+                                            <span class="ov-item-meta">{{ $variation['name'] }}:
+                                                @foreach($variation['values'] as $value) {{ $value['label'] }} ({{ \App\CentralLogics\Helpers::format_currency($value['optionPrice']) }}) @endforeach
+                                            </span>
+                                        @elseif(isset($variations_list[0]))
+                                            @foreach($variations_list[0] as $k1 => $v1)
+                                            <span class="ov-item-meta d-block">{{ $k1 }}: <strong>{{ $v1 }}</strong></span>
+                                            @endforeach
+                                            @break
+                                        @endif
+                                    @endforeach
+                                    @if(count($addons_list) > 0)
+                                    <div class="ov-item-meta mt-1">
+                                        + @foreach($addons_list as $key2 => $addon)
+                                            {{ $addon['name'] }} ×{{ $addon['quantity'] }}{{ !$loop->last ? ', ' : '' }}
+                                            @php($total_addon_price += $addon['price'] * $addon['quantity'])
+                                        @endforeach
+                                    </div>
+                                    @else
+                                        @foreach($addons_list as $addon)
+                                            @php($total_addon_price += $addon['price'] * $addon['quantity'])
+                                        @endforeach
+                                    @endif
+                                </div>
+                                <span class="ov-item-qty">{{ $detail['quantity'] }}</span>
+                                <div class="ov-item-price">{{ \App\CentralLogics\Helpers::format_currency($amount) }}</div>
+                            </div>
+                            @php($product_price += $amount)
+                            @php($restaurant_discount_amount += $detail['discount_on_food'] * $detail['quantity'])
+                        @endif
+                        @empty
+                            <div class="text-muted py-3">{{ translate('Food_was_deleted') }}</div>
+                        @endforelse
+                    </div>
+                    <!-- End Product Cards -->
                         <hr class="mt-0">
 
                         <?php
@@ -1121,97 +1165,113 @@ $max_processing_time = $order->restaurant?explode('-', $order->restaurant['deliv
                                         </div>
                                         @endif
                                     @if ($order->offline_payments == null  || ($order?->offline_payments && $order?->offline_payments->status == 'verified'))
-                                    <!-- Card -->
                                     @if(empty($order->refund))
                                     @if (!in_array($order['order_status'], ['delivered','take_away','refund_requested','canceled','refunded','refund_request_canceled']) )
+
+                                    <!-- ── Redesigned Status Stepper Card ── -->
+                                    @php
+                                    $statusFlow = ['pending','confirmed','processing','handover'];
+                                    if($order['order_type'] == 'delivery') $statusFlow[] = 'picked_up';
+                                    $statusFlow[] = 'delivered';
+                                    $currentIdx = array_search($order['order_status'], $statusFlow);
+                                    if($currentIdx === false) $currentIdx = 0;
+
+                                    $statusLabels = [
+                                        'pending'    => translate('messages.pending'),
+                                        'confirmed'  => translate('messages.confirmed'),
+                                        'processing' => translate('messages.processing'),
+                                        'handover'   => translate('messages.handover'),
+                                        'picked_up'  => translate('messages.out_for_delivery'),
+                                        'delivered'  => $order['order_type'] == 'dine_in' ? translate('messages.Completed') : translate('messages.delivered'),
+                                    ];
+                                    $statusUrls = [
+                                        'pending'    => route('admin.order.status', ['id'=>$order['id'],'order_status'=>'pending']),
+                                        'confirmed'  => route('admin.order.status', ['id'=>$order['id'],'order_status'=>'confirmed']),
+                                        'processing' => route('admin.order.status', ['id'=>$order['id'],'order_status'=>'processing']),
+                                        'handover'   => route('admin.order.status', ['id'=>$order['id'],'order_status'=>'handover']),
+                                        'picked_up'  => route('admin.order.status', ['id'=>$order['id'],'order_status'=>'picked_up']),
+                                        'delivered'  => route('admin.order.status', ['id'=>$order['id'],'order_status'=>'delivered']),
+                                    ];
+                                    $nextIdx = $currentIdx + 1;
+                                    $nextStatus = $nextIdx < count($statusFlow) ? $statusFlow[$nextIdx] : null;
+                                    @endphp
+
                                     <div class="card mb-2">
-                                        <!-- Header -->
-                                                        <div class="card-header border-0 justify-content-center pt-4 pb-0">
-                                                            <h4 class="card-header-title">{{translate('order_Setup')}}</h4>
-                                                        </div>
+                                        <div class="card-body">
+                                            <div class="ov-section-label mb-3">{{ translate('order_Setup') }}</div>
 
-
-                                                        <!-- End Header -->
-                                                        <!-- Body -->
-                                                        <div class="card-body">
-                                                        <label class="form-label">{{translate('change_order_status')}}</label>
-                                                        <!-- Unfold -->
-                                                        <div>
-                                                            <div class="dropdown">
-                                                                @if (isset($order->restaurant))
-                                                                    <button class="form-control h--45px dropdown-toggle d-flex justify-content-between align-items-center" type="button"
-                                                                        id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true"
-                                                                        aria-expanded="false">
-
-                                                                        <?php
-                                                                            $message= match($order['order_status']){
-                                                                                            'pending' => translate('messages.pending'),
-                                                                                            'confirmed' => translate('messages.confirmed'),
-                                                                                            'accepted' => translate('messages.accepted'),
-                                                                                            'processing' => translate('messages.processing'),
-                                                                                            'handover' => translate('messages.handover'),
-                                                                                            'picked_up' => translate('messages.out_for_delivery'),
-                                                                                            'delivered' => $order['order_type'] == 'dine_in' ? translate('messages.Completed') : translate('messages.delivered')                                                                                    ,
-                                                                                            'canceled' => translate('messages.canceled'),
-                                                                                            default => translate('messages.status') ,
-                                                                                        };
-                                                                        ?>
-                                                                        {{ $message }}
-                                                                    </button>
-                                                                @endif
-                                                                    @php($order_delivery_verification = (bool) \App\Models\BusinessSetting::where(['key' => 'order_delivery_verification'])->first()->value)
-                                                                    <div class="dropdown-menu text-capitalize" aria-labelledby="dropdownMenuButton">
-                                                                        <a class="dropdown-item route-alert {{ $order['order_status'] == 'pending' ? 'active' : '' }}"
-                                                                            data-url="{{ route('admin.order.status', ['id' => $order['id'], 'order_status' => 'pending']) }}" data-message="{{ translate('Change_status_to_pending_?') }}"
-                                                                            href="javascript:">{{ translate('messages.pending') }}</a>
-                                                                        <a class="dropdown-item route-alert {{ $order['order_status'] == 'confirmed' ? 'active' : '' }}"
-                                                                            data-url="{{ route('admin.order.status', ['id' => $order['id'], 'order_status' => 'confirmed']) }}" data-message="{{ translate('Change_status_to_confirmed_?') }}"
-                                                                            href="javascript:">{{ translate('messages.confirmed') }}</a>
-
-                                                                        <a class="dropdown-item route-alert {{ $order['order_status'] == 'processing' ? 'active' : '' }}"
-                                                                            data-url="{{ route('admin.order.status', ['id' => $order['id'], 'order_status' => 'processing']) }}" data-message="{{ translate('Change_status_to_processing_?') }}" data-title="{{ translate('Are_you_sure?') }}" data-processing="{{ $max_processing_time }}"
-                                                                            href="javascript:">
-                                                                            {{ translate('messages.processing') }}</a>
-
-                                                                        <a class="dropdown-item route-alert {{ $order['order_status'] == 'handover' ? 'active' : '' }}"
-                                                                            data-url="{{ route('admin.order.status', ['id' => $order['id'], 'order_status' => 'handover']) }}" data-message="{{ translate('Change_status_to_handover_?') }}"
-                                                                            href="javascript:">{{ translate('messages.handover') }}</a>
-                                                                        @if ($order['order_type'] == 'delivery')
-                                                                        <a class="dropdown-item route-alert {{ $order['order_status'] == 'picked_up' ? 'active' : '' }}"
-                                                                            data-url="{{ route('admin.order.status', ['id' => $order['id'], 'order_status' => 'picked_up']) }}" data-message="{{ translate('Change_status_to_out_for_delivery_?') }}"
-                                                                            href="javascript:">{{ translate('messages.out_for_delivery') }}</a>
-                                                                        @endif
-
-                                                                        <a class="dropdown-item route-alert {{ $order['order_status'] == 'delivered' ? 'active' : '' }}"
-                                                                            data-url="{{ route('admin.order.status', ['id' => $order['id'], 'order_status' => 'delivered']) }}" data-message="{{ translate('Change_status_to_delivered_(payment_status_will_be_paid_if_not)_?') }}"
-                                                                            href="javascript:"> {{$order?->order_type == 'dine_in' ? translate('messages.Completed') : translate('messages.delivered')}}
-                                                                        </a>
-                                                                        <a class="dropdown-item cancelled_status {{ $order['order_status'] == 'canceled' ? 'active' : '' }}"
-                                                                            >{{ translate('messages.canceled') }}</a>
-                                                                    </div>
-                                                            </div>
-                                                        </div>
-
-                                                        <!-- End Unfold -->
-                                                        <!-- Static -->
-                                                        @if (!in_array($order['order_type'],['dine_in','take_away']) && !$order->delivery_man &&
-                                                            (isset($order->restaurant) &&   ($order->restaurant->restaurant_model == 'commission'
-                                                            && !$order->restaurant->self_delivery_system ) ||  ($order->restaurant->restaurant_model == 'subscription'
-                                                            && isset($order->restaurant->restaurant_sub) && $order->restaurant->restaurant_sub->self_delivery == 0)))
-                                                            <div class="w-100 text-center mt-4">
-                                                                <button type="button" class="btn w-100 btn-primary font-regular" data-toggle="modal"
-                                                                    data-target="#myModal" data-lat='21.03' data-lng='105.85'>
-                                                                    <i class="tio-bike"></i> {{ translate('messages.assign_delivery_man') }}
-                                                                </button>
-                                                            </div>
+                                            <!-- Status Stepper -->
+                                            <div class="ov-stepper mb-4">
+                                                @foreach($statusFlow as $idx => $step)
+                                                <div class="ov-step {{ $idx < $currentIdx ? 'done' : ($idx == $currentIdx ? 'active' : '') }}">
+                                                    <div class="ov-step-dot">
+                                                        @if($idx < $currentIdx)
+                                                            <i class="tio-checkmark" style="font-size:0.75rem;"></i>
+                                                        @else
+                                                            {{ $idx + 1 }}
                                                         @endif
                                                     </div>
-                                                    @endif
+                                                    <div class="ov-step-label">{{ $statusLabels[$step] ?? $step }}</div>
+                                                </div>
+                                                @endforeach
+                                            </div>
+
+                                            <!-- Primary CTA: advance to next step -->
+                                            @if($nextStatus && isset($order->restaurant))
+                                            <a href="javascript:"
+                                               class="ov-cta-primary route-alert"
+                                               data-url="{{ $statusUrls[$nextStatus] }}"
+                                               data-message="{{ translate('Change_status_to_'.$nextStatus.'_?') }}"
+                                               @if($nextStatus=='processing') data-processing="{{ $max_processing_time }}" data-title="{{ translate('Are_you_sure?') }}" @endif>
+                                                <i class="tio-arrow-forward"></i>
+                                                {{ translate('messages.advance_to') ?? 'التقدم إلى' }}: {{ $statusLabels[$nextStatus] }}
+                                            </a>
                                             @endif
 
-                                        <!-- End Body -->
+                                            <!-- Assign delivery man: shown only when relevant -->
+                                            @if (!in_array($order['order_type'],['dine_in','take_away']) && !$order->delivery_man &&
+                                                (isset($order->restaurant) && ($order->restaurant->restaurant_model == 'commission'
+                                                && !$order->restaurant->self_delivery_system) || ($order->restaurant->restaurant_model == 'subscription'
+                                                && isset($order->restaurant->restaurant_sub) && $order->restaurant->restaurant_sub->self_delivery == 0)))
+                                                <button type="button"
+                                                    class="ov-cta-secondary {{ $currentIdx < 2 ? 'disabled' : '' }}"
+                                                    @if($currentIdx < 2) disabled title="{{ translate('Assign_after_processing') }}" @else data-toggle="modal" data-target="#myModal" data-lat='21.03' data-lng='105.85' @endif>
+                                                    <i class="tio-bike"></i> {{ translate('messages.assign_delivery_man') }}
+                                                </button>
+                                            @endif
+
+                                            <!-- Cancel -->
+                                            @if(isset($order->restaurant))
+                                            <button type="button"
+                                                class="ov-cta-secondary cancelled_status"
+                                                style="color:#c0392b;border-color:#fca5a5;margin-top:6px;">
+                                                <i class="tio-clear"></i> {{ translate('messages.canceled') }}
+                                            </button>
+                                            @endif
+
+                                            <!-- Legacy dropdown (hidden, kept for JS compatibility) -->
+                                            <div class="dropdown d-none">
+                                                @if(isset($order->restaurant))
+                                                <button class="form-control dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown">{{ $message ?? '' }}</button>
+                                                @php($order_delivery_verification = (bool) \App\Models\BusinessSetting::where(['key' => 'order_delivery_verification'])->first()->value)
+                                                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                                    <a class="dropdown-item route-alert {{ $order['order_status']=='pending'?'active':'' }}" data-url="{{ route('admin.order.status',['id'=>$order['id'],'order_status'=>'pending']) }}" data-message="{{ translate('Change_status_to_pending_?') }}" href="javascript:">{{ translate('messages.pending') }}</a>
+                                                    <a class="dropdown-item route-alert {{ $order['order_status']=='confirmed'?'active':'' }}" data-url="{{ route('admin.order.status',['id'=>$order['id'],'order_status'=>'confirmed']) }}" data-message="{{ translate('Change_status_to_confirmed_?') }}" href="javascript:">{{ translate('messages.confirmed') }}</a>
+                                                    <a class="dropdown-item route-alert {{ $order['order_status']=='processing'?'active':'' }}" data-url="{{ route('admin.order.status',['id'=>$order['id'],'order_status'=>'processing']) }}" data-message="{{ translate('Change_status_to_processing_?') }}" data-title="{{ translate('Are_you_sure?') }}" data-processing="{{ $max_processing_time }}" href="javascript:">{{ translate('messages.processing') }}</a>
+                                                    <a class="dropdown-item route-alert {{ $order['order_status']=='handover'?'active':'' }}" data-url="{{ route('admin.order.status',['id'=>$order['id'],'order_status'=>'handover']) }}" data-message="{{ translate('Change_status_to_handover_?') }}" href="javascript:">{{ translate('messages.handover') }}</a>
+                                                    @if($order['order_type']=='delivery')
+                                                    <a class="dropdown-item route-alert {{ $order['order_status']=='picked_up'?'active':'' }}" data-url="{{ route('admin.order.status',['id'=>$order['id'],'order_status'=>'picked_up']) }}" data-message="{{ translate('Change_status_to_out_for_delivery_?') }}" href="javascript:">{{ translate('messages.out_for_delivery') }}</a>
+                                                    @endif
+                                                    <a class="dropdown-item route-alert {{ $order['order_status']=='delivered'?'active':'' }}" data-url="{{ route('admin.order.status',['id'=>$order['id'],'order_status'=>'delivered']) }}" data-message="{{ translate('Change_status_to_delivered_(payment_status_will_be_paid_if_not)_?') }}" href="javascript:">{{ $order?->order_type=='dine_in'?translate('messages.Completed'):translate('messages.delivered') }}</a>
+                                                    <a class="dropdown-item cancelled_status {{ $order['order_status']=='canceled'?'active':'' }}">{{ translate('messages.canceled') }}</a>
+                                                </div>
+                                                @endif
+                                            </div>
+                                        </div>
                                     </div>
-                                    <!-- End Card -->
+                                    <!-- End Stepper Card -->
+
+                                    @endif
                                     @endif
                                 </div>
                             @endif
