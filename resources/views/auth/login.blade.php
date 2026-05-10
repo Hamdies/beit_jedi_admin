@@ -24,21 +24,41 @@
 
     <style>
         :root {
-            --navy:         oklch(22% 0.06 255);
-            --navy-hover:   oklch(27% 0.06 255);
-            --gold:         oklch(68% 0.12 80);
-            --gold-dim:     oklch(68% 0.08 80 / 0.15);
-            --surface:      oklch(99% 0.004 255);
-            --bg:           oklch(96.5% 0.006 255);
-            --border:       oklch(90% 0.008 255);
-            --border-focus: oklch(40% 0.08 255);
-            --text-1:       oklch(18% 0.02 255);
-            --text-2:       oklch(40% 0.02 255);
-            --text-3:       oklch(58% 0.015 255);
-            --red:          oklch(55% 0.18 25);
-            --red-bg:       oklch(97% 0.015 25);
-            --font:         'Thmanyah Sans', 'Open Sans', sans-serif;
-            --r:            10px;
+            /* Navy family */
+            --navy-900: oklch(19% 0.055 258);
+            --navy-800: oklch(24% 0.062 258);
+            --navy-700: oklch(30% 0.065 258);
+            --navy-200: oklch(88% 0.018 258);
+            --navy-100: oklch(93% 0.010 258);
+
+            /* Gold — single accent, used sparingly */
+            --gold:     oklch(66% 0.115 75);
+            --gold-dim: oklch(66% 0.06  75 / 0.14);
+
+            /* Surface scale — warm paper, not clinical white */
+            --bg:       oklch(96.8% 0.006 80);
+            --surface:  oklch(99%   0.004 80);
+            --surface-2:oklch(97%   0.005 80);
+
+            /* Borders */
+            --border:       oklch(88% 0.010 258);
+            --border-strong:oklch(78% 0.018 258);
+
+            /* Text scale */
+            --text-1: oklch(16% 0.025 258);
+            --text-2: oklch(36% 0.022 258);
+            --text-3: oklch(56% 0.016 258);
+
+            /* Semantic */
+            --red:    oklch(53% 0.19 25);
+            --red-bg: oklch(97.5% 0.012 25);
+
+            /* Geometry */
+            --r-sm: 7px;
+            --r:    11px;
+            --r-lg: 14px;
+
+            --font: 'Thmanyah Sans', 'Open Sans', sans-serif;
         }
 
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -50,201 +70,264 @@
             -moz-osx-font-smoothing: grayscale;
         }
 
+        /* ── PAGE SHELL ── */
         body {
             min-height: 100vh;
             font-family: var(--font);
             background: var(--bg);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
+            display: grid;
+            place-items: center;
             padding: 2rem 1.25rem;
         }
 
-        /* ── LAYOUT ── */
-        .login-wrap {
-            width: 100%;
-            max-width: 440px;
-            animation: appear 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+        /* Subtle ruled texture — just enough to break flatness */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image: repeating-linear-gradient(
+                0deg,
+                oklch(90% 0.007 258 / 0.45) 0px,
+                transparent 1px,
+                transparent 28px
+            );
+            pointer-events: none;
+            z-index: 0;
         }
 
-        @keyframes appear {
-            from { opacity: 0; transform: translateY(12px); }
+        /* ── CARD SHELL ── */
+        .login-shell {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 420px;
+            animation: rise 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+        }
+
+        @keyframes rise {
+            from { opacity: 0; transform: translateY(10px); }
             to   { opacity: 1; transform: translateY(0); }
         }
 
-        /* ── BRAND ── */
-        .brand {
+        /* ── WORDMARK ── */
+        .wordmark {
             display: flex;
             align-items: center;
-            gap: 0.85rem;
-            margin-bottom: 2.75rem;
+            gap: 0.9rem;
+            margin-bottom: 2.5rem;
+            padding-right: 0.25rem;
         }
 
-        .brand-mark {
-            width: 44px;
-            height: 44px;
-            border-radius: 10px;
-            background: var(--navy);
+        .wordmark-badge {
+            width: 42px;
+            height: 42px;
+            border-radius: var(--r-sm);
+            background: var(--navy-900);
             display: flex;
             align-items: center;
             justify-content: center;
             flex-shrink: 0;
             overflow: hidden;
+            box-shadow:
+                0 1px 2px oklch(0% 0 0 / 0.18),
+                0 3px 8px oklch(19% 0.055 258 / 0.28);
         }
 
-        .brand-mark img {
-            width: 28px;
-            height: 28px;
+        .wordmark-badge img {
+            width: 26px;
+            height: 26px;
             object-fit: contain;
             filter: brightness(0) invert(1);
         }
 
-        .brand-name {
+        .wordmark-text {
+            line-height: 1;
+        }
+
+        .wordmark-name {
             font-size: 1rem;
             font-weight: 700;
             color: var(--text-1);
-            letter-spacing: -0.01em;
+            letter-spacing: -0.015em;
         }
 
-        .brand-sub {
-            font-size: 0.75rem;
+        .wordmark-sub {
+            font-size: 0.725rem;
             color: var(--text-3);
-            margin-top: 1px;
+            margin-top: 3px;
+            letter-spacing: 0.01em;
         }
 
-        /* ── HEADING ── */
+        /* ── EYEBROW + HEADING ── */
+        .eyebrow {
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--gold);
+            margin-bottom: 0.5rem;
+        }
+
         .heading {
-            font-size: 1.75rem;
+            font-size: 1.8rem;
             font-weight: 800;
             color: var(--text-1);
-            letter-spacing: -0.025em;
-            line-height: 1.15;
-            margin-bottom: 0.35rem;
+            letter-spacing: -0.03em;
+            line-height: 1.1;
+            margin-bottom: 0.4rem;
         }
 
         .sub {
-            font-size: 0.875rem;
+            font-size: 0.85rem;
             color: var(--text-3);
-            margin-bottom: 2rem;
-            line-height: 1.6;
+            line-height: 1.65;
+            margin-bottom: 1.75rem;
         }
 
         /* ── FORM CARD ── */
         .form-card {
             background: var(--surface);
             border: 1px solid var(--border);
-            border-radius: var(--r);
-            padding: 2rem;
-            box-shadow: 0 1px 3px oklch(0% 0 0 / 0.04), 0 8px 24px oklch(0% 0 0 / 0.06);
+            border-radius: var(--r-lg);
+            padding: 2rem 2rem 2.25rem;
+            box-shadow:
+                0 0 0 1px oklch(85% 0.015 258 / 0.5) inset,
+                0 1px 2px oklch(0% 0 0 / 0.04),
+                0 6px 18px oklch(0% 0 0 / 0.065),
+                0 18px 48px oklch(0% 0 0 / 0.05);
+        }
+
+        /* ── DIVIDER LABEL ── */
+        .form-section-label {
+            font-size: 0.72rem;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            color: var(--text-3);
+            margin-bottom: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.65rem;
+        }
+
+        .form-section-label::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border);
         }
 
         /* ── FIELDS ── */
         .field { margin-bottom: 1.1rem; }
 
         .field-label {
-            display: block;
-            font-size: 0.8rem;
+            display: flex;
+            align-items: baseline;
+            gap: 0.3rem;
+            font-size: 0.78rem;
             font-weight: 600;
             color: var(--text-2);
-            margin-bottom: 0.45rem;
-            letter-spacing: 0.005em;
+            margin-bottom: 0.42rem;
+            letter-spacing: 0.01em;
         }
 
         .field-wrap { position: relative; }
 
         .field-input {
             width: 100%;
-            background: var(--bg);
+            background: var(--surface-2);
             border: 1.5px solid var(--border);
-            border-radius: calc(var(--r) - 2px);
-            padding: 0.78rem 1rem;
-            font-size: 0.9rem;
+            border-radius: var(--r-sm);
+            padding: 0.76rem 1rem;
+            font-size: 0.88rem;
             font-family: var(--font);
             color: var(--text-1);
-            transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
+            transition: border-color 0.14s, box-shadow 0.14s, background 0.14s;
             outline: none;
             appearance: none;
         }
 
         .field-input::placeholder { color: var(--text-3); }
 
+        .field-input:hover:not(:focus) {
+            border-color: var(--border-strong);
+        }
+
         .field-input:focus {
             background: var(--surface);
-            border-color: var(--border-focus);
-            box-shadow: 0 0 0 3px oklch(40% 0.08 255 / 0.1);
+            border-color: var(--navy-700);
+            box-shadow: 0 0 0 3px oklch(30% 0.065 258 / 0.12);
         }
 
-        .field-input.is-error {
-            border-color: var(--red);
-            background: var(--red-bg);
-        }
-
-        .field-input.is-error:focus {
-            box-shadow: 0 0 0 3px oklch(55% 0.18 25 / 0.12);
-        }
-
-        /* password field — toggle on right for RTL */
-        .field-input.has-toggle { padding-right: 2.9rem; }
+        /* password toggle */
+        .field-input.has-toggle { padding-right: 2.75rem; }
 
         .field-toggle {
             position: absolute;
             top: 50%;
-            right: 0.85rem;
+            right: 0.82rem;
             transform: translateY(-50%);
             background: none;
             border: none;
             cursor: pointer;
             color: var(--text-3);
-            font-size: 1rem;
+            font-size: 0.95rem;
             padding: 0;
             display: flex;
             align-items: center;
-            transition: color 0.15s;
+            transition: color 0.14s;
             line-height: 1;
         }
 
-        .field-toggle:hover { color: var(--text-1); }
+        .field-toggle:hover { color: var(--text-2); }
 
         .field-error {
             display: none;
-            font-size: 0.75rem;
+            font-size: 0.73rem;
             color: var(--red);
-            margin-top: 0.35rem;
-            padding-right: 0.1rem;
+            margin-top: 0.32rem;
+            padding-right: 0.05rem;
         }
 
-        .field.has-error .field-error { display: block; }
-        .field.has-error .field-input  { border-color: var(--red); background: var(--red-bg); }
+        .field.has-error .field-error  { display: block; }
+        .field.has-error .field-input  {
+            border-color: var(--red);
+            background: var(--red-bg);
+        }
+
+        .field.has-error .field-input:focus {
+            box-shadow: 0 0 0 3px oklch(53% 0.19 25 / 0.12);
+        }
 
         /* ── META ROW ── */
         .meta-row {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin: 0.5rem 0 1.5rem;
+            margin: 0.25rem 0 1.5rem;
         }
 
         .remember-label {
             display: flex;
             align-items: center;
             gap: 0.45rem;
-            font-size: 0.82rem;
+            font-size: 0.8rem;
             color: var(--text-3);
             cursor: pointer;
             user-select: none;
         }
 
         .remember-label input[type="checkbox"] {
-            width: 15px;
-            height: 15px;
-            accent-color: var(--navy);
+            width: 14px;
+            height: 14px;
+            accent-color: var(--navy-900);
             cursor: pointer;
             flex-shrink: 0;
         }
 
+        /* Gold accent: the single use of it on the page */
         .forgot-btn {
-            font-size: 0.82rem;
+            font-size: 0.8rem;
             font-weight: 600;
             color: var(--gold);
             background: none;
@@ -252,39 +335,52 @@
             cursor: pointer;
             padding: 0;
             font-family: var(--font);
-            transition: opacity 0.15s;
+            transition: opacity 0.14s;
+            text-underline-offset: 3px;
         }
 
-        .forgot-btn:hover { opacity: 0.75; }
+        .forgot-btn:hover { opacity: 0.72; text-decoration: underline; }
 
         /* ── SUBMIT ── */
         .btn-submit {
             width: 100%;
-            padding: 0.85rem 1rem;
-            background: var(--navy);
-            color: oklch(98% 0.005 255);
+            padding: 0.88rem 1rem;
+            background: var(--navy-900);
+            color: oklch(97% 0.005 258);
             border: none;
-            border-radius: calc(var(--r) - 2px);
-            font-size: 0.95rem;
+            border-radius: var(--r-sm);
+            font-size: 0.93rem;
             font-weight: 700;
             font-family: var(--font);
+            letter-spacing: 0.005em;
             cursor: pointer;
-            transition: background 0.18s, transform 0.12s, box-shadow 0.18s;
-            box-shadow: 0 1px 3px oklch(0% 0 0 / 0.15), 0 4px 12px oklch(22% 0.06 255 / 0.25);
+            transition: background 0.16s, transform 0.1s, box-shadow 0.16s;
+            box-shadow:
+                0 1px 0 oklch(100% 0 0 / 0.06) inset,
+                0 2px 4px oklch(0% 0 0 / 0.12),
+                0 6px 16px oklch(19% 0.055 258 / 0.3);
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 0.5rem;
-            position: relative;
         }
 
         .btn-submit:hover:not(:disabled) {
-            background: var(--navy-hover);
-            box-shadow: 0 2px 6px oklch(0% 0 0 / 0.12), 0 8px 20px oklch(22% 0.06 255 / 0.32);
+            background: var(--navy-800);
             transform: translateY(-1px);
+            box-shadow:
+                0 1px 0 oklch(100% 0 0 / 0.06) inset,
+                0 3px 8px oklch(0% 0 0 / 0.12),
+                0 10px 24px oklch(19% 0.055 258 / 0.34);
         }
 
-        .btn-submit:active:not(:disabled) { transform: translateY(0); }
+        .btn-submit:active:not(:disabled) {
+            transform: translateY(0);
+            box-shadow:
+                0 1px 0 oklch(100% 0 0 / 0.06) inset,
+                0 1px 3px oklch(0% 0 0 / 0.1),
+                0 4px 10px oklch(19% 0.055 258 / 0.22);
+        }
 
         .btn-submit:focus-visible {
             outline: 2px solid var(--gold);
@@ -292,37 +388,35 @@
         }
 
         .btn-submit:disabled {
-            opacity: 0.65;
+            opacity: 0.6;
             cursor: not-allowed;
             transform: none;
         }
 
         .btn-submit .spinner {
             display: none;
-            width: 16px;
-            height: 16px;
-            border: 2px solid oklch(98% 0.005 255 / 0.35);
-            border-top-color: oklch(98% 0.005 255);
+            width: 15px;
+            height: 15px;
+            border: 2px solid oklch(97% 0.005 258 / 0.3);
+            border-top-color: oklch(97% 0.005 258);
             border-radius: 50%;
-            animation: spin 0.7s linear infinite;
+            animation: spin 0.65s linear infinite;
             flex-shrink: 0;
         }
 
         .btn-submit.loading .spinner { display: block; }
-        .btn-submit.loading .btn-text { opacity: 0.7; }
+        .btn-submit.loading .btn-text { opacity: 0.72; }
 
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
+        @keyframes spin { to { transform: rotate(360deg); } }
 
         /* ── DEMO BOX ── */
         .demo-box {
             margin-top: 1rem;
             background: var(--gold-dim);
-            border: 1px solid oklch(68% 0.12 80 / 0.25);
-            border-radius: calc(var(--r) - 2px);
-            padding: 0.7rem 0.9rem;
-            font-size: 0.78rem;
+            border: 1px solid oklch(66% 0.115 75 / 0.22);
+            border-radius: var(--r-sm);
+            padding: 0.68rem 0.9rem;
+            font-size: 0.77rem;
             color: var(--text-2);
             display: flex;
             align-items: center;
@@ -333,47 +427,63 @@
         .demo-box strong { color: var(--text-1); font-weight: 600; }
 
         .demo-copy-btn {
-            background: var(--navy);
-            color: oklch(98% 0.005 255);
+            background: var(--navy-900);
+            color: oklch(97% 0.005 258);
             border: none;
-            border-radius: 6px;
-            padding: 0.3rem 0.65rem;
-            font-size: 0.72rem;
+            border-radius: 5px;
+            padding: 0.28rem 0.6rem;
+            font-size: 0.71rem;
             font-weight: 600;
             cursor: pointer;
             font-family: var(--font);
             flex-shrink: 0;
-            transition: background 0.15s;
+            transition: background 0.14s;
         }
 
-        .demo-copy-btn:hover { background: var(--navy-hover); }
+        .demo-copy-btn:hover { background: var(--navy-800); }
 
         /* ── FOOTER ── */
         .page-footer {
             margin-top: 1.5rem;
             text-align: center;
-            font-size: 0.72rem;
+        }
+
+        .page-footer-inner {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.7rem;
             color: var(--text-3);
+        }
+
+        .page-footer-dot {
+            width: 3px;
+            height: 3px;
+            border-radius: 50%;
+            background: var(--border-strong);
+            flex-shrink: 0;
         }
 
         /* ── MODALS ── */
         .modal-content {
             border: 1px solid var(--border);
             border-radius: var(--r);
-            box-shadow: 0 20px 56px oklch(0% 0 0 / 0.12);
+            box-shadow:
+                0 0 0 1px oklch(85% 0.015 258 / 0.5) inset,
+                0 20px 60px oklch(0% 0 0 / 0.14);
             font-family: var(--font);
         }
 
         .modal-header {
             border-bottom: 1px solid var(--border);
-            padding: 0.9rem 1.25rem;
+            padding: 0.85rem 1.2rem;
         }
 
         .close-modal-icon {
             cursor: pointer;
             color: var(--text-3);
-            font-size: 1rem;
-            transition: color 0.15s;
+            font-size: 0.95rem;
+            transition: color 0.14s;
             line-height: 1;
         }
 
@@ -385,86 +495,88 @@
         }
 
         .modal-form-content img {
-            height: 56px;
-            margin-bottom: 1.1rem;
-            opacity: 0.85;
+            height: 52px;
+            margin-bottom: 1rem;
+            opacity: 0.8;
         }
 
         .modal-form-content h4 {
-            font-size: 0.95rem;
+            font-size: 0.92rem;
             font-weight: 700;
             color: var(--text-1);
-            margin-bottom: 0.4rem;
+            margin-bottom: 0.38rem;
         }
 
         .modal-form-content p {
-            font-size: 0.8rem;
+            font-size: 0.78rem;
             color: var(--text-3);
             line-height: 1.7;
         }
 
         .modal-form-content .form-control {
             width: 100%;
-            background: var(--bg);
+            background: var(--surface-2);
             border: 1.5px solid var(--border);
-            border-radius: calc(var(--r) - 2px);
+            border-radius: var(--r-sm);
             font-family: var(--font);
-            font-size: 0.875rem;
+            font-size: 0.85rem;
             padding: 0.7rem 1rem;
             color: var(--text-1);
             margin-top: 1rem;
             outline: none;
-            transition: border-color 0.15s, box-shadow 0.15s;
+            transition: border-color 0.14s, box-shadow 0.14s;
             direction: ltr;
             text-align: right;
         }
 
         .modal-form-content .form-control:focus {
-            border-color: var(--border-focus);
-            box-shadow: 0 0 0 3px oklch(40% 0.08 255 / 0.1);
+            border-color: var(--navy-700);
+            box-shadow: 0 0 0 3px oklch(30% 0.065 258 / 0.12);
         }
 
         .btn-modal-primary {
             display: block;
             width: 100%;
-            background: var(--navy);
-            color: oklch(98% 0.005 255);
+            background: var(--navy-900);
+            color: oklch(97% 0.005 258);
             border: none;
-            border-radius: calc(var(--r) - 2px);
+            border-radius: var(--r-sm);
             font-family: var(--font);
             font-weight: 700;
-            font-size: 0.875rem;
-            padding: 0.75rem 1rem;
-            margin-top: 0.9rem;
+            font-size: 0.85rem;
+            padding: 0.72rem 1rem;
+            margin-top: 0.85rem;
             cursor: pointer;
-            transition: background 0.15s;
+            transition: background 0.14s;
             text-align: center;
             text-decoration: none;
+            box-shadow: 0 2px 6px oklch(19% 0.055 258 / 0.25);
         }
 
-        .btn-modal-primary:hover { background: var(--navy-hover); color: oklch(98% 0.005 255); }
+        .btn-modal-primary:hover {
+            background: var(--navy-800);
+            color: oklch(97% 0.005 258);
+        }
 
         /* ── RESPONSIVE ── */
         @media (max-width: 480px) {
-            .form-card { padding: 1.5rem; }
-            .heading { font-size: 1.5rem; }
-            .brand { margin-bottom: 2rem; }
+            .form-card { padding: 1.5rem 1.35rem 1.75rem; }
+            .heading   { font-size: 1.55rem; }
+            .wordmark  { margin-bottom: 2rem; }
         }
 
         @media (prefers-reduced-motion: reduce) {
-            .login-wrap { animation: none; }
+            .login-shell { animation: none; }
             * { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
         }
 
-        /* reset bootstrap noise */
+        /* Neutralize bootstrap / theme noise on body layout */
         .main.auth-bg {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
+            display: grid !important;
+            place-items: center !important;
             padding: 0 !important;
             background: transparent !important;
-            min-height: 100vh;
+            min-height: 100vh !important;
         }
     </style>
 </head>
@@ -472,29 +584,34 @@
 <body>
 <main id="content" role="main" class="main auth-bg">
 
-    <div class="login-wrap">
+    <div class="login-shell">
 
-        <!-- Brand -->
+        <!-- Wordmark -->
         @php($systemlogo = \App\Models\BusinessSetting::where(['key'=>'logo'])->first())
         @php($role = $role ?? null)
-        <div class="brand">
-            <div class="brand-mark">
+        <div class="wordmark">
+            <div class="wordmark-badge">
                 <img class="onerror-image"
                     src="{{ \App\CentralLogics\Helpers::get_full_url('business', $systemlogo?->value, $systemlogo?->storage[0]?->value ?? 'public', 'authfav') }}"
                     data-onerror-image="{{ dynamicAsset('/public/assets/admin/img/auth-fav.png') }}"
                     alt="بيت جدي">
             </div>
-            <div>
-                <div class="brand-name">بيت جدي</div>
-                <div class="brand-sub">لوحة الإدارة</div>
+            <div class="wordmark-text">
+                <div class="wordmark-name">بيت جدي</div>
+                <div class="wordmark-sub">لوحة الإدارة</div>
             </div>
         </div>
 
-        <h1 class="heading">تسجيل الدخول</h1>
+        <!-- Heading -->
+        <p class="eyebrow">تسجيل الدخول</p>
+        <h1 class="heading">مرحباً بعودتك</h1>
         <p class="sub">أدخل بياناتك للوصول إلى لوحة التحكم</p>
 
         <!-- Form card -->
         <div class="form-card">
+
+            <p class="form-section-label">بيانات الحساب</p>
+
             <form class="login_form" action="{{ route('login_post') }}" method="post" id="form-id" novalidate>
                 @csrf
                 <input type="hidden" name="role" value="{{ $role ?? null }}">
@@ -596,13 +713,21 @@
         </div>
 
         <!-- Footer -->
-        <p class="page-footer">بيت جدي &middot; نظام الإدارة &middot; {{ date('Y') }}</p>
+        <p class="page-footer">
+            <span class="page-footer-inner">
+                <span>بيت جدي</span>
+                <span class="page-footer-dot" aria-hidden="true"></span>
+                <span>نظام الإدارة</span>
+                <span class="page-footer-dot" aria-hidden="true"></span>
+                <span>{{ date('Y') }}</span>
+            </span>
+        </p>
 
     </div>
 
 </main>
 
-<!-- Modals -->
+<!-- ── MODALS ── -->
 <div class="modal fade" id="forgetPassModal">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -667,7 +792,7 @@
     </div>
 </div>
 
-<!-- JS -->
+<!-- ── JS ── -->
 <script src="{{ dynamicAsset('public/assets/admin') }}/js/vendor.min.js"></script>
 <script src="{{ dynamicAsset('public/assets/admin') }}/js/theme.min.js"></script>
 <script src="{{ dynamicAsset('public/assets/admin') }}/js/toastr.js"></script>
@@ -678,7 +803,6 @@
         @foreach($errors->all() as $error)
         toastr.error('{{ translate($error) }}', 'خطأ', { CloseButton: true, ProgressBar: true, timeOut: 6000 });
         @endforeach
-        // Highlight fields on server-side error
         document.getElementById('field-password').classList.add('has-error');
     </script>
 @endif
@@ -689,7 +813,6 @@
 @endif
 
 <script>
-    // Password toggle init
     $(document).on('ready', function () {
         $('.js-toggle-password').each(function () {
             new HSTogglePassword(this).init();
@@ -699,14 +822,12 @@
         });
     });
 
-    // Role-based forgot password toggle
     $("#role-select").change(function () {
         var v = $(this).val();
-        $("#forget-password").toggleClass('d-none', v !== 'admin');
+        $("#forget-password").toggleClass('d-none',  v !== 'admin');
         $("#forget-password1").toggleClass('d-none', v !== 'vendor');
     });
 
-    // Loading state on submit
     document.getElementById('form-id').addEventListener('submit', function (e) {
         var email    = document.getElementById('signinSrEmail');
         var password = document.getElementById('signupSrPassword');
@@ -733,7 +854,6 @@
         btn.disabled = true;
     });
 
-    // Clear field error on input
     ['signinSrEmail', 'signupSrPassword'].forEach(function (id) {
         document.getElementById(id).addEventListener('input', function () {
             this.closest('.field').classList.remove('has-error');
