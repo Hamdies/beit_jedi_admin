@@ -176,7 +176,7 @@ class OrderController extends Controller
         ->first();
 
         if (isset($order)) {
-        $deliveryMen = DeliveryMan::with('last_location')->where('restaurant_id',Helpers::get_restaurant_id())->active()->get();
+        $deliveryMen = DeliveryMan::with('last_location')->where('restaurant_id',Helpers::get_restaurant_id())->get();
         $deliveryMen = Helpers::deliverymen_list_formatting(data:$deliveryMen, restaurant_lat: $order?->restaurant?->latitude, restaurant_lng: $order?->restaurant?->longitude);
 
         $selected_delivery_man = DeliveryMan::with('last_location')->where('id',$order->delivery_man_id)->first() ?? [];
@@ -605,7 +605,7 @@ class OrderController extends Controller
             return response()->json(['message' => translate('messages.deliveryman_not_found')], 404);
         }
         $order = Order::Notpos()->with(['subscription.schedule_today'])->find($order_id);
-        $deliveryman = DeliveryMan::where('id', $delivery_man_id)->available()->active()->first();
+        $deliveryman = DeliveryMan::where('id', $delivery_man_id)->first();
         if ($order->delivery_man_id == $delivery_man_id) {
             return response()->json(['message' => translate('messages.order_already_assign_to_this_deliveryman')], 400);
         }

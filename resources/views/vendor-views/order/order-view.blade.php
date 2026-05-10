@@ -1136,27 +1136,39 @@ $statusLabel = $statusLabels[$status] ?? translate(str_replace('_',' ',$status))
                         </div>
                     </div>
                     @if ($order->order_type != 'dine_in')
-                        @if (isset($address['road']) && $address['road'])
-                        <div class="ov-info-row">
-                            <span class="ov-info-icon"><i class="tio-road"></i></span>
-                            <div>
-                                <div class="ov-info-label">الشارع / المبنى</div>
-                                <div class="ov-info-value">{{ $address['road'] }}{{ isset($address['house']) && $address['house'] ? ' — ' . $address['house'] : '' }}{{ isset($address['floor']) && $address['floor'] ? '، الطابق ' . $address['floor'] : '' }}</div>
-                            </div>
-                        </div>
-                        @endif
                         @if (isset($address['address']) && $address['address'])
                         <div class="ov-info-row">
                             <span class="ov-info-icon"><i class="tio-poi"></i></span>
                             <div>
-                                <div class="ov-info-label">العنوان الكامل</div>
-                                <div class="ov-info-value">
-                                    @if (isset($address['latitude']) && isset($address['longitude']))
-                                        <a target="_blank" href="http://maps.google.com/maps?z=12&t=m&q=loc:{{ $address['latitude'] }}+{{ $address['longitude'] }}">{{ $address['address'] }}</a>
-                                    @else
-                                        {{ $address['address'] }}
-                                    @endif
-                                </div>
+                                <div class="ov-info-label">العنوان</div>
+                                <div class="ov-info-value">{{ $address['address'] }}</div>
+                            </div>
+                        </div>
+                        @endif
+                        @if (isset($address['road']) && $address['road'])
+                        <div class="ov-info-row">
+                            <span class="ov-info-icon"><i class="tio-road"></i></span>
+                            <div>
+                                <div class="ov-info-label">الشارع</div>
+                                <div class="ov-info-value">{{ $address['road'] }}</div>
+                            </div>
+                        </div>
+                        @endif
+                        @if (isset($address['house']) && $address['house'])
+                        <div class="ov-info-row">
+                            <span class="ov-info-icon"><i class="tio-home"></i></span>
+                            <div>
+                                <div class="ov-info-label">المبنى / الشقة</div>
+                                <div class="ov-info-value">{{ $address['house'] }}</div>
+                            </div>
+                        </div>
+                        @endif
+                        @if (isset($address['floor']) && $address['floor'])
+                        <div class="ov-info-row">
+                            <span class="ov-info-icon"><i class="tio-layers"></i></span>
+                            <div>
+                                <div class="ov-info-label">الطابق</div>
+                                <div class="ov-info-value">{{ $address['floor'] }}</div>
                             </div>
                         </div>
                         @endif
@@ -1316,8 +1328,8 @@ $statusLabel = $statusLabels[$status] ?? translate(str_replace('_',' ',$status))
                                 </div>
                             </li>
                             @endif
-                            <p class="mb-2 text-center text-danger {{ $order->delivery_man_id ? 'mt-2' : '' }}">
-                                {{ count($deliveryMen) > 0 ? count($deliveryMen) - ($order->delivery_man_id ? 1 : 0) : 0 }} {{ translate('Delivery_Man_Available') }}
+                            <p class="mb-2 text-center text-muted {{ $order->delivery_man_id ? 'mt-2' : '' }}" style="font-size:.82rem">
+                                {{ count($deliveryMen) }} {{ translate('messages.delivery_man') }}
                             </p>
                             @foreach ($deliveryMen as $dm)
                                 @if ($dm['id'] != $order->delivery_man_id)
