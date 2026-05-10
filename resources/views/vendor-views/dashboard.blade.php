@@ -3,24 +3,18 @@
 @section('title', translate('messages.dashboard'))
 
 @push('css_or_js')
-{{-- Cairo font — link tag loads reliably unlike @import inside style --}}
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 /* ═══════════════════════════════════════════════
    BEIT JEDI — ORDER OPERATIONS CENTER
-   Font: Cairo (Arabic-first, RTL)
    Palette: Navy #1C2E5E · Gold #D4A017 · Warm white
 ═══════════════════════════════════════════════ */
 
-/* Force Cairo across the entire dashboard */
+
 .ops-panel,
 .ops-panel *,
 .ops-panel input,
 .ops-panel button,
 .ops-panel select {
-    font-family: 'Cairo', 'Segoe UI', system-ui, sans-serif !important;
 }
 
 :root {
@@ -1001,7 +995,7 @@
                             @if($isNew)
                                 <span class="ops-badge-new">جديد</span>
                             @else
-                                <span class="ops-card-time">{{ $order->created_at->diffForHumans() }}</span>
+                                <span class="ops-card-time">{{ \Carbon\Carbon::parse($order->created_at)->diffForHumans() }}</span>
                             @endif
                         </div>
                         <div class="ops-card-name">{{ $order->customer->f_name ?? '' }} {{ $order->customer->l_name ?? 'عميل' }}</div>
@@ -1036,7 +1030,7 @@
                     <a href="{{ route('vendor.order.details', ['id' => $order->id]) }}" class="ops-card">
                         <div class="ops-card-top">
                             <span class="ops-card-id">#{{ $order->id }}</span>
-                            <span class="ops-card-time">{{ $order->created_at->diffForHumans() }}</span>
+                            <span class="ops-card-time">{{ \Carbon\Carbon::parse($order->created_at)->diffForHumans() }}</span>
                         </div>
                         <div class="ops-card-name">{{ $order->customer->f_name ?? '' }} {{ $order->customer->l_name ?? 'عميل' }}</div>
                         @if($items)<div class="ops-card-items">{{ Str::limit($items, 50) }}</div>@endif
@@ -1067,7 +1061,7 @@
                     <a href="{{ route('vendor.order.details', ['id' => $order->id]) }}" class="ops-card">
                         <div class="ops-card-top">
                             <span class="ops-card-id">#{{ $order->id }}</span>
-                            <span class="ops-card-time">{{ $order->created_at->diffForHumans() }}</span>
+                            <span class="ops-card-time">{{ \Carbon\Carbon::parse($order->created_at)->diffForHumans() }}</span>
                         </div>
                         <div class="ops-card-name">{{ $order->customer->f_name ?? '' }} {{ $order->customer->l_name ?? 'عميل' }}</div>
                         @if($items)<div class="ops-card-items">{{ Str::limit($items, 50) }}</div>@endif
@@ -1125,7 +1119,7 @@
                     </div>
                     <div class="ops-activity-sub">{{ $s['label'] }} · {{ \App\CentralLogics\Helpers::format_currency($order->order_amount) }}</div>
                 </div>
-                <div class="ops-activity-time">{{ $order->created_at->diffForHumans(null, true) }}</div>
+                <div class="ops-activity-time">{{ \Carbon\Carbon::parse($order->created_at)->diffForHumans(null, true) }}</div>
             </a>
             @empty
             <div class="ops-lane-empty"><i class="tio-receipt"></i>لا طلبات حتى الآن</div>
@@ -1158,7 +1152,7 @@
                     <div class="ops-activity-sub">{{ Str::limit($lastMsg, 45) }}</div>
                 </div>
                 <div style="display:flex;flex-direction:column;align-items:flex-end;gap:.25rem;">
-                    <div class="ops-activity-time">{{ $conv->updated_at->diffForHumans(null, true) }}</div>
+                    <div class="ops-activity-time">{{ \Carbon\Carbon::parse($conv->updated_at)->diffForHumans(null, true) }}</div>
                     @if($unread)<div class="ops-unread-dot"></div>@endif
                 </div>
             </a>
@@ -1256,10 +1250,10 @@
 @else
 {{-- Employee fallback --}}
 <div style="padding:4rem 0;text-align:center;">
-    <h2 style="font-family:'Cairo',sans-serif;font-weight:800;color:var(--text);">
+    <h2 style="font-weight:800;color:var(--text);">
         {{ translate('messages.welcome') }}, {{ auth('vendor_employee')->user()->f_name }}
     </h2>
-    <p style="color:var(--muted);font-family:'Cairo',sans-serif;">{{ translate('messages.employee_welcome_message') }}</p>
+    <p style="color:var(--muted);">{{ translate('messages.employee_welcome_message') }}</p>
 </div>
 @endif
 
