@@ -290,6 +290,7 @@
     align-items: start;
 }
 
+
 /* ── SECTION TITLE ──────────────────────────── */
 .ops-section-head {
     display: flex;
@@ -825,9 +826,7 @@
 /* ── RESPONSIVE ─────────────────────────────── */
 @media (max-width: 1200px) {
     .ops-grid { grid-template-columns: 1fr 1fr; }
-    .ops-activity { grid-column: 1 / -1; flex-direction: row; flex-wrap: wrap; }
-    .ops-activity .ops-panel-card { flex: 1 1 300px; }
-    .ops-sidebar { display: none; } /* Collapse on tablet — accessible via quick nav */
+    .ops-sidebar { display: none; }
 }
 
 @media (max-width: 900px) {
@@ -926,21 +925,6 @@
 
 {{-- ── MAIN GRID ─────────────────────────── --}}
 @php
-    $confirmed_orders = \App\Models\Order::where('restaurant_id', $restaurant_id)
-        ->whereIn('order_status', ['confirmed','accepted'])
-        ->with(['details.food','customer'])
-        ->latest()->take(8)->get();
-
-    $cooking_orders = \App\Models\Order::where('restaurant_id', $restaurant_id)
-        ->where('order_status', 'cooking')
-        ->with(['details.food','customer'])
-        ->latest()->take(8)->get();
-
-    $ready_orders = \App\Models\Order::where('restaurant_id', $restaurant_id)
-        ->where('order_status', 'ready_for_delivery')
-        ->with(['details.food','customer'])
-        ->latest()->take(8)->get();
-
     // Recent order activity (last 12 orders of any status)
     $recent_orders = \App\Models\Order::where('restaurant_id', $restaurant_id)
         ->with('customer')
@@ -967,201 +951,81 @@
 
 <div class="ops-grid">
 
-    {{-- ── COL 1: KANBAN LANES ─────────────── --}}
-    <div>
-        <div class="ops-section-head">
-            <span class="ops-section-title">الطلبات النشطة</span>
-            <a href="{{ route('vendor.order.list', ['all']) }}" class="ops-section-link">عرض الكل</a>
+    {{-- ── COL 1: RECENT ORDERS ────────────── --}}
+    <div class="ops-panel-card">
+        <div class="ops-panel-head">
+            <span class="ops-panel-title">
+                <i class="tio-receipt"></i> آخر الطلبات
+            </span>
+            <a href="{{ route('vendor.order.list', ['all']) }}" class="ops-panel-more">عرض الكل</a>
         </div>
-        <div class="ops-lanes">
-
-            {{-- Lane: Confirmed --}}
-            <div class="ops-lane ops-lane--confirmed">
-                <div class="ops-lane-head">
-                    <span class="ops-lane-dot"></span>
-                    <span class="ops-lane-name">بانتظار التحضير</span>
-                    <span class="ops-lane-count">{{ $confirmed_orders->count() }}</span>
-                </div>
-                <div class="ops-lane-body">
-                    @forelse($confirmed_orders as $order)
-                    @php
-                        $isNew  = $order->created_at->diffInMinutes(now()) < 10;
-                        $items  = $order->details->pluck('food.name')->filter()->implode('، ');
-                    @endphp
-                    <a href="{{ route('vendor.order.details', ['id' => $order->id]) }}"
-                       class="ops-card {{ $isNew ? 'ops-card--new' : '' }}">
-                        <div class="ops-card-top">
-                            <span class="ops-card-id">#{{ $order->id }}</span>
-                            @if($isNew)
-                                <span class="ops-badge-new">جديد</span>
-                            @else
-                                <span class="ops-card-time">{{ \Carbon\Carbon::parse($order->created_at)->diffForHumans() }}</span>
-                            @endif
-                        </div>
-                        <div class="ops-card-name">{{ $order->customer->f_name ?? '' }} {{ $order->customer->l_name ?? 'عميل' }}</div>
-                        @if($items)<div class="ops-card-items">{{ Str::limit($items, 50) }}</div>@endif
-                        <div class="ops-card-foot">
-                            <span class="ops-card-amount">{{ \App\CentralLogics\Helpers::format_currency($order->order_amount) }}</span>
-                            <a href="{{ route('vendor.order.details', ['id' => $order->id]) }}"
-                               class="ops-action ops-action--go" onclick="event.stopPropagation()">
-                                <i class="tio-restaurant"></i> ابدأ التحضير
-                            </a>
-                        </div>
-                    </a>
-                    @empty
-                    <div class="ops-lane-empty">
-                        <i class="tio-checkmark-circle-outlined"></i>
-                        لا طلبات بانتظار التحضير
-                    </div>
-                    @endforelse
-                </div>
+        @forelse($recent_orders as $order)
+        @php
+            $statusMap = [
+                'pending'            => ['label' => 'معلّق',           'icon' => 'tio-time',                    'cls' => 'ops-icon--alert'],
+                'confirmed'          => ['label' => 'مؤكد',            'icon' => 'tio-checkmark-circle',        'cls' => 'ops-icon--order'],
+                'accepted'           => ['label' => 'مؤكد',            'icon' => 'tio-checkmark-circle',        'cls' => 'ops-icon--order'],
+                'cooking'            => ['label' => 'قيد التحضير',     'icon' => 'tio-restaurant',              'cls' => 'ops-icon--alert'],
+                'ready_for_delivery' => ['label' => 'جاهز للتسليم',   'icon' => 'tio-done',                    'cls' => 'ops-icon--done'],
+                'food_on_the_way'    => ['label' => 'في الطريق',      'icon' => 'tio-delivery',                'cls' => 'ops-icon--order'],
+                'delivered'          => ['label' => 'تم التسليم',     'icon' => 'tio-checkmark-circle-outlined','cls' => 'ops-icon--done'],
+                'canceled'           => ['label' => 'ملغي',            'icon' => 'tio-clear',                   'cls' => 'ops-icon--alert'],
+                'refunded'           => ['label' => 'مُسترد',          'icon' => 'tio-money',                   'cls' => 'ops-icon--alert'],
+            ];
+            $s = $statusMap[$order->order_status] ?? ['label' => $order->order_status, 'icon' => 'tio-receipt', 'cls' => 'ops-icon--order'];
+        @endphp
+        <a href="{{ route('vendor.order.details', ['id' => $order->id]) }}" class="ops-activity-item">
+            <div class="ops-activity-icon {{ $s['cls'] }}">
+                <i class="{{ $s['icon'] }}"></i>
             </div>
-
-            {{-- Lane: Cooking --}}
-            <div class="ops-lane ops-lane--cooking">
-                <div class="ops-lane-head">
-                    <span class="ops-lane-dot"></span>
-                    <span class="ops-lane-name">جاري التحضير</span>
-                    <span class="ops-lane-count">{{ $cooking_orders->count() }}</span>
+            <div class="ops-activity-content">
+                <div class="ops-activity-main">
+                    طلب #{{ $order->id }}
+                    — {{ $order->customer->f_name ?? 'عميل' }} {{ $order->customer->l_name ?? '' }}
                 </div>
-                <div class="ops-lane-body">
-                    @forelse($cooking_orders as $order)
-                    @php $items = $order->details->pluck('food.name')->filter()->implode('، '); @endphp
-                    <a href="{{ route('vendor.order.details', ['id' => $order->id]) }}" class="ops-card">
-                        <div class="ops-card-top">
-                            <span class="ops-card-id">#{{ $order->id }}</span>
-                            <span class="ops-card-time">{{ \Carbon\Carbon::parse($order->created_at)->diffForHumans() }}</span>
-                        </div>
-                        <div class="ops-card-name">{{ $order->customer->f_name ?? '' }} {{ $order->customer->l_name ?? 'عميل' }}</div>
-                        @if($items)<div class="ops-card-items">{{ Str::limit($items, 50) }}</div>@endif
-                        <div class="ops-card-foot">
-                            <span class="ops-card-amount">{{ \App\CentralLogics\Helpers::format_currency($order->order_amount) }}</span>
-                            <a href="{{ route('vendor.order.details', ['id' => $order->id]) }}"
-                               class="ops-action ops-action--cook" onclick="event.stopPropagation()">
-                                <i class="tio-done"></i> جاهز
-                            </a>
-                        </div>
-                    </a>
-                    @empty
-                    <div class="ops-lane-empty"><i class="tio-restaurant"></i>لا طلبات قيد التحضير</div>
-                    @endforelse
-                </div>
+                <div class="ops-activity-sub">{{ $s['label'] }} · {{ \App\CentralLogics\Helpers::format_currency($order->order_amount) }}</div>
             </div>
-
-            {{-- Lane: Ready --}}
-            <div class="ops-lane ops-lane--ready">
-                <div class="ops-lane-head">
-                    <span class="ops-lane-dot"></span>
-                    <span class="ops-lane-name">جاهز للتسليم</span>
-                    <span class="ops-lane-count">{{ $ready_orders->count() }}</span>
-                </div>
-                <div class="ops-lane-body">
-                    @forelse($ready_orders as $order)
-                    @php $items = $order->details->pluck('food.name')->filter()->implode('، '); @endphp
-                    <a href="{{ route('vendor.order.details', ['id' => $order->id]) }}" class="ops-card">
-                        <div class="ops-card-top">
-                            <span class="ops-card-id">#{{ $order->id }}</span>
-                            <span class="ops-card-time">{{ \Carbon\Carbon::parse($order->created_at)->diffForHumans() }}</span>
-                        </div>
-                        <div class="ops-card-name">{{ $order->customer->f_name ?? '' }} {{ $order->customer->l_name ?? 'عميل' }}</div>
-                        @if($items)<div class="ops-card-items">{{ Str::limit($items, 50) }}</div>@endif
-                        <div class="ops-card-foot">
-                            <span class="ops-card-amount">{{ \App\CentralLogics\Helpers::format_currency($order->order_amount) }}</span>
-                            <a href="{{ route('vendor.order.details', ['id' => $order->id]) }}"
-                               class="ops-action ops-action--done" onclick="event.stopPropagation()">
-                                <i class="tio-delivery"></i> تسليم
-                            </a>
-                        </div>
-                    </a>
-                    @empty
-                    <div class="ops-lane-empty"><i class="tio-done-all"></i>لا طلبات جاهزة</div>
-                    @endforelse
-                </div>
-            </div>
-
-        </div>{{-- /ops-lanes --}}
+            <div class="ops-activity-time">{{ \Carbon\Carbon::parse($order->created_at)->diffForHumans(null, true) }}</div>
+        </a>
+        @empty
+        <div class="ops-lane-empty"><i class="tio-receipt"></i>لا طلبات حتى الآن</div>
+        @endforelse
     </div>{{-- /col 1 --}}
 
-    {{-- ── COL 2: ACTIVITY ─────────────────── --}}
-    <div class="ops-activity">
-
-        {{-- Recent Orders Activity --}}
-        <div class="ops-panel-card">
-            <div class="ops-panel-head">
-                <span class="ops-panel-title">
-                    <i class="tio-receipt"></i> آخر الطلبات
-                </span>
-                <a href="{{ route('vendor.order.list', ['all']) }}" class="ops-panel-more">عرض الكل</a>
-            </div>
-            @forelse($recent_orders as $order)
-            @php
-                $statusMap = [
-                    'pending'            => ['label' => 'معلّق',           'icon' => 'tio-time',                    'cls' => 'ops-icon--alert'],
-                    'confirmed'          => ['label' => 'مؤكد',            'icon' => 'tio-checkmark-circle',        'cls' => 'ops-icon--order'],
-                    'accepted'           => ['label' => 'مؤكد',            'icon' => 'tio-checkmark-circle',        'cls' => 'ops-icon--order'],
-                    'cooking'            => ['label' => 'قيد التحضير',     'icon' => 'tio-restaurant',              'cls' => 'ops-icon--alert'],
-                    'ready_for_delivery' => ['label' => 'جاهز للتسليم',   'icon' => 'tio-done',                    'cls' => 'ops-icon--done'],
-                    'food_on_the_way'    => ['label' => 'في الطريق',      'icon' => 'tio-delivery',                'cls' => 'ops-icon--order'],
-                    'delivered'          => ['label' => 'تم التسليم',     'icon' => 'tio-checkmark-circle-outlined','cls' => 'ops-icon--done'],
-                    'canceled'           => ['label' => 'ملغي',            'icon' => 'tio-clear',                   'cls' => 'ops-icon--alert'],
-                    'refunded'           => ['label' => 'مُسترد',          'icon' => 'tio-money',                   'cls' => 'ops-icon--alert'],
-                ];
-                $s = $statusMap[$order->order_status] ?? ['label' => $order->order_status, 'icon' => 'tio-receipt', 'cls' => 'ops-icon--order'];
-            @endphp
-            <a href="{{ route('vendor.order.details', ['id' => $order->id]) }}" class="ops-activity-item">
-                <div class="ops-activity-icon {{ $s['cls'] }}">
-                    <i class="{{ $s['icon'] }}"></i>
-                </div>
-                <div class="ops-activity-content">
-                    <div class="ops-activity-main">
-                        طلب #{{ $order->id }}
-                        — {{ $order->customer->f_name ?? 'عميل' }} {{ $order->customer->l_name ?? '' }}
-                    </div>
-                    <div class="ops-activity-sub">{{ $s['label'] }} · {{ \App\CentralLogics\Helpers::format_currency($order->order_amount) }}</div>
-                </div>
-                <div class="ops-activity-time">{{ \Carbon\Carbon::parse($order->created_at)->diffForHumans(null, true) }}</div>
-            </a>
-            @empty
-            <div class="ops-lane-empty"><i class="tio-receipt"></i>لا طلبات حتى الآن</div>
-            @endforelse
+    {{-- ── COL 2: RECENT MESSAGES ──────────── --}}
+    <div class="ops-panel-card">
+        <div class="ops-panel-head">
+            <span class="ops-panel-title">
+                <i class="tio-messages"></i> آخر الرسائل
+            </span>
+            <a href="{{ route('vendor.message.list') }}" class="ops-panel-more">عرض الكل</a>
         </div>
-
-        {{-- Recent Messages --}}
-        <div class="ops-panel-card">
-            <div class="ops-panel-head">
-                <span class="ops-panel-title">
-                    <i class="tio-messages"></i> آخر الرسائل
-                </span>
-                <a href="{{ route('vendor.message.list') }}" class="ops-panel-more">عرض الكل</a>
+        @forelse($recent_convs as $conv)
+        @php
+            $otherUser = $conv->sender_id === $sender?->id ? $conv->receiver : $conv->sender;
+            $lastMsg   = $conv->last_message?->message ?? '...';
+            $unread    = ($conv->unread_message_count ?? 0) > 0;
+        @endphp
+        <a href="{{ route('vendor.message.view', ['conversation_id' => $conv->id, 'user_id' => $otherUser?->id ?? 0]) }}"
+           class="ops-activity-item">
+            <div class="ops-activity-icon ops-icon--msg">
+                <i class="tio-chat-outlined"></i>
             </div>
-            @forelse($recent_convs as $conv)
-            @php
-                $otherUser = $conv->sender_id === $sender?->id ? $conv->receiver : $conv->sender;
-                $lastMsg   = $conv->last_message?->message ?? '...';
-                $unread    = ($conv->unread_message_count ?? 0) > 0;
-            @endphp
-            <a href="{{ route('vendor.message.view', ['conversation_id' => $conv->id, 'user_id' => $otherUser?->id ?? 0]) }}"
-               class="ops-activity-item">
-                <div class="ops-activity-icon ops-icon--msg">
-                    <i class="tio-chat-outlined"></i>
+            <div class="ops-activity-content">
+                <div class="ops-activity-main">
+                    {{ $otherUser?->f_name ?? 'مستخدم' }} {{ $otherUser?->l_name ?? '' }}
                 </div>
-                <div class="ops-activity-content">
-                    <div class="ops-activity-main">
-                        {{ $otherUser?->f_name ?? 'مستخدم' }} {{ $otherUser?->l_name ?? '' }}
-                    </div>
-                    <div class="ops-activity-sub">{{ Str::limit($lastMsg, 45) }}</div>
-                </div>
-                <div style="display:flex;flex-direction:column;align-items:flex-end;gap:.25rem;">
-                    <div class="ops-activity-time">{{ \Carbon\Carbon::parse($conv->updated_at)->diffForHumans(null, true) }}</div>
-                    @if($unread)<div class="ops-unread-dot"></div>@endif
-                </div>
-            </a>
-            @empty
-            <div class="ops-lane-empty"><i class="tio-messages"></i>لا رسائل حتى الآن</div>
-            @endforelse
-        </div>
-
-    </div>{{-- /ops-activity --}}
+                <div class="ops-activity-sub">{{ Str::limit($lastMsg, 45) }}</div>
+            </div>
+            <div style="display:flex;flex-direction:column;align-items:flex-end;gap:.25rem;">
+                <div class="ops-activity-time">{{ \Carbon\Carbon::parse($conv->updated_at)->diffForHumans(null, true) }}</div>
+                @if($unread)<div class="ops-unread-dot"></div>@endif
+            </div>
+        </a>
+        @empty
+        <div class="ops-lane-empty"><i class="tio-messages"></i>لا رسائل حتى الآن</div>
+        @endforelse
+    </div>{{-- /col 2 --}}
 
     {{-- ── COL 3: SIDEBAR ──────────────────── --}}
     <div class="ops-sidebar">
