@@ -1336,17 +1336,104 @@ span.initial-38-7,
         color: #000000;
     }
 }
-/* @page {
-  max-width: 330px;
-  size: auto;
-  margin: 2px;
-  font-family: emoji !important;
+/* Thermal Printer — 80mm roll (72mm printable) */
+@page {
+    size: 80mm auto;
+    margin: 4mm 2mm;
 }
-.initial-38 {
-  -webkit-print-color-adjust: exact !important;
-  color-adjust: exact !important;
-  font-family: emoji !important;
-} */
+
+@media print {
+    /* Hide everything outside the receipt */
+    body > *:not(.content),
+    .navbar,
+    .sidebar,
+    .footer,
+    .js-navbar-vertical-aside,
+    .header,
+    header {
+        display: none !important;
+    }
+
+    body {
+        background: #fff !important;
+        font-size: 11px !important;
+        font-family: 'Courier New', monospace !important;
+        line-height: 1.4 !important;
+        color: #000 !important;
+    }
+
+    .content.container-fluid {
+        padding: 0 !important;
+        margin: 0 !important;
+        max-width: 100% !important;
+    }
+
+    .initial-38-1 {
+        width: 72mm !important;
+        max-width: 72mm !important;
+        margin: 0 auto !important;
+        padding: 0 !important;
+        font-size: 11px !important;
+        color: #000 !important;
+    }
+
+    .initial-38-1 h5 {
+        font-size: 11px !important;
+        margin: 2px 0 !important;
+    }
+
+    /* Restaurant name — larger */
+    .initial-38-3 {
+        font-size: 14px !important;
+        font-weight: bold !important;
+        text-align: center !important;
+    }
+
+    /* Address / phone — smaller */
+    .initial-38-4 {
+        font-size: 10px !important;
+    }
+
+    /* Item rows */
+    .initial-38-6,
+    .initial-38-7 {
+        font-size: 10px !important;
+        padding: 1px 2px !important;
+    }
+
+    /* Dashed separator lines */
+    .border-dashed {
+        border: none !important;
+        border-top: 1px dashed #000 !important;
+        padding-top: 3px !important;
+        margin-top: 3px !important;
+    }
+
+    /* Tables */
+    table {
+        width: 100% !important;
+        border-collapse: collapse !important;
+    }
+
+    td, th {
+        font-size: 10px !important;
+        padding: 1px 2px !important;
+        border: none !important;
+    }
+
+    /* Logo */
+    .initial-38-2 {
+        max-height: 40px !important;
+        width: auto !important;
+    }
+
+    /* Footer text */
+    .initial-38-9 {
+        font-size: 10px !important;
+        text-align: center !important;
+        margin-top: 4px !important;
+    }
+}
 .fz-20px {
     font-size: 20px;
 }
