@@ -5,10 +5,14 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     @php
-        $app_name = \App\CentralLogics\Helpers::get_business_settings('business_name', false);
-        $icon     = \App\CentralLogics\Helpers::get_business_settings('icon', false);
+        $app_name    = \App\CentralLogics\Helpers::get_business_settings('business_name', false);
+        $icon        = \App\CentralLogics\Helpers::get_business_settings('icon', false);
+        $systemlogo  = \App\Models\BusinessSetting::where(['key'=>'logo'])->first();
+        $role        = $role ?? null;
+        $logoUrl     = \App\CentralLogics\Helpers::get_full_url('business', $systemlogo?->value, $systemlogo?->storage[0]?->value ?? 'public', 'logo');
+        $fallbackUrl = dynamicAsset('/public/assets/admin/img/logo.png');
     @endphp
-    <title>{{ translate('messages.login') }} | {{ $app_name ?? translate('STACKFOOD') }}</title>
+    <title>{{ translate('messages.login') }} | {{ $app_name ?? 'بيت جدي' }}</title>
     <link rel="shortcut icon" href="{{ asset($icon ? 'storage/app/public/business/'.$icon : 'public/favicon.ico') }}">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -23,39 +27,37 @@
     <link rel="stylesheet" href="{{ dynamicAsset('public/assets/admin') }}/css/toastr.css">
 
     <style>
+        /* ─── TOKENS ─────────────────────────────────────────────────── */
         :root {
-            /* Navy family */
+            --navy-950: oklch(14% 0.048 258);
             --navy-900: oklch(19% 0.055 258);
             --navy-800: oklch(24% 0.062 258);
             --navy-700: oklch(30% 0.065 258);
-            --navy-200: oklch(88% 0.018 258);
+            --navy-400: oklch(52% 0.05  258);
+            --navy-200: oklch(86% 0.018 258);
             --navy-100: oklch(93% 0.010 258);
 
-            /* Gold — single accent, used sparingly */
-            --gold:     oklch(66% 0.115 75);
-            --gold-dim: oklch(66% 0.06  75 / 0.14);
+            --gold:      oklch(68% 0.12  76);
+            --gold-soft: oklch(68% 0.07  76 / 0.18);
+            --gold-line: oklch(68% 0.10  76 / 0.35);
 
-            /* Surface scale — warm paper, not clinical white */
-            --bg:       oklch(96.8% 0.006 80);
-            --surface:  oklch(99%   0.004 80);
-            --surface-2:oklch(97%   0.005 80);
+            --bg:        oklch(96.5% 0.005 80);
+            --surface:   oklch(99%   0.003 80);
+            --surface-2: oklch(97%   0.004 80);
 
-            /* Borders */
-            --border:       oklch(88% 0.010 258);
-            --border-strong:oklch(78% 0.018 258);
+            --border:        oklch(88% 0.010 258);
+            --border-strong: oklch(78% 0.018 258);
 
-            /* Text scale */
-            --text-1: oklch(16% 0.025 258);
-            --text-2: oklch(36% 0.022 258);
-            --text-3: oklch(56% 0.016 258);
+            --text-1: oklch(15% 0.022 258);
+            --text-2: oklch(35% 0.020 258);
+            --text-3: oklch(55% 0.015 258);
+            --text-inv: oklch(96% 0.005 258);
 
-            /* Semantic */
             --red:    oklch(53% 0.19 25);
             --red-bg: oklch(97.5% 0.012 25);
 
-            /* Geometry */
-            --r-sm: 7px;
-            --r:    11px;
+            --r:    10px;
+            --r-sm:  7px;
             --r-lg: 14px;
 
             --font: 'Thmanyah Sans', 'Open Sans', sans-serif;
@@ -63,113 +65,262 @@
 
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-        html {
+        html, body {
             height: 100%;
             direction: rtl;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
-        }
-
-        /* ── PAGE SHELL ── */
-        body {
-            min-height: 100vh;
             font-family: var(--font);
-            background: var(--bg);
+        }
+
+        /* Bootstrap / theme overrides */
+        body, .main.auth-bg {
+            background: var(--bg) !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            min-height: 100vh !important;
+        }
+
+        /* ─── SPLIT LAYOUT ───────────────────────────────────────────── */
+        .auth-layout {
             display: grid;
-            place-items: center;
-            padding: 2rem 1.25rem;
+            grid-template-columns: 1fr 1fr;
+            min-height: 100vh;
         }
 
-        /* Subtle ruled texture — just enough to break flatness */
-        body::before {
+        /* ─── LEFT PANEL (brand) ──────────────────────────────────────── */
+        .brand-panel {
+            background: var(--navy-900);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 3rem 3.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Geometric grid pattern overlay */
+        .brand-panel::before {
             content: '';
-            position: fixed;
+            position: absolute;
             inset: 0;
-            background-image: repeating-linear-gradient(
-                0deg,
-                oklch(90% 0.007 258 / 0.45) 0px,
-                transparent 1px,
-                transparent 28px
-            );
+            background-image:
+                linear-gradient(oklch(100% 0 0 / 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, oklch(100% 0 0 / 0.03) 1px, transparent 1px);
+            background-size: 48px 48px;
             pointer-events: none;
-            z-index: 0;
         }
 
-        /* ── CARD SHELL ── */
-        .login-shell {
+        /* Radial glow from bottom-left */
+        .brand-panel::after {
+            content: '';
+            position: absolute;
+            bottom: -80px;
+            left: -80px;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, oklch(68% 0.12 76 / 0.12) 0%, transparent 65%);
+            pointer-events: none;
+        }
+
+        .brand-panel-top {
             position: relative;
             z-index: 1;
+        }
+
+        /* Logo area */
+        .brand-logo-wrap {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .brand-logo-img {
+            height: 48px;
+            width: auto;
+            object-fit: contain;
+            filter: brightness(0) invert(1);
+            opacity: 0.95;
+        }
+
+        .brand-logo-fallback {
+            width: 48px;
+            height: 48px;
+            background: oklch(100% 0 0 / 0.1);
+            border: 1px solid oklch(100% 0 0 / 0.15);
+            border-radius: var(--r-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--gold);
+            font-size: 1.4rem;
+            font-weight: 800;
+            flex-shrink: 0;
+        }
+
+        .brand-logo-name {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--text-inv);
+            letter-spacing: -0.01em;
+        }
+
+        /* Center content */
+        .brand-panel-center {
+            position: relative;
+            z-index: 1;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 3rem 0;
+        }
+
+        .brand-tagline-eyebrow {
+            font-size: 0.68rem;
+            font-weight: 700;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--gold);
+            margin-bottom: 1rem;
+        }
+
+        .brand-tagline {
+            font-size: 2.6rem;
+            font-weight: 800;
+            color: var(--text-inv);
+            line-height: 1.15;
+            letter-spacing: -0.03em;
+            max-width: 380px;
+        }
+
+        .brand-tagline em {
+            font-style: normal;
+            color: var(--gold);
+        }
+
+        .brand-desc {
+            margin-top: 1.25rem;
+            font-size: 0.9rem;
+            color: oklch(80% 0.010 258);
+            line-height: 1.7;
+            max-width: 340px;
+        }
+
+        /* Feature pills */
+        .brand-pills {
+            display: flex;
+            flex-direction: column;
+            gap: 0.65rem;
+            margin-top: 2.5rem;
+        }
+
+        .brand-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.6rem;
+            background: oklch(100% 0 0 / 0.07);
+            border: 1px solid oklch(100% 0 0 / 0.1);
+            border-radius: 100px;
+            padding: 0.45rem 0.9rem 0.45rem 0.65rem;
+            font-size: 0.8rem;
+            color: oklch(88% 0.010 258);
+            width: fit-content;
+        }
+
+        .brand-pill-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--gold);
+            flex-shrink: 0;
+        }
+
+        /* Bottom strip */
+        .brand-panel-bottom {
+            position: relative;
+            z-index: 1;
+            border-top: 1px solid oklch(100% 0 0 / 0.1);
+            padding-top: 1.25rem;
+            font-size: 0.72rem;
+            color: oklch(55% 0.015 258);
+        }
+
+        /* Gold rule accent below tagline */
+        .brand-rule {
+            width: 40px;
+            height: 3px;
+            background: var(--gold);
+            border-radius: 100px;
+            margin-top: 1.5rem;
+            margin-bottom: 0;
+        }
+
+        /* ─── RIGHT PANEL (form) ──────────────────────────────────────── */
+        .form-panel {
+            background: var(--bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 3rem 2.5rem;
+        }
+
+        .form-inner {
             width: 100%;
-            max-width: 420px;
-            animation: rise 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+            max-width: 400px;
+            animation: rise 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
         }
 
         @keyframes rise {
-            from { opacity: 0; transform: translateY(10px); }
+            from { opacity: 0; transform: translateY(8px); }
             to   { opacity: 1; transform: translateY(0); }
         }
 
-        /* ── WORDMARK ── */
-        .wordmark {
-            display: flex;
+        /* Mobile wordmark (hidden on desktop) */
+        .mobile-wordmark {
+            display: none;
             align-items: center;
-            gap: 0.9rem;
-            margin-bottom: 2.5rem;
-            padding-right: 0.25rem;
+            gap: 0.8rem;
+            margin-bottom: 2rem;
         }
 
-        .wordmark-badge {
-            width: 42px;
-            height: 42px;
-            border-radius: var(--r-sm);
+        .mobile-wordmark-badge {
+            width: 40px;
+            height: 40px;
             background: var(--navy-900);
+            border-radius: var(--r-sm);
             display: flex;
             align-items: center;
             justify-content: center;
             flex-shrink: 0;
             overflow: hidden;
-            box-shadow:
-                0 1px 2px oklch(0% 0 0 / 0.18),
-                0 3px 8px oklch(19% 0.055 258 / 0.28);
         }
 
-        .wordmark-badge img {
+        .mobile-wordmark-badge img {
             width: 26px;
             height: 26px;
             object-fit: contain;
             filter: brightness(0) invert(1);
         }
 
-        .wordmark-text {
-            line-height: 1;
-        }
-
-        .wordmark-name {
+        .mobile-wordmark-name {
             font-size: 1rem;
             font-weight: 700;
             color: var(--text-1);
-            letter-spacing: -0.015em;
         }
 
-        .wordmark-sub {
-            font-size: 0.725rem;
-            color: var(--text-3);
-            margin-top: 3px;
-            letter-spacing: 0.01em;
-        }
-
-        /* ── EYEBROW + HEADING ── */
-        .eyebrow {
-            font-size: 0.7rem;
+        /* Form heading */
+        .form-eyebrow {
+            font-size: 0.68rem;
             font-weight: 700;
-            letter-spacing: 0.1em;
+            letter-spacing: 0.12em;
             text-transform: uppercase;
             color: var(--gold);
             margin-bottom: 0.5rem;
         }
 
-        .heading {
-            font-size: 1.8rem;
+        .form-heading {
+            font-size: 1.9rem;
             font-weight: 800;
             color: var(--text-1);
             letter-spacing: -0.03em;
@@ -177,57 +328,35 @@
             margin-bottom: 0.4rem;
         }
 
-        .sub {
+        .form-sub {
             font-size: 0.85rem;
             color: var(--text-3);
             line-height: 1.65;
-            margin-bottom: 1.75rem;
+            margin-bottom: 2rem;
         }
 
-        /* ── FORM CARD ── */
+        /* ─── FORM CARD ───────────────────────────────────────────────── */
         .form-card {
             background: var(--surface);
             border: 1px solid var(--border);
             border-radius: var(--r-lg);
-            padding: 2rem 2rem 2.25rem;
+            padding: 1.75rem 1.75rem 2rem;
             box-shadow:
-                0 0 0 1px oklch(85% 0.015 258 / 0.5) inset,
-                0 1px 2px oklch(0% 0 0 / 0.04),
-                0 6px 18px oklch(0% 0 0 / 0.065),
-                0 18px 48px oklch(0% 0 0 / 0.05);
+                0 0 0 1px oklch(84% 0.014 258 / 0.45) inset,
+                0 1px 3px oklch(0% 0 0 / 0.04),
+                0 8px 24px oklch(0% 0 0 / 0.07),
+                0 24px 56px oklch(0% 0 0 / 0.045);
         }
 
-        /* ── DIVIDER LABEL ── */
-        .form-section-label {
-            font-size: 0.72rem;
-            font-weight: 600;
-            letter-spacing: 0.05em;
-            text-transform: uppercase;
-            color: var(--text-3);
-            margin-bottom: 1.25rem;
-            display: flex;
-            align-items: center;
-            gap: 0.65rem;
-        }
-
-        .form-section-label::after {
-            content: '';
-            flex: 1;
-            height: 1px;
-            background: var(--border);
-        }
-
-        /* ── FIELDS ── */
+        /* ─── FIELDS ──────────────────────────────────────────────────── */
         .field { margin-bottom: 1.1rem; }
 
         .field-label {
-            display: flex;
-            align-items: baseline;
-            gap: 0.3rem;
+            display: block;
             font-size: 0.78rem;
             font-weight: 600;
             color: var(--text-2);
-            margin-bottom: 0.42rem;
+            margin-bottom: 0.4rem;
             letter-spacing: 0.01em;
         }
 
@@ -239,27 +368,24 @@
             border: 1.5px solid var(--border);
             border-radius: var(--r-sm);
             padding: 0.76rem 1rem;
-            font-size: 0.88rem;
+            font-size: 0.875rem;
             font-family: var(--font);
             color: var(--text-1);
-            transition: border-color 0.14s, box-shadow 0.14s, background 0.14s;
+            transition: border-color 0.13s, box-shadow 0.13s, background 0.13s;
             outline: none;
             appearance: none;
         }
 
         .field-input::placeholder { color: var(--text-3); }
 
-        .field-input:hover:not(:focus) {
-            border-color: var(--border-strong);
-        }
+        .field-input:hover:not(:focus) { border-color: var(--border-strong); }
 
         .field-input:focus {
             background: var(--surface);
             border-color: var(--navy-700);
-            box-shadow: 0 0 0 3px oklch(30% 0.065 258 / 0.12);
+            box-shadow: 0 0 0 3px oklch(30% 0.065 258 / 0.11);
         }
 
-        /* password toggle */
         .field-input.has-toggle { padding-right: 2.75rem; }
 
         .field-toggle {
@@ -271,11 +397,11 @@
             border: none;
             cursor: pointer;
             color: var(--text-3);
-            font-size: 0.95rem;
+            font-size: 0.92rem;
             padding: 0;
             display: flex;
             align-items: center;
-            transition: color 0.14s;
+            transition: color 0.13s;
             line-height: 1;
         }
 
@@ -283,35 +409,34 @@
 
         .field-error {
             display: none;
-            font-size: 0.73rem;
+            font-size: 0.72rem;
             color: var(--red);
-            margin-top: 0.32rem;
-            padding-right: 0.05rem;
+            margin-top: 0.3rem;
         }
 
-        .field.has-error .field-error  { display: block; }
-        .field.has-error .field-input  {
+        .field.has-error .field-error { display: block; }
+        .field.has-error .field-input {
             border-color: var(--red);
             background: var(--red-bg);
         }
 
         .field.has-error .field-input:focus {
-            box-shadow: 0 0 0 3px oklch(53% 0.19 25 / 0.12);
+            box-shadow: 0 0 0 3px oklch(53% 0.19 25 / 0.11);
         }
 
-        /* ── META ROW ── */
+        /* ─── META ROW ────────────────────────────────────────────────── */
         .meta-row {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin: 0.25rem 0 1.5rem;
+            margin: 0.2rem 0 1.4rem;
         }
 
         .remember-label {
             display: flex;
             align-items: center;
             gap: 0.45rem;
-            font-size: 0.8rem;
+            font-size: 0.79rem;
             color: var(--text-3);
             cursor: pointer;
             user-select: none;
@@ -325,9 +450,8 @@
             flex-shrink: 0;
         }
 
-        /* Gold accent: the single use of it on the page */
         .forgot-btn {
-            font-size: 0.8rem;
+            font-size: 0.79rem;
             font-weight: 600;
             color: var(--gold);
             background: none;
@@ -335,30 +459,29 @@
             cursor: pointer;
             padding: 0;
             font-family: var(--font);
-            transition: opacity 0.14s;
-            text-underline-offset: 3px;
+            transition: opacity 0.13s;
         }
 
-        .forgot-btn:hover { opacity: 0.72; text-decoration: underline; }
+        .forgot-btn:hover { opacity: 0.7; text-decoration: underline; text-underline-offset: 3px; }
 
-        /* ── SUBMIT ── */
+        /* ─── SUBMIT ──────────────────────────────────────────────────── */
         .btn-submit {
             width: 100%;
             padding: 0.88rem 1rem;
             background: var(--navy-900);
-            color: oklch(97% 0.005 258);
+            color: var(--text-inv);
             border: none;
             border-radius: var(--r-sm);
-            font-size: 0.93rem;
+            font-size: 0.92rem;
             font-weight: 700;
             font-family: var(--font);
-            letter-spacing: 0.005em;
+            letter-spacing: 0.01em;
             cursor: pointer;
-            transition: background 0.16s, transform 0.1s, box-shadow 0.16s;
+            transition: background 0.15s, transform 0.1s, box-shadow 0.15s;
             box-shadow:
-                0 1px 0 oklch(100% 0 0 / 0.06) inset,
+                0 1px 0 oklch(100% 0 0 / 0.07) inset,
                 0 2px 4px oklch(0% 0 0 / 0.12),
-                0 6px 16px oklch(19% 0.055 258 / 0.3);
+                0 6px 18px oklch(19% 0.055 258 / 0.28);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -369,211 +492,120 @@
             background: var(--navy-800);
             transform: translateY(-1px);
             box-shadow:
-                0 1px 0 oklch(100% 0 0 / 0.06) inset,
-                0 3px 8px oklch(0% 0 0 / 0.12),
-                0 10px 24px oklch(19% 0.055 258 / 0.34);
+                0 1px 0 oklch(100% 0 0 / 0.07) inset,
+                0 4px 8px oklch(0% 0 0 / 0.12),
+                0 10px 28px oklch(19% 0.055 258 / 0.32);
         }
 
-        .btn-submit:active:not(:disabled) {
-            transform: translateY(0);
-            box-shadow:
-                0 1px 0 oklch(100% 0 0 / 0.06) inset,
-                0 1px 3px oklch(0% 0 0 / 0.1),
-                0 4px 10px oklch(19% 0.055 258 / 0.22);
-        }
+        .btn-submit:active:not(:disabled) { transform: translateY(0); }
 
         .btn-submit:focus-visible {
             outline: 2px solid var(--gold);
             outline-offset: 3px;
         }
 
-        .btn-submit:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-        }
+        .btn-submit:disabled { opacity: 0.58; cursor: not-allowed; transform: none; }
 
         .btn-submit .spinner {
             display: none;
             width: 15px;
             height: 15px;
-            border: 2px solid oklch(97% 0.005 258 / 0.3);
-            border-top-color: oklch(97% 0.005 258);
+            border: 2px solid oklch(96% 0.005 258 / 0.3);
+            border-top-color: oklch(96% 0.005 258);
             border-radius: 50%;
             animation: spin 0.65s linear infinite;
             flex-shrink: 0;
         }
 
         .btn-submit.loading .spinner { display: block; }
-        .btn-submit.loading .btn-text { opacity: 0.72; }
+        .btn-submit.loading .btn-text { opacity: 0.7; }
 
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* ── DEMO BOX ── */
+        /* ─── DEMO BOX ────────────────────────────────────────────────── */
         .demo-box {
-            margin-top: 1rem;
-            background: var(--gold-dim);
-            border: 1px solid oklch(66% 0.115 75 / 0.22);
+            margin-top: 0.85rem;
+            background: var(--gold-soft);
+            border: 1px solid var(--gold-line);
             border-radius: var(--r-sm);
-            padding: 0.68rem 0.9rem;
-            font-size: 0.77rem;
+            padding: 0.65rem 0.85rem;
+            font-size: 0.76rem;
             color: var(--text-2);
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: 0.75rem;
+            gap: 0.65rem;
         }
 
         .demo-box strong { color: var(--text-1); font-weight: 600; }
 
         .demo-copy-btn {
             background: var(--navy-900);
-            color: oklch(97% 0.005 258);
+            color: var(--text-inv);
             border: none;
             border-radius: 5px;
-            padding: 0.28rem 0.6rem;
-            font-size: 0.71rem;
+            padding: 0.26rem 0.58rem;
+            font-size: 0.7rem;
             font-weight: 600;
             cursor: pointer;
             font-family: var(--font);
             flex-shrink: 0;
-            transition: background 0.14s;
+            transition: background 0.13s;
         }
 
         .demo-copy-btn:hover { background: var(--navy-800); }
 
-        /* ── FOOTER ── */
-        .page-footer {
-            margin-top: 1.5rem;
-            text-align: center;
+        /* ─── RESPONSIVE ──────────────────────────────────────────────── */
+        @media (max-width: 860px) {
+            .auth-layout {
+                grid-template-columns: 1fr;
+                grid-template-rows: auto 1fr;
+            }
+
+            .brand-panel {
+                padding: 2rem 1.75rem;
+                min-height: auto;
+            }
+
+            .brand-panel-center { padding: 1.5rem 0; }
+
+            .brand-tagline { font-size: 1.8rem; }
+
+            .brand-pills { display: none; }
+
+            .form-panel { padding: 2.5rem 1.5rem; }
+
+            .mobile-wordmark { display: none; }
         }
 
-        .page-footer-inner {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-size: 0.7rem;
-            color: var(--text-3);
-        }
-
-        .page-footer-dot {
-            width: 3px;
-            height: 3px;
-            border-radius: 50%;
-            background: var(--border-strong);
-            flex-shrink: 0;
-        }
-
-        /* ── MODALS ── */
-        .modal-content {
-            border: 1px solid var(--border);
-            border-radius: var(--r);
-            box-shadow:
-                0 0 0 1px oklch(85% 0.015 258 / 0.5) inset,
-                0 20px 60px oklch(0% 0 0 / 0.14);
-            font-family: var(--font);
-        }
-
-        .modal-header {
-            border-bottom: 1px solid var(--border);
-            padding: 0.85rem 1.2rem;
-        }
-
-        .close-modal-icon {
-            cursor: pointer;
-            color: var(--text-3);
-            font-size: 0.95rem;
-            transition: color 0.14s;
-            line-height: 1;
-        }
-
-        .close-modal-icon:hover { color: var(--text-1); }
-
-        .modal-form-content {
-            padding: 1.75rem 1.5rem 2rem;
-            text-align: center;
-        }
-
-        .modal-form-content img {
-            height: 52px;
-            margin-bottom: 1rem;
-            opacity: 0.8;
-        }
-
-        .modal-form-content h4 {
-            font-size: 0.92rem;
-            font-weight: 700;
-            color: var(--text-1);
-            margin-bottom: 0.38rem;
-        }
-
-        .modal-form-content p {
-            font-size: 0.78rem;
-            color: var(--text-3);
-            line-height: 1.7;
-        }
-
-        .modal-form-content .form-control {
-            width: 100%;
-            background: var(--surface-2);
-            border: 1.5px solid var(--border);
-            border-radius: var(--r-sm);
-            font-family: var(--font);
-            font-size: 0.85rem;
-            padding: 0.7rem 1rem;
-            color: var(--text-1);
-            margin-top: 1rem;
-            outline: none;
-            transition: border-color 0.14s, box-shadow 0.14s;
-            direction: ltr;
-            text-align: right;
-        }
-
-        .modal-form-content .form-control:focus {
-            border-color: var(--navy-700);
-            box-shadow: 0 0 0 3px oklch(30% 0.065 258 / 0.12);
-        }
-
-        .btn-modal-primary {
-            display: block;
-            width: 100%;
-            background: var(--navy-900);
-            color: oklch(97% 0.005 258);
-            border: none;
-            border-radius: var(--r-sm);
-            font-family: var(--font);
-            font-weight: 700;
-            font-size: 0.85rem;
-            padding: 0.72rem 1rem;
-            margin-top: 0.85rem;
-            cursor: pointer;
-            transition: background 0.14s;
-            text-align: center;
-            text-decoration: none;
-            box-shadow: 0 2px 6px oklch(19% 0.055 258 / 0.25);
-        }
-
-        .btn-modal-primary:hover {
-            background: var(--navy-800);
-            color: oklch(97% 0.005 258);
-        }
-
-        /* ── RESPONSIVE ── */
         @media (max-width: 480px) {
-            .form-card { padding: 1.5rem 1.35rem 1.75rem; }
-            .heading   { font-size: 1.55rem; }
-            .wordmark  { margin-bottom: 2rem; }
+            .brand-panel {
+                padding: 1.5rem 1.25rem;
+            }
+
+            .brand-tagline { font-size: 1.5rem; }
+
+            .brand-panel-center { padding: 1rem 0; }
+
+            .brand-desc { display: none; }
+
+            .form-panel { padding: 2rem 1.25rem; }
+
+            .form-card { padding: 1.4rem 1.25rem 1.6rem; }
+
+            .form-heading { font-size: 1.6rem; }
+
+            .mobile-wordmark { display: flex; }
         }
 
         @media (prefers-reduced-motion: reduce) {
-            .login-shell { animation: none; }
+            .form-inner { animation: none; }
             * { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
         }
 
-        /* Neutralize bootstrap / theme noise on body layout */
+        /* Hard reset of bootstrap noise */
         .main.auth-bg {
-            display: grid !important;
-            place-items: center !important;
+            display: block !important;
             padding: 0 !important;
             background: transparent !important;
             min-height: 100vh !important;
@@ -583,165 +615,193 @@
 
 <body>
 <main id="content" role="main" class="main auth-bg">
+<div class="auth-layout">
 
-    <div class="login-shell">
+    <!-- ── LEFT: BRAND PANEL ─────────────────────────────────────── -->
+    <div class="brand-panel">
 
-        <!-- Wordmark -->
-        @php($systemlogo = \App\Models\BusinessSetting::where(['key'=>'logo'])->first())
-        @php($role = $role ?? null)
-        <div class="wordmark">
-            <div class="wordmark-badge">
-                <img class="onerror-image"
-                    src="{{ \App\CentralLogics\Helpers::get_full_url('business', $systemlogo?->value, $systemlogo?->storage[0]?->value ?? 'public', 'authfav') }}"
-                    data-onerror-image="{{ dynamicAsset('/public/assets/admin/img/auth-fav.png') }}"
-                    alt="بيت جدي">
-            </div>
-            <div class="wordmark-text">
-                <div class="wordmark-name">بيت جدي</div>
-                <div class="wordmark-sub">لوحة الإدارة</div>
+        <div class="brand-panel-top">
+            <div class="brand-logo-wrap">
+                <img
+                    class="brand-logo-img onerror-image"
+                    src="{{ $logoUrl }}"
+                    data-onerror-image="{{ $fallbackUrl }}"
+                    alt="{{ $app_name ?? 'بيت جدي' }}"
+                    onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                <div class="brand-logo-fallback" style="display:none;">ب</div>
+                <span class="brand-logo-name">{{ $app_name ?? 'بيت جدي' }}</span>
             </div>
         </div>
 
-        <!-- Heading -->
-        <p class="eyebrow">تسجيل الدخول</p>
-        <h1 class="heading">مرحباً بعودتك</h1>
-        <p class="sub">أدخل بياناتك للوصول إلى لوحة التحكم</p>
-
-        <!-- Form card -->
-        <div class="form-card">
-
-            <p class="form-section-label">بيانات الحساب</p>
-
-            <form class="login_form" action="{{ route('login_post') }}" method="post" id="form-id" novalidate>
-                @csrf
-                <input type="hidden" name="role" value="{{ $role ?? null }}">
-
-                <!-- Email -->
-                <div class="field" id="field-email">
-                    <label class="field-label" for="signinSrEmail">البريد الإلكتروني</label>
-                    <div class="field-wrap">
-                        <input
-                            type="email"
-                            class="field-input"
-                            id="signinSrEmail"
-                            name="email"
-                            value="{{ $email ?? '' }}"
-                            placeholder="example@domain.com"
-                            tabindex="1"
-                            required
-                            autocomplete="email"
-                            autofocus>
-                    </div>
-                    <span class="field-error" role="alert">يرجى إدخال بريد إلكتروني صحيح</span>
+        <div class="brand-panel-center">
+            <p class="brand-tagline-eyebrow">نظام الإدارة المتكامل</p>
+            <h2 class="brand-tagline">
+                إدارة مطعمك<br>بكل <em>سهولة</em><br>واحترافية
+            </h2>
+            <div class="brand-rule"></div>
+            <p class="brand-desc">
+                منصة متكاملة لإدارة الطلبات، القوائم، الفروع، والتقارير — كل ما تحتاجه في مكان واحد.
+            </p>
+            <div class="brand-pills">
+                <div class="brand-pill">
+                    <span class="brand-pill-dot"></span>
+                    إدارة الطلبات والتوصيل
                 </div>
-
-                <!-- Password -->
-                <div class="field" id="field-password">
-                    <label class="field-label" for="signupSrPassword">كلمة المرور</label>
-                    <div class="field-wrap">
-                        <input
-                            type="password"
-                            class="js-toggle-password field-input has-toggle"
-                            id="signupSrPassword"
-                            name="password"
-                            value="{{ $password ?? '' }}"
-                            placeholder="••••••••"
-                            tabindex="2"
-                            required
-                            autocomplete="current-password"
-                            data-msg="{{ translate('messages.invalid_password_warning') }}"
-                            data-hs-toggle-password-options='{
-                                "target": "#changePassTarget",
-                                "defaultClass": "tio-hidden-outlined",
-                                "showClass": "tio-visible-outlined",
-                                "classChangeTarget": "#changePassIcon"
-                            }'>
-                        <button type="button" id="changePassTarget" class="field-toggle" aria-label="إظهار/إخفاء كلمة المرور" tabindex="-1">
-                            <i id="changePassIcon" class="tio-visible-outlined"></i>
-                        </button>
-                    </div>
-                    <span class="field-error" role="alert">يرجى إدخال كلمة المرور</span>
+                <div class="brand-pill">
+                    <span class="brand-pill-dot"></span>
+                    تقارير وإحصاءات فورية
                 </div>
-
-                <!-- Meta row -->
-                <div class="meta-row">
-                    <label class="remember-label">
-                        <input type="checkbox" name="remember" tabindex="3">
-                        تذكرني
-                    </label>
-
-                    <div class="{{ $role == 'admin'  ? '' : 'd-none' }}" id="forget-password">
-                        <button type="button" class="forgot-btn" data-toggle="modal" data-target="#forgetPassModal" tabindex="4">
-                            نسيت كلمة المرور؟
-                        </button>
-                    </div>
-                    <div class="{{ $role == 'vendor' ? '' : 'd-none' }}" id="forget-password1">
-                        <button type="button" class="forgot-btn" data-toggle="modal" data-target="#forgetPassModal1" tabindex="4">
-                            نسيت كلمة المرور؟
-                        </button>
-                    </div>
+                <div class="brand-pill">
+                    <span class="brand-pill-dot"></span>
+                    إدارة متعددة الفروع
                 </div>
-
-                <!-- Submit -->
-                <button type="submit" class="btn-submit" id="signInBtn" tabindex="5">
-                    <span class="spinner" aria-hidden="true"></span>
-                    <span class="btn-text">تسجيل الدخول</span>
-                </button>
-            </form>
-
-            <!-- Demo credentials -->
-            @if(env('APP_MODE') == 'demo')
-                @if(isset($role) && $role == 'admin')
-                    <div class="demo-box">
-                        <div>
-                            <span class="d-block"><strong>Email</strong>: admin@admin.com</span>
-                            <span class="d-block"><strong>Password</strong>: 12345678</span>
-                        </div>
-                        <button class="demo-copy-btn" id="copy_cred">نسخ</button>
-                    </div>
-                @endif
-                @if(isset($role) && $role == 'vendor')
-                    <div class="demo-box">
-                        <div>
-                            <span class="d-block"><strong>Email</strong>: test.restaurant@gmail.com</span>
-                            <span class="d-block"><strong>Password</strong>: 12345678</span>
-                        </div>
-                        <button class="demo-copy-btn" id="copy_cred2">نسخ</button>
-                    </div>
-                @endif
-            @endif
+            </div>
         </div>
 
-        <!-- Footer -->
-        <p class="page-footer">
-            <span class="page-footer-inner">
-                <span>بيت جدي</span>
-                <span class="page-footer-dot" aria-hidden="true"></span>
-                <span>نظام الإدارة</span>
-                <span class="page-footer-dot" aria-hidden="true"></span>
-                <span>{{ date('Y') }}</span>
-            </span>
-        </p>
+        <div class="brand-panel-bottom">
+            بيت جدي &middot; {{ date('Y') }} &middot; جميع الحقوق محفوظة
+        </div>
 
     </div>
 
+    <!-- ── RIGHT: FORM PANEL ──────────────────────────────────────── -->
+    <div class="form-panel">
+        <div class="form-inner">
+
+            <!-- Mobile only wordmark -->
+            <div class="mobile-wordmark">
+                <div class="mobile-wordmark-badge">
+                    <img src="{{ $logoUrl }}" alt="" onerror="this.src='{{ $fallbackUrl }}'">
+                </div>
+                <span class="mobile-wordmark-name">{{ $app_name ?? 'بيت جدي' }}</span>
+            </div>
+
+            <p class="form-eyebrow">تسجيل الدخول</p>
+            <h1 class="form-heading">مرحباً بعودتك</h1>
+            <p class="form-sub">أدخل بياناتك للوصول إلى لوحة التحكم</p>
+
+            <div class="form-card">
+                <form class="login_form" action="{{ route('login_post') }}" method="post" id="form-id" novalidate>
+                    @csrf
+                    <input type="hidden" name="role" value="{{ $role }}">
+
+                    <!-- Email -->
+                    <div class="field" id="field-email">
+                        <label class="field-label" for="signinSrEmail">البريد الإلكتروني</label>
+                        <div class="field-wrap">
+                            <input
+                                type="email"
+                                class="field-input"
+                                id="signinSrEmail"
+                                name="email"
+                                value="{{ $email ?? '' }}"
+                                placeholder="example@domain.com"
+                                tabindex="1"
+                                required
+                                autocomplete="email"
+                                autofocus>
+                        </div>
+                        <span class="field-error" role="alert">يرجى إدخال بريد إلكتروني صحيح</span>
+                    </div>
+
+                    <!-- Password -->
+                    <div class="field" id="field-password">
+                        <label class="field-label" for="signupSrPassword">كلمة المرور</label>
+                        <div class="field-wrap">
+                            <input
+                                type="password"
+                                class="js-toggle-password field-input has-toggle"
+                                id="signupSrPassword"
+                                name="password"
+                                value="{{ $password ?? '' }}"
+                                placeholder="••••••••"
+                                tabindex="2"
+                                required
+                                autocomplete="current-password"
+                                data-msg="{{ translate('messages.invalid_password_warning') }}"
+                                data-hs-toggle-password-options='{
+                                    "target": "#changePassTarget",
+                                    "defaultClass": "tio-hidden-outlined",
+                                    "showClass": "tio-visible-outlined",
+                                    "classChangeTarget": "#changePassIcon"
+                                }'>
+                            <button type="button" id="changePassTarget" class="field-toggle" aria-label="إظهار/إخفاء كلمة المرور" tabindex="-1">
+                                <i id="changePassIcon" class="tio-visible-outlined"></i>
+                            </button>
+                        </div>
+                        <span class="field-error" role="alert">يرجى إدخال كلمة المرور</span>
+                    </div>
+
+                    <!-- Meta row -->
+                    <div class="meta-row">
+                        <label class="remember-label">
+                            <input type="checkbox" name="remember" tabindex="3">
+                            تذكرني
+                        </label>
+
+                        <div class="{{ $role == 'admin'  ? '' : 'd-none' }}" id="forget-password">
+                            <button type="button" class="forgot-btn" data-toggle="modal" data-target="#forgetPassModal" tabindex="4">
+                                نسيت كلمة المرور؟
+                            </button>
+                        </div>
+                        <div class="{{ $role == 'vendor' ? '' : 'd-none' }}" id="forget-password1">
+                            <button type="button" class="forgot-btn" data-toggle="modal" data-target="#forgetPassModal1" tabindex="4">
+                                نسيت كلمة المرور؟
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Submit -->
+                    <button type="submit" class="btn-submit" id="signInBtn" tabindex="5">
+                        <span class="spinner" aria-hidden="true"></span>
+                        <span class="btn-text">تسجيل الدخول</span>
+                    </button>
+                </form>
+
+                @if(env('APP_MODE') == 'demo')
+                    @if(isset($role) && $role == 'admin')
+                        <div class="demo-box">
+                            <div>
+                                <span class="d-block"><strong>Email</strong>: admin@admin.com</span>
+                                <span class="d-block"><strong>Password</strong>: 12345678</span>
+                            </div>
+                            <button class="demo-copy-btn" id="copy_cred">نسخ</button>
+                        </div>
+                    @endif
+                    @if(isset($role) && $role == 'vendor')
+                        <div class="demo-box">
+                            <div>
+                                <span class="d-block"><strong>Email</strong>: test.restaurant@gmail.com</span>
+                                <span class="d-block"><strong>Password</strong>: 12345678</span>
+                            </div>
+                            <button class="demo-copy-btn" id="copy_cred2">نسخ</button>
+                        </div>
+                    @endif
+                @endif
+            </div>
+
+        </div>
+    </div>
+
+</div>
 </main>
 
-<!-- ── MODALS ── -->
+<!-- ── MODALS ──────────────────────────────────────────────────────── -->
 <div class="modal fade" id="forgetPassModal">
     <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header justify-content-end">
-                <span class="close-modal-icon" data-dismiss="modal" role="button" tabindex="0" aria-label="إغلاق">
+        <div class="modal-content" style="border:1px solid var(--border); border-radius:var(--r); font-family:var(--font); box-shadow:0 20px 60px oklch(0% 0 0 / 0.14);">
+            <div class="modal-header justify-content-end" style="border-bottom:1px solid var(--border); padding:0.85rem 1.2rem;">
+                <span style="cursor:pointer;color:var(--text-3);font-size:0.95rem;transition:color 0.13s;line-height:1;" data-dismiss="modal" role="button" tabindex="0" aria-label="إغلاق">
                     <i class="tio-clear"></i>
                 </span>
             </div>
             <div class="modal-body p-0">
-                <div class="modal-form-content">
-                    <img src="{{ dynamicAsset('/public/assets/admin/img/send-mail.svg') }}" alt="">
-                    <h4>{{ translate('Send_Mail_to_Your_Email_?') }}</h4>
-                    <p>{{ translate('A_mail_will_be_send_to_your_registered_email_with_a_link_to_change_passowrd') }}</p>
-                    <a class="btn-modal-primary" href="{{ route('reset-password') }}">
+                <div style="padding:1.75rem 1.5rem 2rem; text-align:center;">
+                    <img src="{{ dynamicAsset('/public/assets/admin/img/send-mail.svg') }}" alt="" style="height:52px;margin-bottom:1rem;opacity:0.8;">
+                    <h4 style="font-size:0.92rem;font-weight:700;color:var(--text-1);margin-bottom:0.4rem;">{{ translate('Send_Mail_to_Your_Email_?') }}</h4>
+                    <p style="font-size:0.78rem;color:var(--text-3);line-height:1.7;">{{ translate('A_mail_will_be_send_to_your_registered_email_with_a_link_to_change_passowrd') }}</p>
+                    <a style="display:block;width:100%;background:var(--navy-900);color:var(--text-inv);border:none;border-radius:var(--r-sm);font-family:var(--font);font-weight:700;font-size:0.85rem;padding:0.72rem 1rem;margin-top:0.9rem;cursor:pointer;transition:background 0.13s;text-align:center;text-decoration:none;box-shadow:0 2px 6px oklch(19% 0.055 258 / 0.25);"
+                       href="{{ route('reset-password') }}">
                         {{ translate('Send_Mail') }}
                     </a>
                 </div>
@@ -752,20 +812,25 @@
 
 <div class="modal fade" id="forgetPassModal1">
     <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header justify-content-end">
-                <span class="close-modal-icon" data-dismiss="modal" role="button" tabindex="0" aria-label="إغلاق">
+        <div class="modal-content" style="border:1px solid var(--border); border-radius:var(--r); font-family:var(--font); box-shadow:0 20px 60px oklch(0% 0 0 / 0.14);">
+            <div class="modal-header justify-content-end" style="border-bottom:1px solid var(--border); padding:0.85rem 1.2rem;">
+                <span style="cursor:pointer;color:var(--text-3);font-size:0.95rem;" data-dismiss="modal" role="button" tabindex="0" aria-label="إغلاق">
                     <i class="tio-clear"></i>
                 </span>
             </div>
             <div class="modal-body p-0">
-                <div class="modal-form-content">
-                    <img src="{{ dynamicAsset('/public/assets/admin/img/send-mail.svg') }}" alt="">
-                    <h4>{{ translate('messages.Send_Mail_to_Your_Email_?') }}</h4>
+                <div style="padding:1.75rem 1.5rem 2rem; text-align:center;">
+                    <img src="{{ dynamicAsset('/public/assets/admin/img/send-mail.svg') }}" alt="" style="height:52px;margin-bottom:1rem;opacity:0.8;">
+                    <h4 style="font-size:0.92rem;font-weight:700;color:var(--text-1);margin-bottom:0.4rem;">{{ translate('messages.Send_Mail_to_Your_Email_?') }}</h4>
                     <form action="{{ route('vendor-reset-password') }}" method="post">
                         @csrf
-                        <input type="email" name="email" class="form-control" required placeholder="البريد الإلكتروني">
-                        <button type="submit" class="btn-modal-primary">{{ translate('messages.Send_Mail') }}</button>
+                        <input type="email" name="email"
+                            style="width:100%;background:var(--surface-2);border:1.5px solid var(--border);border-radius:var(--r-sm);font-family:var(--font);font-size:0.85rem;padding:0.7rem 1rem;color:var(--text-1);margin-top:1rem;outline:none;direction:ltr;text-align:right;"
+                            required placeholder="البريد الإلكتروني">
+                        <button type="submit"
+                            style="display:block;width:100%;background:var(--navy-900);color:var(--text-inv);border:none;border-radius:var(--r-sm);font-family:var(--font);font-weight:700;font-size:0.85rem;padding:0.72rem 1rem;margin-top:0.85rem;cursor:pointer;transition:background 0.13s;text-align:center;box-shadow:0 2px 6px oklch(19% 0.055 258 / 0.25);">
+                            {{ translate('messages.Send_Mail') }}
+                        </button>
                     </form>
                 </div>
             </div>
@@ -775,24 +840,24 @@
 
 <div class="modal fade" id="successMailModal">
     <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header justify-content-end">
-                <span class="close-modal-icon" data-dismiss="modal" role="button" tabindex="0" aria-label="إغلاق">
+        <div class="modal-content" style="border:1px solid var(--border); border-radius:var(--r); font-family:var(--font); box-shadow:0 20px 60px oklch(0% 0 0 / 0.14);">
+            <div class="modal-header justify-content-end" style="border-bottom:1px solid var(--border); padding:0.85rem 1.2rem;">
+                <span style="cursor:pointer;color:var(--text-3);font-size:0.95rem;" data-dismiss="modal" role="button" tabindex="0" aria-label="إغلاق">
                     <i class="tio-clear"></i>
                 </span>
             </div>
             <div class="modal-body p-0">
-                <div class="modal-form-content">
-                    <img src="{{ dynamicAsset('/public/assets/admin/img/sent-mail.svg') }}" alt="">
-                    <h4>{{ translate('A_mail_has_been_sent_to_your_registered_email') }}!</h4>
-                    <p>{{ translate('Click_the_link_in_the_mail_description_to_change_password') }}</p>
+                <div style="padding:1.75rem 1.5rem 2rem; text-align:center;">
+                    <img src="{{ dynamicAsset('/public/assets/admin/img/sent-mail.svg') }}" alt="" style="height:52px;margin-bottom:1rem;opacity:0.8;">
+                    <h4 style="font-size:0.92rem;font-weight:700;color:var(--text-1);margin-bottom:0.4rem;">{{ translate('A_mail_has_been_sent_to_your_registered_email') }}!</h4>
+                    <p style="font-size:0.78rem;color:var(--text-3);line-height:1.7;">{{ translate('Click_the_link_in_the_mail_description_to_change_password') }}</p>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- ── JS ── -->
+<!-- ── JS ─────────────────────────────────────────────────────────── -->
 <script src="{{ dynamicAsset('public/assets/admin') }}/js/vendor.min.js"></script>
 <script src="{{ dynamicAsset('public/assets/admin') }}/js/theme.min.js"></script>
 <script src="{{ dynamicAsset('public/assets/admin') }}/js/toastr.js"></script>
