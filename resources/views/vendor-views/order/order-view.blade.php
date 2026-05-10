@@ -21,563 +21,7 @@ active
 @section('title', 'تفاصيل الطلب #' . $order['id'])
 
 @push('css_or_js')
-<style>
-/* ─── Reset & Base ─────────────────────────────────────────── */
-.ov-page {
-    --navy: #1b2e5e;
-    --navy-dark: #111d3d;
-    --navy-light: #253d7a;
-    --navy-ghost: rgba(27,46,94,.06);
-    --navy-border: rgba(27,46,94,.12);
-    --gold: #c9a227;
-    --gold-light: #f0d878;
-    --gold-pale: rgba(201,162,39,.10);
-    --red: #d63a3a;
-    --red-pale: rgba(214,58,58,.08);
-    --green: #1d8a5a;
-    --green-pale: rgba(29,138,90,.10);
-    --amber: #d97706;
-    --amber-pale: rgba(217,119,6,.10);
-    --surface: #f4f5f8;
-    --card: #ffffff;
-    --text-primary: #111827;
-    --text-secondary: #4b5563;
-    --text-muted: #9ca3af;
-    --radius: 14px;
-    --radius-sm: 8px;
-    --shadow: 0 1px 4px rgba(0,0,0,.07), 0 4px 16px rgba(0,0,0,.04);
-    --shadow-md: 0 2px 8px rgba(0,0,0,.10), 0 8px 24px rgba(0,0,0,.06);
-
-    background: var(--surface);
-    padding: 1.5rem 0 3rem;
-    direction: rtl;
-}
-
-/* ─── Top bar ──────────────────────────────────────────────── */
-.ov-topbar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 1.25rem;
-    gap: 1rem;
-    flex-wrap: wrap;
-}
-.ov-topbar-right {
-    display: flex;
-    align-items: center;
-    gap: .75rem;
-}
-.ov-order-id {
-    font-size: 1.5rem;
-    font-weight: 800;
-    color: var(--navy);
-    letter-spacing: -.02em;
-    line-height: 1;
-}
-.ov-order-date {
-    font-size: .82rem;
-    color: var(--text-muted);
-    margin-top: .2rem;
-}
-.ov-nav-btn {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    border: 1.5px solid var(--navy-border);
-    background: var(--card);
-    color: var(--navy);
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    transition: all .15s;
-    text-decoration: none;
-    font-size: .9rem;
-}
-.ov-nav-btn:hover {
-    background: var(--navy);
-    color: #fff;
-    border-color: var(--navy);
-}
-.ov-print-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: .4rem;
-    padding: .45rem 1rem;
-    border-radius: var(--radius-sm);
-    border: 1.5px solid var(--navy-border);
-    background: var(--card);
-    color: var(--navy);
-    font-size: .82rem;
-    font-weight: 600;
-    text-decoration: none;
-    transition: all .15s;
-
-}
-.ov-print-btn:hover {
-    background: var(--navy);
-    color: #fff;
-    border-color: var(--navy);
-    text-decoration: none;
-}
-
-/* ─── Status Hero ──────────────────────────────────────────── */
-.ov-status-hero {
-    display: flex;
-    align-items: center;
-    gap: 1.5rem;
-    padding: 1.25rem 1.5rem;
-    border-radius: var(--radius);
-    background: var(--card);
-    box-shadow: var(--shadow);
-    border: 1.5px solid var(--navy-border);
-    margin-bottom: 1.25rem;
-    flex-wrap: wrap;
-}
-.ov-status-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: .5rem;
-    padding: .55rem 1.25rem;
-    border-radius: 999px;
-    font-size: .92rem;
-    font-weight: 700;
-    letter-spacing: .01em;
-    white-space: nowrap;
-}
-.ov-status-badge .dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-}
-.status-pending   { background: var(--amber-pale); color: var(--amber); }
-.status-pending .dot { background: var(--amber); }
-.status-confirmed, .status-accepted { background: rgba(59,130,246,.1); color: #2563eb; }
-.status-confirmed .dot, .status-accepted .dot { background: #2563eb; }
-.status-processing { background: var(--amber-pale); color: var(--amber); }
-.status-processing .dot { background: var(--amber); }
-.status-handover  { background: rgba(139,92,246,.1); color: #7c3aed; }
-.status-handover .dot { background: #7c3aed; }
-.status-picked_up { background: rgba(139,92,246,.1); color: #7c3aed; }
-.status-picked_up .dot { background: #7c3aed; }
-.status-delivered { background: var(--green-pale); color: var(--green); }
-.status-delivered .dot { background: var(--green); }
-.status-canceled  { background: var(--red-pale); color: var(--red); }
-.status-canceled .dot { background: var(--red); }
-.status-default   { background: var(--navy-ghost); color: var(--navy); }
-.status-default .dot { background: var(--navy); }
-
-.ov-status-meta {
-    display: flex;
-    gap: 1.5rem;
-    flex-wrap: wrap;
-    flex: 1;
-}
-.ov-meta-chip {
-    display: flex;
-    flex-direction: column;
-    gap: .1rem;
-}
-.ov-meta-label {
-    font-size: .72rem;
-    color: var(--text-muted);
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: .04em;
-}
-.ov-meta-value {
-    font-size: .88rem;
-    font-weight: 700;
-    color: var(--text-primary);
-}
-.ov-meta-value.paid   { color: var(--green); }
-.ov-meta-value.unpaid { color: var(--red); }
-
-/* ─── Main Grid ────────────────────────────────────────────── */
-.ov-grid {
-    display: grid;
-    grid-template-columns: 280px 1fr 260px;
-    gap: 1.25rem;
-    align-items: start;
-}
-@media (max-width: 1199px) {
-    .ov-grid { grid-template-columns: 1fr 1fr; }
-    .ov-col-actions { grid-column: 1 / -1; }
-}
-
-/* ─── Cards ────────────────────────────────────────────────── */
-.ov-card {
-    background: var(--card);
-    border-radius: var(--radius);
-    border: 1.5px solid var(--navy-border);
-    box-shadow: var(--shadow);
-    overflow: hidden;
-}
-.ov-card-header {
-    padding: .9rem 1.25rem;
-    border-bottom: 1.5px solid var(--navy-border);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: .5rem;
-}
-.ov-card-title {
-    font-size: .82rem;
-    font-weight: 700;
-    color: var(--navy);
-    text-transform: uppercase;
-    letter-spacing: .06em;
-    display: flex;
-    align-items: center;
-    gap: .5rem;
-}
-.ov-card-title-icon {
-    width: 22px;
-    height: 22px;
-    background: var(--gold-pale);
-    border-radius: 6px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--gold);
-    font-size: .8rem;
-}
-.ov-card-body { padding: 1.25rem; }
-
-/* ─── Action Column ────────────────────────────────────────── */
-.ov-action-primary {
-    display: block;
-    width: 100%;
-    padding: .85rem 1rem;
-    border-radius: var(--radius-sm);
-    background: linear-gradient(135deg, var(--navy-light) 0%, var(--navy) 100%);
-    color: #fff;
-    font-size: .97rem;
-    font-weight: 700;
-    text-align: center;
-    border: none;
-    cursor: pointer;
-    transition: all .18s;
-    text-decoration: none;
-
-    box-shadow: 0 3px 12px rgba(27,46,94,.3);
-    letter-spacing: .01em;
-    margin-bottom: .75rem;
-}
-.ov-action-primary:hover {
-    background: linear-gradient(135deg, var(--navy) 0%, var(--navy-dark) 100%);
-    color: #fff;
-    text-decoration: none;
-    transform: translateY(-1px);
-    box-shadow: 0 5px 18px rgba(27,46,94,.4);
-}
-.ov-action-primary .btn-icon { margin-left: .4rem; }
-
-.ov-action-cancel {
-    display: block;
-    width: 100%;
-    padding: .7rem 1rem;
-    border-radius: var(--radius-sm);
-    background: transparent;
-    color: var(--red);
-    font-size: .88rem;
-    font-weight: 600;
-    text-align: center;
-    border: 1.5px solid rgba(214,58,58,.25);
-    cursor: pointer;
-    transition: all .18s;
-
-    margin-top: .5rem;
-}
-.ov-action-cancel:hover {
-    background: var(--red-pale);
-    border-color: var(--red);
-}
-
-.ov-assign-btn {
-    display: block;
-    width: 100%;
-    padding: .72rem 1rem;
-    border-radius: var(--radius-sm);
-    background: var(--gold-pale);
-    color: #7a5800;
-    font-size: .88rem;
-    font-weight: 700;
-    text-align: center;
-    border: 1.5px solid rgba(201,162,39,.3);
-    cursor: pointer;
-    transition: all .18s;
-
-    margin-top: .75rem;
-}
-.ov-assign-btn:hover {
-    background: var(--gold);
-    color: #fff;
-    border-color: var(--gold);
-    text-decoration: none;
-}
-
-.ov-action-divider {
-    height: 1px;
-    background: var(--navy-border);
-    margin: 1rem 0;
-}
-
-/* ─── Order Items Table ────────────────────────────────────── */
-.ov-items-table { width: 100%; border-collapse: collapse; }
-.ov-items-table thead th {
-    padding: .6rem .75rem;
-    font-size: .72rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: .06em;
-    color: var(--text-muted);
-    border-bottom: 1.5px solid var(--navy-border);
-    text-align: right;
-    white-space: nowrap;
-}
-.ov-items-table thead th:last-child { text-align: left; }
-.ov-items-table tbody td {
-    padding: .85rem .75rem;
-    border-bottom: 1px solid rgba(27,46,94,.05);
-    vertical-align: middle;
-    font-size: .88rem;
-    color: var(--text-primary);
-}
-.ov-items-table tbody tr:last-child td { border-bottom: none; }
-.ov-item-img {
-    width: 44px;
-    height: 44px;
-    border-radius: 8px;
-    object-fit: cover;
-    border: 1px solid var(--navy-border);
-    flex-shrink: 0;
-}
-.ov-item-info { display: flex; align-items: center; gap: .65rem; }
-.ov-item-name { font-weight: 700; font-size: .88rem; color: var(--navy); }
-.ov-item-sub  { font-size: .76rem; color: var(--text-muted); margin-top: .1rem; }
-.ov-item-price { font-weight: 700; color: var(--text-primary); white-space: nowrap; text-align: left; }
-.ov-badge-qty {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 22px;
-    height: 22px;
-    border-radius: 6px;
-    background: var(--navy-ghost);
-    color: var(--navy);
-    font-size: .75rem;
-    font-weight: 700;
-    padding: 0 .35rem;
-}
-.ov-addon-tag {
-    display: inline-block;
-    font-size: .72rem;
-    background: var(--gold-pale);
-    color: #7a5800;
-    padding: .15rem .45rem;
-    border-radius: 4px;
-    margin: .1rem .1rem 0 0;
-    font-weight: 600;
-}
-
-/* ─── Totals ───────────────────────────────────────────────── */
-.ov-totals { padding: .75rem 1.25rem 1rem; }
-.ov-total-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: .35rem 0;
-    font-size: .84rem;
-}
-.ov-total-row .label { color: var(--text-secondary); }
-.ov-total-row .val   { font-weight: 600; color: var(--text-primary); }
-.ov-total-row.discount .val { color: var(--green); }
-.ov-total-row.sep { border-top: 1px solid var(--navy-border); margin-top: .35rem; padding-top: .6rem; }
-.ov-grand-total {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: .9rem 1.25rem;
-    background: var(--navy);
-    border-radius: 0 0 calc(var(--radius) - 2px) calc(var(--radius) - 2px);
-    margin: 0 -1px -1px;
-}
-.ov-grand-total .label { color: rgba(255,255,255,.7); font-size: .82rem; font-weight: 600; }
-.ov-grand-total .val   { color: #fff; font-size: 1.2rem; font-weight: 800; }
-
-/* ─── Details Column ───────────────────────────────────────── */
-.ov-info-row {
-    display: flex;
-    align-items: flex-start;
-    gap: .75rem;
-    padding: .65rem 0;
-    border-bottom: 1px solid rgba(27,46,94,.05);
-}
-.ov-info-row:last-child { border-bottom: none; }
-.ov-info-icon {
-    width: 30px;
-    height: 30px;
-    border-radius: 7px;
-    background: var(--navy-ghost);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--navy);
-    font-size: .8rem;
-    flex-shrink: 0;
-    margin-top: .05rem;
-}
-.ov-info-label { font-size: .72rem; color: var(--text-muted); font-weight: 600; margin-bottom: .1rem; }
-.ov-info-value { font-size: .86rem; color: var(--text-primary); font-weight: 600; line-height: 1.4; }
-.ov-info-value a { color: var(--navy); text-decoration: none; }
-.ov-info-value a:hover { color: var(--gold); }
-
-/* ─── Avatar ───────────────────────────────────────────────── */
-.ov-avatar-row {
-    display: flex;
-    align-items: center;
-    gap: .85rem;
-    padding: .75rem 0;
-}
-.ov-avatar {
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 2px solid var(--navy-border);
-    flex-shrink: 0;
-}
-.ov-avatar-name { font-weight: 700; font-size: .9rem; color: var(--navy); }
-.ov-avatar-sub  { font-size: .76rem; color: var(--text-muted); margin-top: .1rem; }
-.ov-avatar-badge {
-    margin-right: auto;
-    font-size: .72rem;
-    font-weight: 700;
-    background: var(--navy-ghost);
-    color: var(--navy);
-    padding: .2rem .55rem;
-    border-radius: 999px;
-}
-
-/* ─── Cancel info ──────────────────────────────────────────── */
-.ov-cancel-info {
-    padding: .75rem;
-    background: var(--red-pale);
-    border-radius: var(--radius-sm);
-    border: 1px solid rgba(214,58,58,.15);
-    margin-top: .5rem;
-}
-.ov-cancel-info-row {
-    display: flex;
-    justify-content: space-between;
-    font-size: .82rem;
-    padding: .2rem 0;
-    gap: .5rem;
-}
-.ov-cancel-info-row .k { color: var(--text-secondary); }
-.ov-cancel-info-row .v { color: var(--red); font-weight: 600; text-align: left; }
-
-/* ─── Change hint ──────────────────────────────────────────── */
-.ov-change-alert {
-    display: flex;
-    align-items: center;
-    gap: .6rem;
-    padding: .65rem .9rem;
-    background: var(--gold-pale);
-    border: 1.5px solid rgba(201,162,39,.3);
-    border-radius: var(--radius-sm);
-    font-size: .82rem;
-    color: #7a5800;
-    font-weight: 600;
-    margin-top: .75rem;
-}
-.ov-change-alert i { color: var(--gold); font-size: 1rem; }
-
-/* ─── Proof images ─────────────────────────────────────────── */
-.ov-proof-grid {
-    display: flex;
-    flex-wrap: wrap;
-    gap: .5rem;
-    margin-top: .5rem;
-}
-.ov-proof-thumb {
-    width: 58px;
-    height: 58px;
-    border-radius: 8px;
-    object-fit: cover;
-    border: 1.5px solid var(--navy-border);
-    cursor: pointer;
-    transition: transform .15s;
-}
-.ov-proof-thumb:hover { transform: scale(1.05); }
-
-/* ─── Map btn ──────────────────────────────────────────────── */
-.ov-map-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: .4rem;
-    font-size: .78rem;
-    font-weight: 600;
-    color: var(--navy);
-    background: var(--navy-ghost);
-    border: 1px solid var(--navy-border);
-    padding: .3rem .7rem;
-    border-radius: 6px;
-    text-decoration: none;
-    transition: all .15s;
-    cursor: pointer;
-}
-.ov-map-btn:hover { background: var(--navy); color: #fff; text-decoration: none; }
-
-/* ─── Notes strip ──────────────────────────────────────────── */
-.ov-note-strip {
-    display: flex;
-    align-items: flex-start;
-    gap: .5rem;
-    padding: .6rem .85rem;
-    background: rgba(201,162,39,.07);
-    border-right: 3px solid var(--gold);
-    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
-    font-size: .82rem;
-    color: #5c440a;
-    margin-bottom: .75rem;
-}
-
-/* ─── Change btn ───────────────────────────────────────────── */
-.ov-change-link {
-    font-size: .76rem;
-    color: var(--gold);
-    font-weight: 700;
-    cursor: pointer;
-    text-decoration: none;
-    border: none;
-    background: none;
-
-}
-.ov-change-link:hover { color: var(--navy); text-decoration: underline; }
-
-/* ─── Subscription badge ───────────────────────────────────── */
-.ov-sub-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: .35rem;
-    font-size: .76rem;
-    font-weight: 700;
-    padding: .3rem .75rem;
-    border-radius: 999px;
-    background: rgba(59,130,246,.09);
-    color: #1d4ed8;
-    margin-bottom: .5rem;
-}
-
-/* ─── Print ────────────────────────────────────────────────── */
-@media print {
-    .ov-col-actions { display: none !important; }
-    .ov-col-details { display: none !important; }
-    .ov-topbar { display: none !important; }
-    .ov-status-hero { display: none !important; }
-}
-</style>
+<link rel="stylesheet" href="{{ dynamicAsset('public/assets/admin/css/order-view.css') }}">
 @endpush
 
 @section('content')
@@ -633,6 +77,26 @@ $statusLabels = [
     'failed'     => 'فشل',
 ];
 $statusLabel = $statusLabels[$status] ?? translate(str_replace('_',' ',$status));
+
+/* 3-phase visual stepper mapping (data model unchanged).
+   phase 1 (قبول)   = pending
+   phase 2 (تجهيز)  = confirmed | accepted | processing
+   phase 3 (تسليم)  = handover | picked_up | delivered
+   terminal         = canceled | failed | refund_*
+*/
+$phaseMap = [
+    'pending'    => 1,
+    'confirmed'  => 2,
+    'accepted'   => 2,
+    'processing' => 2,
+    'handover'   => 3,
+    'picked_up'  => 3,
+    'delivered'  => 3,
+];
+$currentPhase = $phaseMap[$status] ?? 0;
+$isTerminal = in_array($status, ['canceled','failed','refunded','refund_requested','refund_request_canceled']);
+$isFinalDone = $status === 'delivered';
+$step3Label = $order->order_type == 'dine_in' ? 'الاكتمال' : 'التسليم';
 ?>
 
 <div class="content container-fluid ov-page" id="printableArea">
@@ -649,18 +113,27 @@ $statusLabel = $statusLabels[$status] ?? translate(str_replace('_',' ',$status))
                 </div>
             </div>
             @if ($order->edited)
-                <span class="badge badge-soft-danger text-capitalize px-2">معدّل</span>
+                <span class="ov-tag danger">معدّل</span>
             @endif
             @if ($subscription)
                 <span class="ov-sub-badge"><i class="tio-refresh"></i> اشتراك</span>
             @endif
             @if ($campaign_order)
-                <span class="ov-sub-badge" style="background:rgba(201,162,39,.1);color:#7a5800"><i class="tio-star"></i> عرض</span>
+                <span class="ov-sub-badge gold"><i class="tio-star"></i> عرض</span>
             @endif
         </div>
-        <div style="display:flex;align-items:center;gap:.5rem">
+        <div class="ov-topbar-nav">
             <a class="ov-nav-btn" href="{{ route('vendor.order.details', [$order['id'] - 1]) }}" title="الطلب السابق"><i class="tio-chevron-right"></i></a>
             <a class="ov-nav-btn" href="{{ route('vendor.order.details', [$order['id'] + 1]) }}" title="الطلب التالي"><i class="tio-chevron-left"></i></a>
+            <button type="button"
+                    class="ov-kbd-btn d-none d-sm-inline-flex"
+                    id="ov-kbd-toggle"
+                    aria-expanded="false"
+                    aria-controls="ov-kbd-panel"
+                    title="اختصارات لوحة المفاتيح (?)">
+                <span class="ov-kbd-glyph" aria-hidden="true">⌨︎</span>
+                <span>اختصارات</span>
+            </button>
             <a class="ov-print-btn d-none d-sm-inline-flex" href="{{ route('vendor.order.generate-invoice', [$order['id']]) }}">
                 <i class="tio-print"></i> فاتورة طباعة
             </a>
@@ -668,53 +141,139 @@ $statusLabel = $statusLabels[$status] ?? translate(str_replace('_',' ',$status))
     </div>
 
     {{-- ══════════════════════════════════════════════════════════
+         KEYBOARD SHORTCUTS PANEL
+    ══════════════════════════════════════════════════════════ --}}
+    <div class="ov-kbd-panel" id="ov-kbd-panel" hidden>
+        <div class="ov-card">
+            <div class="ov-card-body">
+                <div class="ov-kbd-row">
+                    <span class="ov-kbd-label">تنفيذ الإجراء التالي</span>
+                    <span class="ov-kbd">Enter</span>
+                    <span class="ov-kbd">Space</span>
+                </div>
+                <div class="ov-kbd-row">
+                    <span class="ov-kbd-label">إلغاء الطلب</span>
+                    <span class="ov-kbd">Esc</span>
+                </div>
+                <div class="ov-kbd-row">
+                    <span class="ov-kbd-label">تعيين مندوب</span>
+                    <span class="ov-kbd">D</span>
+                </div>
+                <div class="ov-kbd-row">
+                    <span class="ov-kbd-label">طباعة الفاتورة</span>
+                    <span class="ov-kbd">P</span>
+                </div>
+                <div class="ov-kbd-row">
+                    <span class="ov-kbd-label">الطلب السابق / التالي</span>
+                    <span class="ov-kbd">←</span>
+                    <span class="ov-kbd">→</span>
+                </div>
+                <div class="ov-kbd-row">
+                    <span class="ov-kbd-label">إظهار / إخفاء هذه القائمة</span>
+                    <span class="ov-kbd">?</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- ══════════════════════════════════════════════════════════
+         STATUS STEPPER (3 phases — visual abstraction over the 6-status data model)
+    ══════════════════════════════════════════════════════════ --}}
+    @if ($isTerminal)
+        <div class="ov-terminal-banner {{ $status }}">
+            <i class="tio-{{ $status === 'canceled' ? 'clear-circle' : 'warning-outlined' }}"></i>
+            <span>{{ $statusLabel }}</span>
+        </div>
+    @else
+        <div class="ov-stepper" role="list" aria-label="مراحل الطلب">
+            @php
+                $steps = [
+                    ['n' => 1, 'label' => 'القبول'],
+                    ['n' => 2, 'label' => 'التجهيز'],
+                    ['n' => 3, 'label' => $step3Label],
+                ];
+            @endphp
+            @foreach ($steps as $s)
+                @php
+                    $cls = '';
+                    if ($currentPhase > $s['n'] || ($isFinalDone && $s['n'] <= 3)) {
+                        $cls = 'done';
+                    } elseif ($currentPhase === $s['n']) {
+                        $cls = 'active';
+                    }
+                @endphp
+                <div class="ov-step {{ $cls }}" role="listitem" aria-current="{{ $cls === 'active' ? 'step' : 'false' }}">
+                    <span class="ov-step-num" aria-hidden="true">
+                        @if ($cls === 'done')
+                            <i class="tio-checkmark"></i>
+                        @else
+                            {{ $s['n'] }}
+                        @endif
+                    </span>
+                    <span class="ov-step-label">{{ $s['label'] }}</span>
+                </div>
+            @endforeach
+        </div>
+    @endif
+
+    {{-- ══════════════════════════════════════════════════════════
          STATUS HERO
     ══════════════════════════════════════════════════════════ --}}
     <div class="ov-status-hero">
-        <span class="ov-status-badge status-{{ $status }} status-default">
-            <span class="dot"></span>
-            {{ $statusLabel }}
-        </span>
+        <div class="ov-status-hero-info">
+            @if ($isTerminal)
+            <span class="ov-status-badge status-{{ $status }} status-default">
+                <span class="dot"></span>
+                {{ $statusLabel }}
+            </span>
+            @endif
 
-        <div class="ov-status-meta">
-            <div class="ov-meta-chip">
-                <span class="ov-meta-label">طريقة الدفع</span>
-                <span class="ov-meta-value">{{ translate(str_replace('_',' ',$order['payment_method'])) }}</span>
-            </div>
-            <div class="ov-meta-chip">
-                <span class="ov-meta-label">حالة الدفع</span>
-                @if ($order['payment_status'] == 'paid')
-                    <span class="ov-meta-value paid">مدفوع ✓</span>
-                @elseif ($order['payment_status'] == 'partially_paid')
-                    @if ($order->payments()->where('payment_status','unpaid')->exists())
-                        <span class="ov-meta-value" style="color:var(--amber)">مدفوع جزئياً</span>
-                    @else
+            <div class="ov-status-meta">
+                <div class="ov-meta-chip">
+                    <span class="ov-meta-label">طريقة الدفع</span>
+                    <span class="ov-meta-value">{{ translate(str_replace('_',' ',$order['payment_method'])) }}</span>
+                </div>
+                <div class="ov-meta-chip">
+                    <span class="ov-meta-label">حالة الدفع</span>
+                    @if ($order['payment_status'] == 'paid')
                         <span class="ov-meta-value paid">مدفوع ✓</span>
+                    @elseif ($order['payment_status'] == 'partially_paid')
+                        @if ($order->payments()->where('payment_status','unpaid')->exists())
+                            <span class="ov-meta-value partial">مدفوع جزئياً</span>
+                        @else
+                            <span class="ov-meta-value paid">مدفوع ✓</span>
+                        @endif
+                    @else
+                        <span class="ov-meta-value unpaid">غير مدفوع</span>
                     @endif
-                @else
-                    <span class="ov-meta-value unpaid">غير مدفوع</span>
+                </div>
+                <div class="ov-meta-chip">
+                    <span class="ov-meta-label">نوع الطلب</span>
+                    <span class="ov-meta-value">{{ translate(str_replace('_',' ',$order['order_type'])) }}</span>
+                </div>
+                <div class="ov-meta-chip">
+                    <span class="ov-meta-label">الإجمالي</span>
+                    <span class="ov-meta-value">{{ \App\CentralLogics\Helpers::format_currency($order['order_amount']) }}</span>
+                </div>
+                @if ($order->schedule_at && ($order->scheduled || $subscription))
+                <div class="ov-meta-chip">
+                    <span class="ov-meta-label">مجدول</span>
+                    <span class="ov-meta-value">{{ date('d M Y ' . config('timeformat'), strtotime($order['schedule_at'])) }}</span>
+                </div>
                 @endif
             </div>
-            <div class="ov-meta-chip">
-                <span class="ov-meta-label">نوع الطلب</span>
-                <span class="ov-meta-value">{{ translate(str_replace('_',' ',$order['order_type'])) }}</span>
-            </div>
-            <div class="ov-meta-chip">
-                <span class="ov-meta-label">الإجمالي</span>
-                <span class="ov-meta-value">{{ \App\CentralLogics\Helpers::format_currency($order['order_amount']) }}</span>
-            </div>
-            @if ($order->schedule_at && ($order->scheduled || $subscription))
-            <div class="ov-meta-chip">
-                <span class="ov-meta-label">مجدول</span>
-                <span class="ov-meta-value">{{ date('d M Y ' . config('timeformat'), strtotime($order['schedule_at'])) }}</span>
-            </div>
+
+            @if ($c_address)
+                <button class="ov-map-btn" data-toggle="modal" data-target="#locationModal">
+                    <i class="tio-poi-outlined"></i> عرض الموقع
+                </button>
             @endif
         </div>
 
-        @if ($c_address)
-            <button class="ov-map-btn" data-toggle="modal" data-target="#locationModal">
-                <i class="tio-poi-outlined"></i> عرض الموقع
-            </button>
+        @if ($order['order_status'] != 'delivered' && $order['order_status'] != 'canceled' && $order['order_status'] != 'failed')
+        <div class="ov-status-hero-action">
+            @include('vendor-views.order.partials._status-actions')
+        </div>
         @endif
     </div>
 
@@ -722,181 +281,70 @@ $statusLabel = $statusLabels[$status] ?? translate(str_replace('_',' ',$status))
          NOTES / INSTRUCTIONS
     ══════════════════════════════════════════════════════════ --}}
     @if($order['order_note'])
-    <div class="ov-note-strip mb-2"><i class="tio-comment-outlined" style="flex-shrink:0;margin-top:.05rem"></i> <strong>ملاحظة الطلب:</strong>&nbsp;{{ $order['order_note'] }}</div>
+    <div class="ov-note-strip mb-2"><i class="tio-comment-outlined ov-icon-fixed"></i> <strong>ملاحظة الطلب:</strong>&nbsp;{{ $order['order_note'] }}</div>
     @endif
     @if ($order['delivery_instruction'])
-    <div class="ov-note-strip mb-2"><i class="tio-info-outined" style="flex-shrink:0;margin-top:.05rem"></i> <strong>تعليمات التوصيل:</strong>&nbsp;{{ translate($order->delivery_instruction) }}</div>
+    <div class="ov-note-strip mb-2"><i class="tio-info-outlined ov-icon-fixed"></i> <strong>تعليمات التوصيل:</strong>&nbsp;{{ translate($order->delivery_instruction) }}</div>
     @endif
     @if ($order['unavailable_item_note'])
-    <div class="ov-note-strip mb-2"><i class="tio-warning-outlined" style="flex-shrink:0;margin-top:.05rem"></i> <strong>إذا لم يتوفر الصنف:</strong>&nbsp;{{ translate($order->unavailable_item_note) }}</div>
+    <div class="ov-note-strip mb-2"><i class="tio-warning-outlined ov-icon-fixed"></i> <strong>إذا لم يتوفر الصنف:</strong>&nbsp;{{ translate($order->unavailable_item_note) }}</div>
     @endif
 
     {{-- ══════════════════════════════════════════════════════════
          MAIN GRID
     ══════════════════════════════════════════════════════════ --}}
+    {{-- Canceled order details: full-width below hero so it dominates when relevant --}}
+    @if ($order->order_status == 'canceled')
+    <div class="ov-card mb-3">
+        <div class="ov-card-header">
+            <span class="ov-card-title danger"><i class="tio-clear"></i> تفاصيل الإلغاء</span>
+        </div>
+        <div class="ov-card-body">
+            <div class="ov-cancel-info">
+                @if($order->cancellation_reason)
+                <div class="ov-cancel-info-row"><span class="k">السبب</span><span class="v">{{ $order->cancellation_reason }}</span></div>
+                @endif
+                @if($order->cancellation_note)
+                <div class="ov-cancel-info-row"><span class="k">ملاحظة</span><span class="v">{{ $order->cancellation_note }}</span></div>
+                @endif
+                <div class="ov-cancel-info-row"><span class="k">بواسطة</span><span class="v">{{ translate($order->canceled_by) }}</span></div>
+            </div>
+            @if ($order->payment_status == 'paid' || $order->payment_status == 'partially_paid')
+                @if ($order?->payments)
+                    @php($pay_infos = $order->payments()->where('payment_status','paid')->get())
+                    @foreach ($pay_infos as $pay_info)
+                    <div class="ov-info-row mt-1">
+                        <span class="ov-info-label">المبلغ المدفوع ({{ translate($pay_info->payment_method) }})</span>
+                        <span class="ov-info-value">{{ \App\CentralLogics\Helpers::format_currency($pay_info->amount) }}</span>
+                    </div>
+                    @endforeach
+                @endif
+                <div class="ov-info-row">
+                    <div>
+                        <div class="ov-info-label">المبلغ المُعاد للمحفظة</div>
+                        @if ($order?->payments)
+                            @php($amount = $order->payments()->where('payment_status','paid')->sum('amount'))
+                            <div class="ov-info-value paid">{{ \App\CentralLogics\Helpers::format_currency($amount) }}</div>
+                        @else
+                            <div class="ov-info-value paid">{{ \App\CentralLogics\Helpers::format_currency($order->order_amount) }}</div>
+                        @endif
+                    </div>
+                </div>
+            @endif
+        </div>
+    </div>
+    @endif
+
     <div class="ov-grid">
 
-        {{-- ── COL 1: ACTIONS ────────────────────────────────────── --}}
-        <div class="ov-col-actions">
-
-            @if ($order['order_status'] != 'delivered' && $order['order_status'] != 'canceled' && $order['order_status'] != 'failed')
-            <div class="ov-card mb-3">
-                <div class="ov-card-header">
-                    <span class="ov-card-title">
-                        <span class="ov-card-title-icon"><i class="tio-settings"></i></span>
-                        إجراءات الطلب
-                    </span>
-                </div>
-                <div class="ov-card-body">
-                    @if ($order['order_status'] == 'pending')
-                        <a class="ov-action-primary order-status-change-alert"
-                            data-url="{{ route('vendor.order.status', ['id' => $order['id'], 'order_status' => 'confirmed']) }}"
-                            data-message="{{ translate('Change status to confirmed ?') }}"
-                            href="javascript:">
-                            <i class="tio-checkmark-circle btn-icon"></i> تأكيد الأمر
-                        </a>
-                        @if (config('canceled_by_restaurant'))
-                        <a class="ov-action-cancel cancelled-status" href="javascript:">
-                            <i class="tio-clear-circle"></i> إلغاء الطلب
-                        </a>
-                        @endif
-
-                    @elseif (in_array($order['order_status'], ['confirmed','accepted']))
-                        <a class="ov-action-primary order-status-change-alert"
-                            data-url="{{ route('vendor.order.status', ['id' => $order['id'], 'order_status' => 'processing']) }}"
-                            data-message="{{ translate('Change status to cooking ?') }}"
-                            data-verification="false"
-                            data-processing-time="{{ $max_processing_time }}"
-                            href="javascript:">
-                            <i class="tio-restaurant btn-icon"></i> البدء في الطهي
-                        </a>
-
-                    @elseif ($order['order_status'] == 'processing')
-                        <a class="ov-action-primary order-status-change-alert"
-                            data-url="{{ route('vendor.order.status', ['id' => $order['id'], 'order_status' => 'handover']) }}"
-                            data-message="{{ translate('Change status to ready for handover ?') }}"
-                            href="javascript:">
-                            <i class="tio-checkmark btn-icon"></i> جاهز للتسليم
-                        </a>
-
-                    @elseif ($order['order_status'] == 'handover' && (in_array($order['order_type'],['dine_in','take_away']) || (($restaurant->restaurant_model == 'commission' && $restaurant->self_delivery_system) || ($restaurant->restaurant_model == 'subscription' && $restaurant?->restaurant_sub?->self_delivery == 1))))
-                        <a class="ov-action-primary order-status-change-alert"
-                            data-url="{{ route('vendor.order.status', ['id' => $order['id'], 'order_status' => 'delivered']) }}"
-                            data-message="{{ translate('Change status to delivered (payment status will be paid if not) ?') }}"
-                            data-verification="{{ $order_delivery_verification ? 'true' : 'false' }}"
-                            href="javascript:">
-                            <i class="tio-checkmark-circle btn-icon"></i>
-                            {{ $order->order_type == 'dine_in' ? 'تأكيد الاكتمال' : 'تأكيد التوصيل' }}
-                        </a>
-                    @endif
-
-                    {{-- Assign delivery man --}}
-                    @if (!in_array($order['order_type'],['dine_in','take_away']))
-                        @if (!$order->delivery_man && !in_array($order['order_status'], ['handover','delivered','take_away','refund_requested','canceled','refunded','refund_request_canceled']) && (isset($order->restaurant) && ($order->restaurant->restaurant_model == 'commission' && $order->restaurant->self_delivery_system) || ($order->restaurant->restaurant_model == 'subscription' && isset($order->restaurant->restaurant_sub) && $order->restaurant->restaurant_sub->self_delivery == 1)))
-                        <a class="ov-assign-btn" href="javascript:" data-toggle="modal" data-target="#myModal">
-                            <i class="tio-bike"></i> تعيين مندوب توصيل
-                        </a>
-                        @endif
-                    @endif
-                </div>
-            </div>
-            @endif
-
-            {{-- Canceled info --}}
-            @if ($order->order_status == 'canceled')
-            <div class="ov-card mb-3">
-                <div class="ov-card-header">
-                    <span class="ov-card-title" style="color:var(--red)">
-                        <span class="ov-card-title-icon" style="background:var(--red-pale);color:var(--red)"><i class="tio-clear"></i></span>
-                        تفاصيل الإلغاء
-                    </span>
-                </div>
-                <div class="ov-card-body">
-                    <div class="ov-cancel-info">
-                        @if($order->cancellation_reason)
-                        <div class="ov-cancel-info-row"><span class="k">السبب</span><span class="v">{{ $order->cancellation_reason }}</span></div>
-                        @endif
-                        @if($order->cancellation_note)
-                        <div class="ov-cancel-info-row"><span class="k">ملاحظة</span><span class="v">{{ $order->cancellation_note }}</span></div>
-                        @endif
-                        <div class="ov-cancel-info-row"><span class="k">بواسطة</span><span class="v">{{ translate($order->canceled_by) }}</span></div>
-                    </div>
-                    @if ($order->payment_status == 'paid' || $order->payment_status == 'partially_paid')
-                        @if ($order?->payments)
-                            @php($pay_infos = $order->payments()->where('payment_status','paid')->get())
-                            @foreach ($pay_infos as $pay_info)
-                            <div class="ov-info-row mt-1">
-                                <span class="ov-info-label">المبلغ المدفوع ({{ translate($pay_info->payment_method) }})</span>
-                                <span class="ov-info-value">{{ \App\CentralLogics\Helpers::format_currency($pay_info->amount) }}</span>
-                            </div>
-                            @endforeach
-                        @endif
-                        <div class="ov-info-row">
-                            <div>
-                                <div class="ov-info-label">المبلغ المُعاد للمحفظة</div>
-                                @if ($order?->payments)
-                                    @php($amount = $order->payments()->where('payment_status','paid')->sum('amount'))
-                                    <div class="ov-info-value paid">{{ \App\CentralLogics\Helpers::format_currency($amount) }}</div>
-                                @else
-                                    <div class="ov-info-value paid">{{ \App\CentralLogics\Helpers::format_currency($order->order_amount) }}</div>
-                                @endif
-                            </div>
-                        </div>
-                    @endif
-                </div>
-            </div>
-            @endif
-
-            {{-- Dine-in table --}}
-            @if ($order->order_type == 'dine_in')
-            <div class="ov-card mb-3">
-                <div class="ov-card-header">
-                    <span class="ov-card-title"><span class="ov-card-title-icon"><i class="tio-restaurant"></i></span> بيانات الطاولة</span>
-                </div>
-                <div class="ov-card-body">
-                    <form action="{{ route('vendor.order.add_dine_in_table_number', [$order['id']]) }}" method="post">
-                        @method('PUT') @csrf
-                        <div class="form-group mb-3">
-                            <label class="ov-info-label d-block mb-1">{{ translate('Table_Number') }}</label>
-                            <input type="text" @readonly(in_array($order['order_status'],['failed','delivered','refund_requested','canceled','refunded','refund_request_canceled'])) maxlength="20" value="{{ $order?->OrderReference?->table_number }}" name="table_number" class="form-control form-control-sm" placeholder="مثال: 10">
-                        </div>
-                        <div class="form-group mb-3">
-                            <label class="ov-info-label d-block mb-1">{{ translate('Token_Number') }}</label>
-                            <input type="text" @readonly(in_array($order['order_status'],['failed','delivered','refund_requested','canceled','refunded','refund_request_canceled'])) maxlength="20" value="{{ $order?->OrderReference?->token_number }}" name="token_number" class="form-control form-control-sm" placeholder="مثال: 32">
-                        </div>
-                        @if (!in_array($order['order_status'],['failed','delivered','refund_requested','canceled','refunded','refund_request_canceled']))
-                        <button type="submit" class="ov-action-primary" style="margin-bottom:0">{{ translate('messages.Save') }}</button>
-                        @endif
-                    </form>
-                </div>
-            </div>
-            @endif
-
-            {{-- Cutlery --}}
-            <div class="ov-card mb-3">
-                <div class="ov-card-body" style="padding:.75rem 1.25rem">
-                    <div class="ov-info-row" style="padding:.3rem 0;border:none">
-                        <span class="ov-info-icon"><i class="tio-cutlery"></i></span>
-                        <div>
-                            <div class="ov-info-label">أدوات المائدة</div>
-                            <div class="ov-info-value" style="{{ $order->cutlery ? 'color:var(--green)' : 'color:var(--text-muted)' }}">
-                                {{ $order->cutlery ? 'مطلوبة' : 'غير مطلوبة' }}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-        </div>{{-- /col-actions --}}
-
-        {{-- ── COL 2: ORDER ITEMS ─────────────────────────────────── --}}
+        {{-- ── COL 1: ORDER ITEMS ─────────────────────────────────── --}}
         <div class="ov-col-items">
             <div class="ov-card">
                 <div class="ov-card-header">
-                    <span class="ov-card-title"><span class="ov-card-title-icon"><i class="tio-restaurant"></i></span> تفاصيل الأصناف</span>
+                    <span class="ov-card-title"><i class="tio-restaurant"></i> تفاصيل الأصناف</span>
                     <a class="ov-print-btn d-sm-none" href="{{ route('vendor.order.generate-invoice', [$order['id']]) }}"><i class="tio-print"></i></a>
                 </div>
-                <div style="overflow-x:auto">
+                <div class="ov-items-wrap">
                     <table class="ov-items-table">
                         <thead>
                             <tr>
@@ -1035,7 +483,7 @@ $statusLabel = $statusLabels[$status] ?? translate(str_replace('_',' ',$status))
 
                     {{-- Payment lines --}}
                     @if ($order?->payments)
-                    <div class="ov-total-row sep" style="border-top:1.5px solid var(--navy-border)"></div>
+                    <div class="ov-totals-sep"></div>
                     @foreach ($order->payments as $payment)
                     <div class="ov-total-row">
                         <span class="label">
@@ -1052,7 +500,7 @@ $statusLabel = $statusLabels[$status] ?? translate(str_replace('_',' ',$status))
                 </div>
 
                 @if ($order->bring_change_amount > 0)
-                <div class="ov-change-alert" style="margin:0 1.25rem 1rem">
+                <div class="ov-change-alert ov-change-alert--inset">
                     <i class="tio-money"></i>
                     {{ translate('Please instruct the delivery man to collect ' . \App\CentralLogics\Helpers::format_currency($order->bring_change_amount) . ' in change upon delivery') }}
                 </div>
@@ -1065,13 +513,45 @@ $statusLabel = $statusLabels[$status] ?? translate(str_replace('_',' ',$status))
             </div>
         </div>{{-- /col-items --}}
 
-        {{-- ── COL 3: CUSTOMER & DELIVERY ────────────────────────── --}}
+        {{-- ── COL 2: CUSTOMER & DELIVERY & EXTRAS ─────────────────── --}}
         <div class="ov-col-details">
+
+            {{-- Dine-in table data --}}
+            @if ($order->order_type == 'dine_in')
+            <div class="ov-card mb-3">
+                <div class="ov-card-header">
+                    <span class="ov-card-title"><i class="tio-restaurant"></i> بيانات الطاولة</span>
+                </div>
+                <div class="ov-card-body">
+                    <form action="{{ route('vendor.order.add_dine_in_table_number', [$order['id']]) }}" method="post">
+                        @method('PUT') @csrf
+                        <div class="form-group mb-3">
+                            <label class="ov-info-label d-block mb-1">{{ translate('Table_Number') }}</label>
+                            <input type="text" @readonly(in_array($order['order_status'],['failed','delivered','refund_requested','canceled','refunded','refund_request_canceled'])) maxlength="20" value="{{ $order?->OrderReference?->table_number }}" name="table_number" class="form-control form-control-sm" placeholder="مثال: 10">
+                        </div>
+                        <div class="form-group mb-3">
+                            <label class="ov-info-label d-block mb-1">{{ translate('Token_Number') }}</label>
+                            <input type="text" @readonly(in_array($order['order_status'],['failed','delivered','refund_requested','canceled','refunded','refund_request_canceled'])) maxlength="20" value="{{ $order?->OrderReference?->token_number }}" name="token_number" class="form-control form-control-sm" placeholder="مثال: 32">
+                        </div>
+                        @if (!in_array($order['order_status'],['failed','delivered','refund_requested','canceled','refunded','refund_request_canceled']))
+                        <button type="submit" class="ov-action-primary ov-action-primary--inline">{{ translate('messages.Save') }}</button>
+                        @endif
+                    </form>
+                </div>
+            </div>
+            @endif
+
+            {{-- Cutlery --}}
+            <div class="ov-note-strip {{ $order->cutlery ? 'success' : 'muted' }}">
+                <i class="tio-cutlery"></i>
+                <strong>أدوات المائدة:</strong>
+                <span class="v">{{ $order->cutlery ? 'مطلوبة' : 'غير مطلوبة' }}</span>
+            </div>
 
             {{-- Customer --}}
             <div class="ov-card mb-3">
                 <div class="ov-card-header">
-                    <span class="ov-card-title"><span class="ov-card-title-icon"><i class="tio-user"></i></span> معلومات العميل</span>
+                    <span class="ov-card-title"><i class="tio-user"></i> معلومات العميل</span>
                 </div>
                 <div class="ov-card-body">
                     @if ($order->customer && $order->is_guest == 0)
@@ -1079,7 +559,7 @@ $statusLabel = $statusLabels[$status] ?? translate(str_replace('_',' ',$status))
                         <img class="ov-avatar onerror-image"
                              src="{{ $order->customer?->image_full_url ?? dynamicAsset('public/assets/admin/img/160x160/img1.jpg') }}"
                              data-onerror-image="{{ dynamicAsset('public/assets/admin/img/160x160/img1.jpg') }}" alt="">
-                        <div style="min-width:0">
+                        <div class="ov-avatar-text">
                             <div class="ov-avatar-name">{{ $order->customer['f_name'] . ' ' . $order->customer['l_name'] }}</div>
                             <div class="ov-avatar-sub">{{ $order->customer->orders_count }} طلبات</div>
                         </div>
@@ -1102,9 +582,9 @@ $statusLabel = $statusLabels[$status] ?? translate(str_replace('_',' ',$status))
                     </div>
                     @endif
                     @elseif($order->is_guest)
-                    <span class="badge badge-soft-success py-2 d-block text-center">زائر</span>
+                    <span class="ov-tag success ov-tag--block">زائر</span>
                     @else
-                    <p class="text-muted text-center mb-0" style="font-size:.84rem">لم يُعثر على العميل</p>
+                    <p class="ov-empty">لم يُعثر على العميل</p>
                     @endif
                 </div>
             </div>
@@ -1114,10 +594,7 @@ $statusLabel = $statusLabels[$status] ?? translate(str_replace('_',' ',$status))
             @php($address = json_decode($order->delivery_address, true))
             <div class="ov-card mb-3">
                 <div class="ov-card-header">
-                    <span class="ov-card-title">
-                        <span class="ov-card-title-icon"><i class="tio-poi-outlined"></i></span>
-                        {{ $order->order_type == 'dine_in' ? 'بيانات الطلب' : 'عنوان التوصيل' }}
-                    </span>
+                    <span class="ov-card-title"><i class="tio-poi-outlined"></i> {{ $order->order_type == 'dine_in' ? 'بيانات الطلب' : 'عنوان التوصيل' }}</span>
                 </div>
                 <div class="ov-card-body">
                     @if (isset($address))
@@ -1173,10 +650,7 @@ $statusLabel = $statusLabels[$status] ?? translate(str_replace('_',' ',$status))
             @if (!in_array($order['order_type'],['dine_in','take_away']))
             <div class="ov-card mb-3">
                 <div class="ov-card-header">
-                    <span class="ov-card-title">
-                        <span class="ov-card-title-icon"><i class="tio-bike"></i></span>
-                        مندوب التوصيل
-                    </span>
+                    <span class="ov-card-title"><i class="tio-bike"></i> مندوب التوصيل</span>
                     @if ($order->delivery_man && !in_array($order['order_status'], ['handover','delivered','refund_requested','canceled','refunded','refund_request_canceled']) && (isset($order->restaurant) && (($order->restaurant->restaurant_model == 'commission' && $order->restaurant->self_delivery_system) || ($order->restaurant->restaurant_model == 'subscription' && isset($order->restaurant->restaurant_sub) && $order->restaurant->restaurant_sub->self_delivery == 1))))
                     <button class="ov-change-link" data-toggle="modal" data-target="#myModal">تغيير</button>
                     @endif
@@ -1187,7 +661,7 @@ $statusLabel = $statusLabels[$status] ?? translate(str_replace('_',' ',$status))
                         <img class="ov-avatar onerror-image"
                              src="{{ $order->delivery_man?->image_full_url ?? dynamicAsset('public/assets/admin/img/160x160/img3.jpg') }}"
                              data-onerror-image="{{ dynamicAsset('public/assets/admin/img/160x160/img3.jpg') }}" alt="">
-                        <div style="min-width:0">
+                        <div class="ov-avatar-text">
                             <div class="ov-avatar-name">{{ $order->delivery_man['f_name'] . ' ' . $order->delivery_man['l_name'] }}</div>
                             <div class="ov-avatar-sub">{{ $order->delivery_man->orders_count }} طلبات</div>
                         </div>
@@ -1209,14 +683,14 @@ $statusLabel = $statusLabels[$status] ?? translate(str_replace('_',' ',$status))
                                     @if (isset($dm_loc))
                                         <a target="_blank" href="http://maps.google.com/maps?z=12&t=m&q=loc:{{ $dm_loc['latitude'] }}+{{ $dm_loc['longitude'] }}">{{ $dm_loc['location'] }}</a>
                                     @else
-                                        <span style="color:var(--text-muted)">الموقع غير متاح</span>
+                                        <span class="ov-info-value muted">الموقع غير متاح</span>
                                     @endif
                                 </div>
                             </div>
                         </div>
                     @endif
                     @else
-                    <p class="text-muted text-center mb-0" style="font-size:.84rem;padding:.5rem 0">لم يُعيَّن مندوب بعد</p>
+                    <p class="ov-empty ov-empty--pad">لم يُعيَّن مندوب بعد</p>
                     @endif
                 </div>
             </div>
@@ -1226,7 +700,7 @@ $statusLabel = $statusLabels[$status] ?? translate(str_replace('_',' ',$status))
             @if ($order->order_type != 'dine_in')
             <div class="ov-card mb-3">
                 <div class="ov-card-header">
-                    <span class="ov-card-title"><span class="ov-card-title-icon"><i class="tio-photo-camera"></i></span> إثبات التوصيل</span>
+                    <span class="ov-card-title"><i class="tio-photo-camera"></i> إثبات التوصيل</span>
                     @if (($restaurant->restaurant_model == 'commission' && $restaurant->self_delivery_system) || ($restaurant->restaurant_model == 'subscription' && $restaurant?->restaurant_sub?->self_delivery == 1))
                     <button class="ov-change-link" data-toggle="modal" data-target=".order-proof-modal"><i class="tio-add"></i> إضافة</button>
                     @endif
@@ -1256,7 +730,7 @@ $statusLabel = $statusLabels[$status] ?? translate(str_replace('_',' ',$status))
                         @endforeach
                     </div>
                     @else
-                    <p class="text-muted text-center mb-0" style="font-size:.82rem;padding:.25rem 0">لا توجد صور بعد</p>
+                    <p class="ov-empty ov-empty--tight">لا توجد صور بعد</p>
                     @endif
                 </div>
             </div>
@@ -1264,18 +738,11 @@ $statusLabel = $statusLabels[$status] ?? translate(str_replace('_',' ',$status))
 
             {{-- Subscription info --}}
             @if (isset($order->subscription))
-            <div class="ov-card mb-3">
-                <div class="ov-card-header">
-                    <span class="ov-card-title"><span class="ov-card-title-icon"><i class="tio-refresh"></i></span> الاشتراك</span>
-                </div>
-                <div class="ov-card-body">
-                    <div class="ov-info-row" style="border:none;padding:.25rem 0">
-                        <span class="ov-info-label">الحالة</span>
-                        <span class="badge badge-soft-{{ $order->subscription->status == 'active' ? 'success' : ($order->subscription->status == 'paused' ? 'warning' : 'danger') }}">
-                            {{ translate('messages.' . $order->subscription->status) }}
-                        </span>
-                    </div>
-                </div>
+            @php($subStatus = $order->subscription->status)
+            <div class="ov-note-strip {{ $subStatus == 'active' ? 'success' : ($subStatus == 'paused' ? 'warn' : 'muted') }}">
+                <i class="tio-refresh"></i>
+                <strong>الاشتراك:</strong>
+                <span class="v">{{ translate('messages.' . $subStatus) }}</span>
             </div>
             @endif
 
@@ -1294,7 +761,7 @@ $statusLabel = $statusLabels[$status] ?? translate(str_replace('_',' ',$status))
 <div class="modal fade" id="myModal" tabindex="-1" role="dialog">
     <div class="modal-dialog modal-xl" role="document">
         <div class="modal-content">
-            <div class="modal-header" style="direction:rtl">
+            <div class="modal-header ov-modal-rtl">
                 <h4 class="modal-title">{{ $selected_delivery_man != [] ? translate('messages.Change_Delivery_Men') : translate('messages.assign_deliveryman') }}</h4>
                 <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
             </div>
@@ -1319,7 +786,7 @@ $statusLabel = $statusLabels[$status] ?? translate(str_replace('_',' ',$status))
                                 </div>
                             </li>
                             @endif
-                            <p class="mb-2 text-center text-muted {{ $order->delivery_man_id ? 'mt-2' : '' }}" style="font-size:.82rem">
+                            <p class="mb-2 text-center text-muted small {{ $order->delivery_man_id ? 'mt-2' : '' }}">
                                 {{ count($deliveryMen) }} {{ translate('messages.delivery_man') }}
                             </p>
                             @foreach ($deliveryMen as $dm)
@@ -1358,7 +825,7 @@ $statusLabel = $statusLabels[$status] ?? translate(str_replace('_',' ',$status))
 <div class="modal fade" id="locationModal" tabindex="-1" role="dialog">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
-            <div class="modal-header" style="direction:rtl">
+            <div class="modal-header ov-modal-rtl">
                 <h4 class="modal-title">{{ translate('messages.location_data') }}</h4>
                 <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
             </div>
@@ -1373,7 +840,7 @@ $statusLabel = $statusLabels[$status] ?? translate(str_replace('_',' ',$status))
 <div class="modal fade order-proof-modal" tabindex="-1" role="dialog">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
-            <div class="modal-header" style="direction:rtl">
+            <div class="modal-header ov-modal-rtl">
                 <h5 class="modal-title">{{ translate('messages.add_delivery_proof') }}</h5>
                 <button type="button" class="btn btn-xs btn-icon btn-ghost-secondary" data-dismiss="modal"><i class="tio-clear tio-lg"></i></button>
             </div>
@@ -1636,5 +1103,122 @@ $(document).ready(function() {
         });
     });
 });
+
+/* ─── Keyboard shortcuts (operational speed for restaurant staff) ─── */
+(function () {
+    var FORM_TAGS = { INPUT: 1, TEXTAREA: 1, SELECT: 1 };
+
+    function isTypingTarget(el) {
+        if (!el) return false;
+        if (el.isContentEditable) return true;
+        if (FORM_TAGS[el.tagName]) return true;
+        // Bootstrap modal open: ignore most keys except Esc (which Bootstrap already handles)
+        return false;
+    }
+
+    function modalIsOpen() {
+        return document.querySelector('.modal.show, .modal.in') !== null;
+    }
+
+    function clickIfPresent(selector) {
+        var el = document.querySelector(selector);
+        if (el && !el.disabled && el.offsetParent !== null) {
+            el.click();
+            return true;
+        }
+        return false;
+    }
+
+    function navigate(selector) {
+        var a = document.querySelector(selector);
+        if (a && a.href) {
+            window.location.href = a.href;
+            return true;
+        }
+        return false;
+    }
+
+    var panel = document.getElementById('ov-kbd-panel');
+    var toggle = document.getElementById('ov-kbd-toggle');
+
+    function setPanel(open) {
+        if (!panel) return;
+        if (open) {
+            panel.hidden = false;
+            // double rAF so the transition catches the class change after `hidden` removal
+            requestAnimationFrame(function () {
+                requestAnimationFrame(function () { panel.classList.add('is-open'); });
+            });
+            if (toggle) toggle.setAttribute('aria-expanded', 'true');
+        } else {
+            panel.classList.remove('is-open');
+            if (toggle) toggle.setAttribute('aria-expanded', 'false');
+            // hide after transition to remove from a11y tree
+            setTimeout(function () {
+                if (!panel.classList.contains('is-open')) panel.hidden = true;
+            }, 220);
+        }
+    }
+
+    if (toggle && panel) {
+        toggle.addEventListener('click', function () {
+            setPanel(panel.hidden || !panel.classList.contains('is-open'));
+        });
+    }
+
+    document.addEventListener('keydown', function (e) {
+        if (e.ctrlKey || e.metaKey || e.altKey) return;
+        if (isTypingTarget(e.target)) return;
+        if (modalIsOpen() && e.key !== 'Escape') return;
+
+        switch (e.key) {
+            case 'Enter':
+            case ' ':
+                if (clickIfPresent('.ov-status-hero-action .ov-action-primary')) {
+                    e.preventDefault();
+                }
+                break;
+            case 'Escape':
+                if (panel && panel.classList.contains('is-open')) {
+                    setPanel(false);
+                    e.preventDefault();
+                    break;
+                }
+                if (clickIfPresent('.ov-status-hero-action .ov-action-cancel')) {
+                    e.preventDefault();
+                }
+                break;
+            case 'd':
+            case 'D':
+            case 'ي': // Arabic-keyboard equivalent of "d"
+                if (clickIfPresent('.ov-status-hero-action .ov-assign-btn')) {
+                    e.preventDefault();
+                }
+                break;
+            case 'p':
+            case 'P':
+            case 'ح': // Arabic-keyboard equivalent of "p"
+                if (navigate('.ov-print-btn')) {
+                    e.preventDefault();
+                }
+                break;
+            case 'ArrowLeft':
+                // RTL: left arrow = next order (matches the on-screen chevron direction)
+                if (navigate('.ov-topbar-nav .ov-nav-btn[title="الطلب التالي"]')) {
+                    e.preventDefault();
+                }
+                break;
+            case 'ArrowRight':
+                if (navigate('.ov-topbar-nav .ov-nav-btn[title="الطلب السابق"]')) {
+                    e.preventDefault();
+                }
+                break;
+            case '?':
+                setPanel(!(panel && panel.classList.contains('is-open')));
+                e.preventDefault();
+                break;
+        }
+    });
+})();
 </script>
 @endpush
