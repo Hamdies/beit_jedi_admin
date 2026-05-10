@@ -78,25 +78,49 @@ $statusLabels = [
 ];
 $statusLabel = $statusLabels[$status] ?? translate(str_replace('_',' ',$status));
 
-/* 3-phase visual stepper mapping (data model unchanged).
-   phase 1 (قبول)   = pending
-   phase 2 (تجهيز)  = confirmed | accepted | processing
-   phase 3 (تسليم)  = handover | picked_up | delivered
-   terminal         = canceled | failed | refund_*
+/* Visual stepper mapping (data model unchanged).
+   Delivery orders → 4 steps  (handover and pickup/delivery are separate phases)
+   Dine-in / take-away → 3 steps (no rider handoff phase)
 */
-$phaseMap = [
-    'pending'    => 1,
-    'confirmed'  => 2,
-    'accepted'   => 2,
-    'processing' => 2,
-    'handover'   => 3,
-    'picked_up'  => 3,
-    'delivered'  => 3,
-];
-$currentPhase = $phaseMap[$status] ?? 0;
 $isTerminal = in_array($status, ['canceled','failed','refunded','refund_requested','refund_request_canceled']);
+$isDelivery = !in_array($order['order_type'], ['dine_in','take_away']);
+
+if ($isDelivery) {
+    $phaseMap = [
+        'pending'    => 1,
+        'confirmed'  => 2,
+        'accepted'   => 2,
+        'processing' => 2,
+        'handover'   => 3,
+        'picked_up'  => 4,
+        'delivered'  => 4,
+    ];
+    $steps = [
+        ['n' => 1, 'label' => 'القبول'],
+        ['n' => 2, 'label' => 'التجهيز'],
+        ['n' => 3, 'label' => 'تسليم للمندوب'],
+        ['n' => 4, 'label' => 'التوصيل'],
+    ];
+} else {
+    $phaseMap = [
+        'pending'    => 1,
+        'confirmed'  => 2,
+        'accepted'   => 2,
+        'processing' => 2,
+        'handover'   => 3,
+        'picked_up'  => 3,
+        'delivered'  => 3,
+    ];
+    $finalLabel = $order->order_type == 'dine_in' ? 'الاكتمال' : 'الاستلام';
+    $steps = [
+        ['n' => 1, 'label' => 'القبول'],
+        ['n' => 2, 'label' => 'التجهيز'],
+        ['n' => 3, 'label' => $finalLabel],
+    ];
+}
+$currentPhase = $phaseMap[$status] ?? 0;
 $isFinalDone = $status === 'delivered';
-$step3Label = $order->order_type == 'dine_in' ? 'الاكتمال' : 'التسليم';
+$totalSteps = count($steps);
 ?>
 
 <div class="content container-fluid ov-page" id="printableArea">
@@ -106,12 +130,10 @@ $step3Label = $order->order_type == 'dine_in' ? 'الاكتمال' : 'التسل
     ══════════════════════════════════════════════════════════ --}}
     <div class="ov-topbar">
         <div class="ov-topbar-right">
-            <div>
-                <div class="ov-order-id">طلب #{{ $order['id'] }}</div>
-                <div class="ov-order-date">
-                    {{ date('d M Y ' . config('timeformat'), strtotime($order['created_at'])) }}
-                </div>
-            </div>
+            <span class="ov-order-id">طلب #{{ $order['id'] }}</span>
+            <span class="ov-order-date">
+                {{ date('d M Y ' . config('timeformat'), strtotime($order['created_at'])) }}
+            </span>
             @if ($order->edited)
                 <span class="ov-tag danger">معدّل</span>
             @endif
@@ -177,7 +199,8 @@ $step3Label = $order->order_type == 'dine_in' ? 'الاكتمال' : 'التسل
     </div>
 
     {{-- ══════════════════════════════════════════════════════════
-         STATUS STEPPER (3 phases — visual abstraction over the 6-status data model)
+         STATUS STEPPER — visual abstraction over the underlying 7-status data model.
+         Delivery orders show 4 phases; dine-in / take-away show 3.
     ══════════════════════════════════════════════════════════ --}}
     @if ($isTerminal)
         <div class="ov-terminal-banner {{ $status }}">
@@ -186,17 +209,12 @@ $step3Label = $order->order_type == 'dine_in' ? 'الاكتمال' : 'التسل
         </div>
     @else
         <div class="ov-stepper" role="list" aria-label="مراحل الطلب">
-            @php
-                $steps = [
-                    ['n' => 1, 'label' => 'القبول'],
-                    ['n' => 2, 'label' => 'التجهيز'],
-                    ['n' => 3, 'label' => $step3Label],
-                ];
-            @endphp
             @foreach ($steps as $s)
                 @php
                     $cls = '';
-                    if ($currentPhase > $s['n'] || ($isFinalDone && $s['n'] <= 3)) {
+                    if ($isFinalDone) {
+                        $cls = 'done';
+                    } elseif ($currentPhase > $s['n']) {
                         $cls = 'done';
                     } elseif ($currentPhase === $s['n']) {
                         $cls = 'active';
@@ -221,12 +239,10 @@ $step3Label = $order->order_type == 'dine_in' ? 'الاكتمال' : 'التسل
     ══════════════════════════════════════════════════════════ --}}
     <div class="ov-status-hero">
         <div class="ov-status-hero-info">
-            @if ($isTerminal)
             <span class="ov-status-badge status-{{ $status }} status-default">
                 <span class="dot"></span>
                 {{ $statusLabel }}
             </span>
-            @endif
 
             <div class="ov-status-meta">
                 <div class="ov-meta-chip">
