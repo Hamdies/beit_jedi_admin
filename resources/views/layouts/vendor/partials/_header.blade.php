@@ -1,198 +1,284 @@
+<style>
+/* ── BEIT JEDI HEADER ─────────────────────────────────
+   Clean, RTL-first, no search, no lang selector
+──────────────────────────────────────────────────── */
+#bj-header {
+    background: #1C2E5E;
+    border-bottom: none;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    padding: 0 1.5rem;
+    position: sticky;
+    top: 0;
+    z-index: 1030;
+    box-shadow: 0 2px 12px rgba(28,46,94,0.18);
+    direction: rtl;
+}
+
+.bj-header-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    gap: 1rem;
+}
+
+.bj-sidebar-toggle {
+    background: none;
+    border: none;
+    color: rgba(255,255,255,.65);
+    font-size: 20px;
+    cursor: pointer;
+    padding: .25rem .5rem;
+    border-radius: 7px;
+    transition: color .15s, background .15s;
+    line-height: 1;
+    flex-shrink: 0;
+}
+.bj-sidebar-toggle:hover { color: #fff; background: rgba(255,255,255,.08); }
+
+.bj-logo-area {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    text-decoration: none;
+    flex-shrink: 0;
+}
+.bj-logo-img {
+    width: 36px; height: 36px;
+    object-fit: contain;
+    border-radius: 9px;
+    background: rgba(255,255,255,.1);
+}
+.bj-logo-text {
+    font-size: 1.05rem; font-weight: 800;
+    color: #fff; line-height: 1.1; letter-spacing: -.3px;
+}
+.bj-logo-sub {
+    font-size: .68rem; color: #D4A017;
+    font-weight: 600; margin-top: 1px;
+}
+
+.bj-spacer { flex: 1; }
+
+.bj-actions {
+    display: flex; align-items: center; gap: .375rem;
+}
+
+.bj-icon-btn {
+    position: relative;
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 38px; height: 38px;
+    border-radius: 10px;
+    background: rgba(255,255,255,.08);
+    border: 1.5px solid rgba(255,255,255,.1);
+    color: rgba(255,255,255,.8);
+    font-size: 18px;
+    text-decoration: none;
+    transition: background .15s, color .15s, border-color .15s;
+    cursor: pointer; flex-shrink: 0;
+}
+.bj-icon-btn:hover {
+    background: rgba(255,255,255,.15);
+    border-color: rgba(255,255,255,.2);
+    color: #fff; text-decoration: none;
+}
+
+.bj-msg-badge {
+    position: absolute;
+    top: -5px; left: -5px;
+    min-width: 18px; height: 18px;
+    background: #E74C3C; color: #fff;
+    font-size: .62rem; font-weight: 800;
+    border-radius: 999px;
+    display: flex; align-items: center; justify-content: center;
+    padding: 0 4px;
+    border: 2px solid #1C2E5E;
+    line-height: 1;
+    animation: badgePop .25s cubic-bezier(.22,1,.36,1);
+}
+@keyframes badgePop {
+    from { transform: scale(0); } to { transform: scale(1); }
+}
+
+.bj-divider {
+    width: 1px; height: 24px;
+    background: rgba(255,255,255,.12);
+    margin: 0 .25rem; flex-shrink: 0;
+}
+
+.bj-user-pill {
+    display: flex; align-items: center; gap: .625rem;
+    background: rgba(255,255,255,.08);
+    border: 1.5px solid rgba(255,255,255,.1);
+    border-radius: 10px;
+    padding: .35rem .75rem .35rem .5rem;
+    cursor: pointer;
+    transition: background .15s, border-color .15s;
+    text-decoration: none; position: relative;
+}
+.bj-user-pill:hover {
+    background: rgba(255,255,255,.14);
+    border-color: rgba(255,255,255,.2); text-decoration: none;
+}
+.bj-user-avatar {
+    width: 30px; height: 30px;
+    border-radius: 8px; object-fit: cover; flex-shrink: 0;
+}
+.bj-user-avatar-placeholder {
+    width: 30px; height: 30px; border-radius: 8px;
+    background: #D4A017;
+    display: flex; align-items: center; justify-content: center;
+    color: #1C2E5E; font-size: 13px; font-weight: 800; flex-shrink: 0;
+}
+.bj-user-name {
+    font-size: .82rem; font-weight: 700; color: #fff;
+    max-width: 120px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.bj-user-role {
+    font-size: .65rem; color: rgba(255,255,255,.5);
+    font-weight: 500; line-height: 1; margin-top: 1px;
+}
+.bj-user-caret { font-size: 12px; color: rgba(255,255,255,.4); margin-right: .125rem; }
+
+.bj-dropdown {
+    position: absolute; top: calc(100% + 8px); left: 0;
+    min-width: 200px;
+    background: #fff;
+    border: 1.5px solid #E2E5ED;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(28,46,94,0.14);
+    overflow: hidden;
+    opacity: 0; visibility: hidden; transform: translateY(-6px);
+    transition: opacity .18s, transform .18s, visibility .18s;
+    z-index: 9999; direction: rtl;
+}
+.bj-dropdown.open { opacity: 1; visibility: visible; transform: translateY(0); }
+
+.bj-dropdown-header {
+    padding: .875rem 1rem;
+    border-bottom: 1px solid #E2E5ED;
+    background: #F4F5F8;
+}
+.bj-dropdown-name { font-size: .9rem; font-weight: 800; color: #1A1F36; }
+.bj-dropdown-email {
+    font-size: .73rem; color: #8B91A8; margin-top: 1px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+.bj-dropdown-item {
+    display: flex; align-items: center; gap: .625rem;
+    padding: .75rem 1rem;
+    font-size: .82rem; font-weight: 600; color: #1A1F36;
+    text-decoration: none;
+    transition: background .12s;
+    border: none; background: none; width: 100%;
+    cursor: pointer; font-family: inherit;
+}
+.bj-dropdown-item i { font-size: 16px; color: #8B91A8; }
+.bj-dropdown-item:hover { background: #EEF1F8; text-decoration: none; color: #1C2E5E; }
+.bj-dropdown-item:hover i { color: #1C2E5E; }
+.bj-dropdown-item--danger { color: #C0392B; }
+.bj-dropdown-item--danger i { color: #C0392B; }
+.bj-dropdown-item--danger:hover { background: #FDECEA; color: #C0392B; }
+.bj-dropdown-sep { height: 1px; background: #E2E5ED; margin: .25rem 0; }
+
+/* Override the framework's navbar height/positioning */
+.main { padding-top: 0 !important; }
+#header { display: none !important; }
+
+@media (max-width: 600px) {
+    #bj-header { padding: 0 .875rem; }
+    .bj-user-name, .bj-user-role { display: none; }
+    .bj-user-pill { padding: .35rem; }
+    .bj-logo-text, .bj-logo-sub { display: none; }
+}
+</style>
+
 <div id="headerMain" class="d-none">
-    <header id="header"
-        class="navbar navbar-expand-lg navbar-fixed navbar-height navbar-flush navbar-container navbar-bordered">
-        <div class="navbar-nav-wrap">
-            <div class="navbar-brand-wrapper">
-                <!-- Logo Div-->
-                @php($restaurant_logo = \App\CentralLogics\Helpers::get_restaurant_data()?->logo_full_url)
-                <a class="navbar-brand" href="{{ route('vendor.dashboard') }}" aria-label="">
-                    <img class="navbar-brand-logo logo--design" src="{{ $restaurant_logo }}" alt="image">
-                    <img class="navbar-brand-logo-mini logo--design" src="{{ $restaurant_logo }}" alt="image">
-                </a>
-                <!-- End Logo -->
+<header id="bj-header">
+    <div class="bj-header-inner">
+
+        <button class="bj-sidebar-toggle js-navbar-vertical-aside-toggle-invoker" type="button">
+            <i class="tio-menu-hamburger"></i>
+        </button>
+
+        @php($restaurant_logo = \App\CentralLogics\Helpers::get_restaurant_data()?->logo_full_url)
+        <a class="bj-logo-area" href="{{ route('vendor.dashboard') }}">
+            @if($restaurant_logo)
+                <img class="bj-logo-img" src="{{ $restaurant_logo }}" alt="logo">
+            @endif
+            <div>
+                <div class="bj-logo-text">{{ \App\CentralLogics\Helpers::get_restaurant_data()->name ?? 'Beit Jedi' }}</div>
+                <div class="bj-logo-sub">لوحة التحكم</div>
             </div>
-            <div class="navbar-nav-wrap-content-left ml-auto d--xl-none">
-                <!-- Navbar Vertical Toggle -->
-                <button type="button" class="js-navbar-vertical-aside-toggle-invoker close">
-                    <i class="tio-first-page navbar-vertical-aside-toggle-short-align" data-toggle="tooltip"
-                        data-placement="right" title="Collapse"></i>
-                    <i class="tio-last-page navbar-vertical-aside-toggle-full-align"
-                        data-template='<div class="tooltip d-none d-sm-block" role="tooltip"><div class="arrow"></div><div class="tooltip-inner"></div></div>'></i>
-                </button>
-                <!-- End Navbar Vertical Toggle -->
+        </a>
+
+        <div class="bj-spacer"></div>
+
+        <div class="bj-actions">
+
+            <a class="bj-icon-btn" href="{{ route('vendor.order.list', ['status' => 'pending']) }}" title="الطلبات المعلقة">
+                <i class="tio-shopping-basket-outlined"></i>
+            </a>
+
+            @php($msg_count = \App\Models\Conversation::whereUser(\App\CentralLogics\Helpers::get_loggedin_user()->id)->where('unread_message_count', '>', 0)->count())
+            <a class="bj-icon-btn" href="{{ route('vendor.message.list', ['tab' => 'customer']) }}" title="الرسائل">
+                <i class="tio-messages-outlined"></i>
+                @if($msg_count > 0)
+                    <span class="bj-msg-badge">{{ $msg_count > 99 ? '99+' : $msg_count }}</span>
+                @endif
+            </a>
+
+            <div class="bj-divider"></div>
+
+            @php($loggedin = \App\CentralLogics\Helpers::get_loggedin_user())
+            <div style="position:relative;">
+                <div class="bj-user-pill" id="bj-user-pill" onclick="bjToggleDropdown()">
+                    @if($loggedin?->image_full_url)
+                        <img class="bj-user-avatar" src="{{ $loggedin->image_full_url }}" alt="avatar">
+                    @else
+                        <div class="bj-user-avatar-placeholder">
+                            {{ strtoupper(substr($loggedin->f_name ?? 'U', 0, 1)) }}
+                        </div>
+                    @endif
+                    <div>
+                        <div class="bj-user-name">{{ $loggedin->f_name ?? '' }}</div>
+                        <div class="bj-user-role">{{ $loggedin->email ?? '' }}</div>
+                    </div>
+                    <i class="tio-chevron-down bj-user-caret"></i>
+                </div>
+
+                <div class="bj-dropdown" id="bj-dropdown">
+                    <div class="bj-dropdown-header">
+                        <div class="bj-dropdown-name">{{ $loggedin->f_name ?? '' }}</div>
+                        <div class="bj-dropdown-email">{{ $loggedin->email ?? '' }}</div>
+                    </div>
+                    <a class="bj-dropdown-item" href="{{ route('vendor.profile.view') }}">
+                        <i class="tio-settings-outlined"></i>
+                        {{ translate('messages.settings') }}
+                    </a>
+                    <div class="bj-dropdown-sep"></div>
+                    <button class="bj-dropdown-item bj-dropdown-item--danger" type="button"
+                        onclick="Swal.fire({
+                            title: '{{ translate('Do_You_Want_To_Sign_Out_?') }}',
+                            showCancelButton: true,
+                            confirmButtonColor: '#C0392B',
+                            cancelButtonColor: '#4A5068',
+                            confirmButtonText: '{{ translate('messages.Yes') }}',
+                            cancelButtonText: '{{ translate('messages.cancel') }}',
+                        }).then(function(r){ if(r.value) location.href='{{ route('logout') }}'; })">
+                        <i class="tio-exit"></i>
+                        {{ translate('messages.sign_out') }}
+                    </button>
+                </div>
             </div>
 
-
-
-
-
-
-            <!-- Secondary Content -->
-            <div class="navbar-nav-wrap-content-right flex-grow-1">
-                <!-- Navbar -->
-                <ul class="navbar-nav align-items-center flex-row justify-content-end">
-
-                    <li class="nav-item max-sm-m-0 w-md-200px">
-                        <button type="button" id="modalOpener" class="title-color bg--secondary border-0 rounded justify-content-between w-100 align-items-center py-2 px-2 px-md-3 d-flex gap-1" data-toggle="modal" data-target="#staticBackdrop">
-                            <div class="d-flex gap-1 align-items-center">
-                                <i class="tio-search"></i>
-                                <span class="d-none d-md-block text-muted">{{translate('Search')}}</span>
-                            </div>
-                            <span class="bg-card text-muted border rounded-3 p-1 fs-12 fw-bold lh-1 ms-1 ctrlplusk d-none d-md-block">Ctrl+K</span>
-                        </button>
-                    </li>
-
-                    <li class="nav-item max-sm-m-0">
-                        <div class="hs-unfold">
-                            <div>
-                                @php($local = session()->has('vendor_local') ? session('vendor_local') : null)
-                                @php($lang = \App\CentralLogics\Helpers::getSettingsDataFromConfig(settings: 'system_language'))
-                                @if ($lang)
-                                    <div class="topbar-text dropdown disable-autohide text-capitalize d-flex">
-                                        <a class="text-dark dropdown-toggle d-flex align-items-center nav-link"
-                                            href="#" data-toggle="dropdown">
-                                            @foreach (json_decode($lang['value'], true) as $data)
-                                                @if ($data['code'] == $local)
-                                                    <img class="rounded mr-1" width="20"
-                                                        src="{{ dynamicAsset('/public/assets/admin/img/lang.png') }}"
-                                                        alt="">
-                                                    {{ $data['code'] }}
-                                                @elseif(!$local && $data['default'] == true)
-                                                    <img class="rounded mr-1" width="20"
-                                                        src="{{ dynamicAsset('/public/assets/admin/img/lang.png') }}"
-                                                        alt="">
-                                                    {{ $data['code'] }}
-                                                @endif
-                                            @endforeach
-                                        </a>
-                                        <ul class="dropdown-menu">
-                                            @foreach (json_decode($lang['value'], true) as $key => $data)
-                                                @if ($data['status'] == 1)
-                                                    <li>
-                                                        <a class="dropdown-item py-1"
-                                                            href="{{ route('vendor.lang', [$data['code']]) }}">
-
-                                                            <span class="text-capitalize">{{ $data['code'] }}</span>
-                                                        </a>
-                                                    </li>
-                                                @endif
-                                            @endforeach
-                                        </ul>
-                                    </div>
-                                @endif
-                            </div>
-                        </div>
-                    </li>
-
-                    <li class="nav-item d-none d-sm-inline-block mr-4">
-                        <!-- Notification -->
-                        <div class="hs-unfold">
-                            <a class="js-hs-unfold-invoker btn btn-icon btn-soft-secondary rounded-circle"
-                                href="{{ route('vendor.message.list', ['tab' => 'customer']) }}">
-                                <i class="tio-messages-outlined"></i>
-                                @php(  $message = \App\Models\Conversation::whereUser(\App\CentralLogics\Helpers::get_loggedin_user()->id)->where('unread_message_count', '>', '0')->count())
-                                @if ($message != 0)
-                                    <span class="btn-status btn-sm-status btn-status-danger"></span>
-                                @endif
-                            </a>
-                        </div>
-                        <!-- End Notification -->
-                    </li>
-                    <li class="nav-item">
-                        <!-- Notification -->
-                        <div class="hs-unfold">
-                            <a class="js-hs-unfold-invoker btn btn-icon navbar--cart btn-soft-secondary rounded-circle"
-                                href="{{ route('vendor.order.list', ['status' => 'pending']) }}">
-                                <i class="tio-shopping-basket-outlined"></i>
-                            </a>
-                        </div>
-                        <!-- End Notification -->
-                    </li>
-
-                    <li class="nav-item nav--item">
-                        <!-- Account -->
-                        <div class="hs-unfold">
-                            <a class="js-hs-unfold-invoker navbar-dropdown-account-wrapper p-0" href="javascript:;"
-                                data-hs-unfold-options='{
-                                     "target": "#accountNavbarDropdown",
-                                     "type": "css-animation"
-                                   }'>
-
-                                <div class="cmn--media right-dropdown-icon d-flex align-items-center">
-                                    <div class="media-body pl-0 pr-2">
-                                        <span class="card-title h5 text-right pr-2">
-                                            {{ \App\CentralLogics\Helpers::get_loggedin_user()->f_name }}
-                                        </span>
-                                        <span
-                                            class="card-text card--text">{{ \App\CentralLogics\Helpers::get_loggedin_user()->email }}</span>
-                                    </div>
-                                    <div class="">
-                                        <img class="avatar avatar-sm avatar-circle"
-                                            src="{{ \App\CentralLogics\Helpers::get_loggedin_user()?->image_full_url ?? dynamicAsset('public/assets/admin/img/160x160/img1.jpg') }}"
-                                            alt="image">
-
-                                        <span class="avatar-status avatar-sm-status avatar-status-success"></span>
-                                    </div>
-                                </div>
-
-                            </a>
-
-                            <div id="accountNavbarDropdown"
-                                class="hs-unfold-content dropdown-unfold dropdown-menu dropdown-menu-right navbar-dropdown-menu navbar-dropdown-account w-16rem">
-                                <div class="dropdown-item-text">
-                                    <div class="media cmn--media align-items-center">
-                                        <div class="avatar avatar-sm avatar-circle mr-2">
-                                            <img class="avatar-img"
-                                                src="{{ \App\CentralLogics\Helpers::get_loggedin_user()?->image_full_url ?? dynamicAsset('public/assets/admin/img/160x160/img1.jpg') }}"
-                                                alt="image">
-                                        </div>
-                                        <div class="media-body">
-                                            <span
-                                                class="card-title h5">{{ \App\CentralLogics\Helpers::get_loggedin_user()->f_name }}</span>
-                                            <span
-                                                class="card-text">{{ \App\CentralLogics\Helpers::get_loggedin_user()->email }}</span>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="dropdown-divider"></div>
-
-                                <a class="dropdown-item" href="{{ route('vendor.profile.view') }}">
-                                    <span class="text-truncate pr-2"
-                                        title="Settings">{{ translate('messages.settings') }}</span>
-                                </a>
-
-                                <div class="dropdown-divider"></div>
-
-                                <a class="dropdown-item" href="javascript:"
-                                    onclick="Swal.fire({
-                                    title: '{{ translate('Do_You_Want_To_Sign_Out_?') }}',
-                                    showDenyButton: true,
-                                    showCancelButton: true,
-                                    confirmButtonColor: '#FC6A57',
-                                    cancelButtonColor: '#363636',
-                                    confirmButtonText: '{{ translate('messages.Yes') }}',
-                                    cancelButtonText: '{{ translate('messages.cancel') }}',
-                                    }).then((result) => {
-                                    if (result.value) {
-                                        location.href='{{ route('logout') }}';
-                                    } else{
-                                    Swal.fire('{{ translate('messages.canceled') }}', '', 'info')
-                                    }
-                                    })">
-                                    <span class="text-truncate pr-2"
-                                        title="Sign out">{{ translate('messages.sign_out') }}</span>
-                                </a>
-                            </div>
-                        </div>
-                        <!-- End Account -->
-                    </li>
-                </ul>
-                <!-- End Navbar -->
-            </div>
-            <!-- End Secondary Content -->
         </div>
-    </header>
+
+    </div>
+</header>
 </div>
 <div id="headerFluid" class="d-none"></div>
 <div id="headerDouble" class="d-none"></div>
@@ -564,6 +650,19 @@ $subscription_deadline_warning_message = \App\Models\BusinessSetting::where('key
 
 
 <script>
+    // Beit Jedi header dropdown
+    function bjToggleDropdown() {
+        var d = document.getElementById('bj-dropdown');
+        if (d) d.classList.toggle('open');
+    }
+    document.addEventListener('click', function(e) {
+        var pill = document.getElementById('bj-user-pill');
+        var drop = document.getElementById('bj-dropdown');
+        if (drop && pill && !pill.contains(e.target) && !drop.contains(e.target)) {
+            drop.classList.remove('open');
+        }
+    });
+
     document.addEventListener('DOMContentLoaded', function() {
         $(document).on('click', '.add-to-session', function() {
             var session_data = $(this).data("id");
