@@ -1197,7 +1197,7 @@
                         <span class="ops-sidebar-title">تنقل سريع</span>
                     </div>
                     <div class="ops-quick-nav">
-                        <a href="{{ route('vendor.food.index') }}" class="ops-quick-nav-btn">
+                        <a href="{{ route('vendor.food.list') }}" class="ops-quick-nav-btn">
                             <i class="tio-restaurant"></i>
                             القائمة
                         </a>
@@ -1205,11 +1205,11 @@
                             <i class="tio-receipt"></i>
                             الطلبات
                         </a>
-                        <a href="{{ route('vendor.deliveryman.index') }}" class="ops-quick-nav-btn">
+                        <a href="{{ route('vendor.delivery-man.list') }}" class="ops-quick-nav-btn">
                             <i class="tio-delivery"></i>
                             المناديب
                         </a>
-                        <a href="{{ route('vendor.shop.index') }}" class="ops-quick-nav-btn">
+                        <a href="{{ route('vendor.shop.edit') }}" class="ops-quick-nav-btn">
                             <i class="tio-settings-outlined"></i>
                             الإعدادات
                         </a>
@@ -1351,7 +1351,7 @@
     function autoPrint(orderId) {
         const frame = document.getElementById('printFrame');
         if (!frame || !orderId) return;
-        const printUrl = '{{ route("vendor.order.invoice", ["id" => "__ID__"]) }}'.replace('__ID__', orderId);
+        const printUrl = '{{ route("vendor.order.generate-invoice", ["id" => "__ID__"]) }}'.replace('__ID__', orderId);
         frame.onload = function () {
             try {
                 frame.contentWindow.focus();
