@@ -1136,15 +1136,6 @@ $statusLabel = $statusLabels[$status] ?? translate(str_replace('_',' ',$status))
                         </div>
                     </div>
                     @if ($order->order_type != 'dine_in')
-                        @if (isset($address['address']) && $address['address'])
-                        <div class="ov-info-row">
-                            <span class="ov-info-icon"><i class="tio-poi"></i></span>
-                            <div>
-                                <div class="ov-info-label">العنوان</div>
-                                <div class="ov-info-value">{{ $address['address'] }}</div>
-                            </div>
-                        </div>
-                        @endif
                         @if (isset($address['road']) && $address['road'])
                         <div class="ov-info-row">
                             <span class="ov-info-icon"><i class="tio-road"></i></span>
