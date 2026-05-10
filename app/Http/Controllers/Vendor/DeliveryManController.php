@@ -12,6 +12,7 @@ use Brian2694\Toastr\Facades\Toastr;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rules\Password;
+use Illuminate\Support\Str;
 
 class DeliveryManController extends Controller
 {
@@ -65,9 +66,9 @@ class DeliveryManController extends Controller
         $validator = Validator::make($request->all(), [
             'f_name' => 'required|max:100',
             'l_name' => 'nullable|max:100',
-            'email' => 'required|unique:delivery_men',
+            'email' => 'nullable|unique:delivery_men',
             'phone' => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:9|unique:delivery_men',
-            'password' => ['required', Password::min(8)->mixedCase()->letters()->numbers()->symbols()->uncompromised()],
+            'password' => ['nullable', Password::min(8)->mixedCase()->letters()->numbers()->symbols()->uncompromised()],
 
             'image' => 'nullable|max:2048',
         ],[
@@ -104,7 +105,7 @@ class DeliveryManController extends Controller
         $dm = New DeliveryMan();
         $dm->f_name = $request->f_name;
         $dm->l_name = $request->l_name;
-        $dm->email = $request->email;
+        $dm->email = $request->email ?? 'dm_' . Str::random(10) . '@temp.local';
         $dm->phone = $request->phone;
         $dm->identity_number = $request->identity_number;
         $dm->identity_type = $request->identity_type;
@@ -114,7 +115,7 @@ class DeliveryManController extends Controller
         $dm->active = 0;
         $dm->earning = 0;
         $dm->type = 'restaurant_wise';
-        $dm->password = bcrypt($request->password);
+        $dm->password = bcrypt($request->password ?? Str::random(16));
         $dm->save();
 
         return response()->json(['message' => translate('messages.deliveryman_added_successfully')], 200);
@@ -212,7 +213,7 @@ class DeliveryManController extends Controller
         $validator = Validator::make($request->all(), [
             'f_name' => 'required|max:100',
             'l_name' => 'nullable|max:100',
-            'email' => 'required|unique:delivery_men,email,'.$id,
+            'email' => 'nullable|unique:delivery_men,email,'.$id,
             'phone' => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:9|unique:delivery_men,phone,'.$id,
             'password' => ['nullable', Password::min(8)->mixedCase()->letters()->numbers()->symbols()->uncompromised()],
 
@@ -276,8 +277,11 @@ class DeliveryManController extends Controller
 
         Helpers::check_and_delete('delivery-man/' , $delivery_man['image']);
 
-        foreach (json_decode($delivery_man['identity_image'], true) as $img) {
-            Helpers::check_and_delete('delivery-man/' , $img);
+        $identity_images = json_decode($delivery_man['identity_image'], true);
+        if (is_array($identity_images)) {
+            foreach ($identity_images as $img) {
+                Helpers::check_and_delete('delivery-man/' , $img);
+            }
         }
 
         if($delivery_man->userinfo){

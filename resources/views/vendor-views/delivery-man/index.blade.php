@@ -98,8 +98,7 @@
                                 <div class="col-md-4 col-sm-6">
                                     <div class="form-group mb-0">
                                         <label class="form-label" for="exampleFormControlInput1">{{translate('messages.email')}}</label>
-                                        <input type="email" name="email" class="form-control h--45px" placeholder="{{ translate('messages.Ex : ex@example.com') }} "
-                                                required>
+                                        <input type="email" name="email" class="form-control h--45px" placeholder="{{ translate('messages.Ex : ex@example.com') }} ">
                                     </div>
                                 </div>
                                 <div class="col-md-4 col-sm-6">
@@ -118,7 +117,7 @@
 
                                                     placeholder="{{ translate('messages.Ex:_8+_Character') }}"
                                                     aria-label="{{translate('messages.password_length_8+')}}"
-                                                    required data-msg="Your password is invalid. Please try again."
+                                                    data-msg="Your password is invalid. Please try again."
                                                     data-hs-toggle-password-options='{
                                                                                         "target": [".js-toggle-password-target-1"],
                                                                                         "defaultClass": "tio-hidden-outlined",
