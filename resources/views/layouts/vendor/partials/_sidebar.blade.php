@@ -1,98 +1,90 @@
 <div id="sidebarMain" class="d-none">
     <style>
     /* ═══════════════════════════════════════════════
-       BEIT JEDI — SIDEBAR (reference-matched)
-       Dark navy panel · gold logo chip · refined items
+       BEIT JEDI — SIDEBAR (reference-pixel-matched)
     ═══════════════════════════════════════════════ */
     :root {
-        --bj-navy:        #0E1A3D;
-        --bj-navy-deep:   #0A1530;
-        --bj-navy-soft:   #1A2750;
+        --bj-navy:        #1F2746;
+        --bj-navy-deep:   #161D38;
+        --bj-navy-active: #2A3258;
+        --bj-navy-hover:  #262E50;
         --bj-gold:        #D4A017;
-        --bj-gold-soft:   rgba(212,160,23,.14);
-        --bj-text:        rgba(255,255,255,.86);
-        --bj-text-mute:   rgba(255,255,255,.42);
-        --bj-text-dim:    rgba(255,255,255,.58);
-        --bj-divider:     rgba(255,255,255,.07);
+        --bj-text:        rgba(255,255,255,.78);
+        --bj-text-mute:   rgba(255,255,255,.45);
+        --bj-text-dim:    rgba(255,255,255,.62);
     }
-
-    /* Whole aside */
     .js-navbar-vertical-aside.navbar-vertical-aside {
         background: var(--bj-navy) !important;
         border: none !important;
-        box-shadow: 0 0 30px rgba(0,0,0,.18);
+        box-shadow: none;
+        width: 260px !important;
     }
-    .navbar-vertical-container { background: var(--bj-navy) !important; }
-    .navbar-vertical-content   { background: var(--bj-navy) !important; }
+    .navbar-vertical-container,
+    .navbar-vertical-content { background: var(--bj-navy) !important; }
     .navbar-vertical-content .nav-sub { background: var(--bj-navy-deep) !important; }
 
-    /* Brand area */
+    /* ── Brand: gold chip + name (single line) ── */
     .navbar-brand-wrapper {
         background: var(--bj-navy) !important;
-        border-bottom: 1px solid var(--bj-divider) !important;
-        padding: 1.1rem 1.25rem .9rem !important;
+        border-bottom: 1px solid rgba(255,255,255,.06) !important;
+        padding: 1.35rem 1.25rem 1.15rem !important;
+        min-height: auto !important;
     }
     .sidebar-logo-container { width: 100%; }
-
     .navbar-brand {
         display: flex !important;
         align-items: center !important;
         gap: .75rem !important;
         flex-direction: row-reverse;
+        text-decoration: none !important;
     }
     .navbar-brand-logo,
     .navbar-brand-logo-mini {
-        width: 44px !important; height: 44px !important;
-        border-radius: 12px !important;
+        width: 42px !important; height: 42px !important;
+        border-radius: 11px !important;
         background: var(--bj-gold) !important;
         padding: 6px !important;
         object-fit: contain !important;
-        box-shadow: 0 4px 12px rgba(212,160,23,.25);
+        box-shadow: 0 2px 10px rgba(212,160,23,.22);
+        flex-shrink: 0 !important;
     }
     .navbar-brand .ps-2 { padding: 0 !important; }
     .navbar-brand h6 {
         color: #fff !important;
-        font-size: 1.15rem !important;
+        font-size: 1.25rem !important;
         font-weight: 800 !important;
         margin: 0 !important;
         letter-spacing: -.3px;
-    }
-    .navbar-brand h6::after {
-        content: 'لوحة التحكم';
-        display: block;
-        font-size: .68rem;
-        color: var(--bj-text-mute);
-        font-weight: 500;
-        margin-top: 2px;
-        letter-spacing: 0;
+        line-height: 1.1 !important;
     }
 
-    /* Section subtitles */
+    /* ── Section subtitles (plain Arabic, NOT uppercase) ── */
     .navbar-vertical-content .nav-subtitle {
         color: var(--bj-text-mute) !important;
-        font-size: .68rem !important;
+        font-size: .82rem !important;
         font-weight: 700 !important;
-        letter-spacing: .8px !important;
-        text-transform: uppercase;
-        padding: 1.1rem 1.25rem .5rem !important;
+        letter-spacing: 0 !important;
+        text-transform: none !important;
+        padding: 1.35rem 1.5rem .55rem !important;
         display: block !important;
         margin: 0 !important;
     }
     .navbar-vertical-content .nav-subtitle-replacer { display: none !important; }
+    .navbar-vertical-content .nav-item:first-child .nav-subtitle { padding-top: .85rem !important; }
 
-    /* Top-level items */
+    /* ── Top-level items ── */
     .navbar-vertical-aside-has-menu > .nav-link,
     .navbar-vertical-content .navbar-nav > li > a.nav-link {
         color: var(--bj-text) !important;
-        font-size: .88rem !important;
+        font-size: .95rem !important;
         font-weight: 600 !important;
-        padding: .7rem 1.25rem !important;
-        margin: 2px .625rem !important;
+        padding: .75rem 1.25rem !important;
+        margin: 1px .75rem !important;
         border-radius: 10px !important;
         border: none !important;
         display: flex !important;
         align-items: center !important;
-        gap: .75rem !important;
+        gap: .85rem !important;
         position: relative;
         transition: background .15s, color .15s;
     }
@@ -108,85 +100,42 @@
     }
     .navbar-vertical-aside-has-menu > .nav-link:hover,
     .navbar-vertical-content .navbar-nav > li > a.nav-link:hover {
-        background: var(--bj-navy-soft) !important;
+        background: var(--bj-navy-hover) !important;
         color: #fff !important;
         text-decoration: none;
     }
-    .navbar-vertical-aside-has-menu > .nav-link:hover .nav-icon,
-    .navbar-vertical-content .navbar-nav > li > a.nav-link:hover .nav-icon {
-        color: var(--bj-gold) !important;
-    }
 
-    /* Active item — gold pill */
+    /* ── Active item: solid dark fill, white text ── */
     .navbar-vertical-aside-has-menu.active > .nav-link,
     .navbar-vertical-content .navbar-nav > li.active > a.nav-link {
-        background: linear-gradient(90deg, rgba(212,160,23,.22) 0%, rgba(212,160,23,.08) 100%) !important;
+        background: var(--bj-navy-active) !important;
         color: #fff !important;
         font-weight: 700 !important;
     }
-    .navbar-vertical-aside-has-menu.active > .nav-link::before,
-    .navbar-vertical-content .navbar-nav > li.active > a.nav-link::before {
-        content: '';
-        position: absolute;
-        top: 8px; bottom: 8px;
-        right: -10px;
-        width: 4px;
-        background: var(--bj-gold);
-        border-radius: 4px 0 0 4px;
-    }
     .navbar-vertical-aside-has-menu.active > .nav-link .nav-icon,
     .navbar-vertical-content .navbar-nav > li.active > a.nav-link .nav-icon {
-        color: var(--bj-gold) !important;
-    }
-
-    /* Submenu (nav-sub) */
-    .navbar-vertical-content .nav-sub {
-        padding: .25rem .5rem !important;
-        margin: 0 .625rem !important;
-        border-radius: 8px !important;
-    }
-    .navbar-vertical-content .nav-sub .nav-link {
-        color: var(--bj-text-dim) !important;
-        font-size: .8rem !important;
-        font-weight: 500 !important;
-        padding: .45rem .75rem !important;
-        border-radius: 7px !important;
-        margin: 1px 0 !important;
-    }
-    .navbar-vertical-content .nav-sub .nav-link:hover {
-        background: rgba(255,255,255,.04) !important;
         color: #fff !important;
     }
-    .navbar-vertical-content .nav-sub .nav-item.active > .nav-link {
-        background: rgba(212,160,23,.12) !important;
-        color: #fff !important;
-        font-weight: 600 !important;
-    }
-    .nav-indicator-icon {
-        color: var(--bj-text-mute) !important;
-        font-size: 6px !important;
-        margin-left: .5rem;
-    }
 
-    /* Toggle indicator arrow */
-    .nav-link-toggle::after {
-        color: var(--bj-text-mute) !important;
-        font-size: 11px !important;
-    }
-
-    /* Badges inside sidebar */
+    /* ── Sidebar item badges: dark navy circular ── */
     .navbar-vertical-content .badge {
-        font-size: .65rem !important;
+        font-size: .72rem !important;
         font-weight: 800 !important;
-        padding: .15rem .45rem !important;
-        border-radius: 999px !important;
-        line-height: 1.3 !important;
+        padding: 0 !important;
+        min-width: 22px;
+        height: 22px;
+        border-radius: 50% !important;
+        line-height: 22px !important;
+        text-align: center;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
     }
     .navbar-vertical-content .badge-soft-info,
     .navbar-vertical-content .badge-soft-success {
-        background: var(--bj-gold-soft) !important;
+        background: var(--bj-navy-deep) !important;
         color: var(--bj-gold) !important;
-        border: none !important;
+        border: 1px solid rgba(255,255,255,.06) !important;
     }
     .sidebar--badge-container {
         display: inline-flex !important;
@@ -195,34 +144,58 @@
         width: 100%;
         gap: .5rem;
     }
+    .ml-1 { margin-right: auto !important; margin-left: 0 !important; }
 
-    /* Toggle / close buttons */
-    .js-navbar-vertical-aside-toggle-invoker {
-        color: var(--bj-text-mute) !important;
+    /* ── Submenu ── */
+    .navbar-vertical-content .nav-sub {
+        padding: .25rem .5rem .5rem !important;
+        margin: 0 .75rem !important;
+        border-radius: 8px !important;
     }
-    .js-navbar-vertical-aside-toggle-invoker:hover {
+    .navbar-vertical-content .nav-sub .nav-link {
+        color: var(--bj-text-dim) !important;
+        font-size: .82rem !important;
+        font-weight: 500 !important;
+        padding: .45rem .85rem !important;
+        border-radius: 7px !important;
+        margin: 1px 0 !important;
+    }
+    .navbar-vertical-content .nav-sub .nav-link:hover {
+        background: rgba(255,255,255,.04) !important;
         color: #fff !important;
+    }
+    .navbar-vertical-content .nav-sub .nav-item.active > .nav-link {
         background: rgba(255,255,255,.06) !important;
+        color: #fff !important;
+        font-weight: 600 !important;
+    }
+    .nav-indicator-icon {
+        color: var(--bj-text-mute) !important;
+        font-size: 6px !important;
+        margin-left: .5rem;
+    }
+    .nav-link-toggle::after {
+        color: var(--bj-text-mute) !important;
+        font-size: 11px !important;
     }
 
-    /* Scrollbar (webkit) */
-    .navbar-vertical-content::-webkit-scrollbar { width: 6px; }
+    /* ── Arabic-Indic digits for the entire sidebar ── */
+    .navbar-vertical-aside,
+    .navbar-vertical-aside * {
+        font-feature-settings: "ss01", "tnum";
+    }
+    .navbar-vertical-aside { font-variant-numeric: tabular-nums; }
+    .navbar-vertical-content .badge {
+        font-family: 'Cairo', -apple-system, sans-serif !important;
+        unicode-bidi: plaintext;
+    }
+
+    .js-navbar-vertical-aside-toggle-invoker { color: var(--bj-text-mute) !important; }
+    .js-navbar-vertical-aside-toggle-invoker:hover { color:#fff !important; background:rgba(255,255,255,.06) !important; }
+
+    .navbar-vertical-content::-webkit-scrollbar { width: 5px; }
     .navbar-vertical-content::-webkit-scrollbar-track { background: transparent; }
-    .navbar-vertical-content::-webkit-scrollbar-thumb {
-        background: rgba(255,255,255,.08);
-        border-radius: 999px;
-    }
-    .navbar-vertical-content::-webkit-scrollbar-thumb:hover {
-        background: rgba(255,255,255,.16);
-    }
-
-    /* RTL: place rail on the right edge */
-    html[dir="rtl"] .navbar-vertical-aside-has-menu.active > .nav-link::before,
-    html[dir="rtl"] .navbar-vertical-content .navbar-nav > li.active > a.nav-link::before {
-        right: auto;
-        left: -10px;
-        border-radius: 0 4px 4px 0;
-    }
+    .navbar-vertical-content::-webkit-scrollbar-thumb { background: rgba(255,255,255,.08); border-radius: 999px; }
     </style>
     <aside
         class="js-navbar-vertical-aside navbar navbar-vertical-aside navbar-vertical navbar-vertical-fixed navbar-expand-xl navbar-bordered">

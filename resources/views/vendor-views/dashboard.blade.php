@@ -5,57 +5,52 @@
 @push('css_or_js')
 <style>
 /* ═══════════════════════════════════════════════
-   BEIT JEDI — RESTAURANT DASHBOARD (reference-matched)
-   Cream surface · Navy revenue card · Gold accents
+   BEIT JEDI — RESTAURANT DASHBOARD (reference-pixel-matched)
 ═══════════════════════════════════════════════ */
 :root {
-    --bj-bg:          #FAF6EE;
+    --bj-bg:          #FAF5E9;
     --bj-surface:     #FFFFFF;
-    --bj-navy:        #0E1A3D;
-    --bj-navy-deep:   #0A1530;
-    --bj-navy-soft:   #EEF1F8;
+    --bj-navy:        #1F2746;
+    --bj-navy-deep:   #161D38;
+    --bj-navy-soft:   #2A3258;
     --bj-gold:        #D4A017;
-    --bj-gold-soft:   #FBF3DC;
-    --bj-amber:       #E07B00;
-    --bj-amber-soft:  #FFE8CF;
+    --bj-gold-soft:   #FBEFCB;
+    --bj-amber:       #E89B3C;
+    --bj-amber-soft:  #FDE5C9;
     --bj-amber-text:  #B26100;
-    --bj-green:       #1A7F4B;
-    --bj-green-soft:  #D9F0E0;
-    --bj-green-text:  #186F40;
+    --bj-green:       #2A8755;
+    --bj-green-soft:  #D7EEDD;
+    --bj-green-text:  #1E6940;
     --bj-blue-soft:   #DDE6F5;
-    --bj-blue-text:   #2A4998;
+    --bj-blue-text:   #3D5A99;
     --bj-border:      #ECE4D2;
-    --bj-border-2:    #E2E5ED;
-    --bj-text:        #1A1F36;
+    --bj-text:        #1F2746;
     --bj-text-mid:    #4A5068;
-    --bj-muted:       #8B91A8;
-    --bj-radius-xl:   18px;
-    --bj-radius-lg:   14px;
-    --bj-radius-md:   10px;
-    --bj-radius-sm:   8px;
-    --bj-shadow:      0 1px 3px rgba(14,26,61,0.04), 0 4px 16px rgba(14,26,61,0.05);
-    --bj-shadow-hover:0 6px 22px rgba(14,26,61,0.10);
+    --bj-muted:       #9099AD;
+    --bj-r-xl:        20px;
+    --bj-r-lg:        16px;
+    --bj-r-md:        12px;
+    --bj-shadow:      0 1px 2px rgba(31,39,70,.04), 0 4px 14px rgba(31,39,70,.04);
+    --bj-shadow-h:    0 8px 28px rgba(31,39,70,.10);
 }
 
 .bj-dash, .bj-dash * { box-sizing: border-box; }
 .bj-dash {
     background: var(--bj-bg);
     min-height: 100vh;
-    padding: 1.5rem 0 4rem;
+    padding: 1.5rem 0 3rem;
     direction: rtl;
     font-family: 'Cairo', -apple-system, BlinkMacSystemFont, sans-serif;
+    /* Arabic-Indic digits via Cairo's ss01 stylistic set */
+    font-feature-settings: "ss01";
 }
-.bj-wrap {
-    max-width: 1480px;
-    margin: 0 auto;
-    padding: 0 1.5rem;
-}
+.bj-wrap { max-width: 1480px; margin: 0 auto; padding: 0 1.5rem; }
 
-/* ── GREETING BAR ─────────────────────────────── */
+/* ── GREETING BAR (single elongated pill-card) ─────── */
 .bj-greet {
     background: var(--bj-surface);
     border: 1px solid var(--bj-border);
-    border-radius: var(--bj-radius-xl);
+    border-radius: 28px;
     padding: 1rem 1.25rem;
     display: flex;
     align-items: center;
@@ -63,65 +58,65 @@
     gap: 1rem;
     margin-bottom: 1.25rem;
     box-shadow: var(--bj-shadow);
-    flex-wrap: wrap;
 }
-.bj-greet-left { display: flex; align-items: center; gap: .75rem; flex-wrap: wrap; }
+/* RTL: right side is "start" → user chip + greeting */
+.bj-greet-right { display: flex; align-items: center; gap: 1rem; }
+.bj-greet-left  { display: flex; align-items: center; gap: .5rem; }
 
 .bj-user-chip {
     display: flex; align-items: center; gap: .625rem;
     background: var(--bj-gold-soft);
     border: 1px solid #F2E0A8;
     border-radius: 999px;
-    padding: .4rem .75rem .4rem .55rem;
+    padding: .35rem .75rem .35rem .4rem;
+    flex-direction: row-reverse;
+    text-align: right;
 }
 .bj-user-chip-avatar {
-    width: 30px; height: 30px;
+    width: 34px; height: 34px;
     border-radius: 50%;
     background: var(--bj-navy);
     color: var(--bj-gold);
     display: flex; align-items: center; justify-content: center;
-    font-weight: 800; font-size: .82rem;
+    font-weight: 800; font-size: .95rem;
     overflow: hidden;
     flex-shrink: 0;
 }
 .bj-user-chip-avatar img { width:100%; height:100%; object-fit:cover; }
-.bj-user-chip-text { line-height: 1.1; }
-.bj-user-chip-name { font-size: .82rem; font-weight: 800; color: var(--bj-text); }
-.bj-user-chip-role { font-size: .66rem; color: var(--bj-muted); font-weight: 600; margin-top: 1px; }
+.bj-user-chip-text { line-height: 1.15; }
+.bj-user-chip-name { font-size: .9rem; font-weight: 800; color: var(--bj-text); }
+.bj-user-chip-role { font-size: .7rem; color: var(--bj-muted); font-weight: 600; margin-top: 2px; }
 
-.bj-greet-msg {
-    display: flex; align-items: center; gap: .5rem;
-    font-size: .85rem;
+/* Two-line stacked greeting */
+.bj-greet-text { text-align: right; line-height: 1.25; }
+.bj-greet-hello {
+    font-size: .82rem; color: var(--bj-muted); font-weight: 600;
+    display: block;
 }
-.bj-greet-hello { color: var(--bj-muted); font-weight: 600; }
-.bj-greet-headline { color: var(--bj-text); font-weight: 800; font-size: .95rem; }
-
-.bj-greet-right { display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; }
+.bj-greet-headline {
+    font-size: .98rem; color: var(--bj-text); font-weight: 800;
+    margin-top: 2px;
+}
 
 .bj-open-pill {
-    display: inline-flex; align-items: center; gap: .4rem;
+    display: inline-flex; align-items: center; gap: .45rem;
     background: var(--bj-green-soft);
     color: var(--bj-green-text);
-    font-size: .76rem; font-weight: 800;
-    padding: .42rem .85rem;
+    font-size: .82rem; font-weight: 800;
+    padding: .55rem 1rem;
     border-radius: 999px;
     border: 1px solid #B9DDC2;
 }
-.bj-open-dot {
-    width: 7px; height: 7px;
-    background: var(--bj-green);
-    border-radius: 50%;
-    animation: bjBlink 2s ease-in-out infinite;
-}
-@keyframes bjBlink { 0%,100% { opacity:1; transform:scale(1); } 50% { opacity:.4; transform:scale(.7); } }
+.bj-open-dot { width: 7px; height: 7px; background: var(--bj-green); border-radius: 50%; animation: bjBlink 2s ease-in-out infinite; }
+@keyframes bjBlink { 0%,100% { opacity:1; transform:scale(1); } 50% { opacity:.45; transform:scale(.7); } }
 
 .bj-btn {
-    display: inline-flex; align-items: center; gap: .375rem;
+    display: inline-flex; align-items: center; gap: .45rem;
     background: var(--bj-navy);
     color: #fff;
-    font-size: .8rem; font-weight: 800;
-    padding: .55rem 1.1rem;
-    border-radius: 999px;
+    font-size: .85rem; font-weight: 700;
+    padding: .6rem 1.15rem;
+    border-radius: 14px;
     border: none;
     cursor: pointer;
     text-decoration: none;
@@ -129,270 +124,307 @@
     font-family: inherit;
     white-space: nowrap;
 }
-.bj-btn:hover { background: #1A2750; color: #fff; text-decoration: none; box-shadow: 0 4px 14px rgba(14,26,61,.2); }
+.bj-btn:hover { background: var(--bj-navy-soft); color:#fff; text-decoration:none; }
 .bj-btn:active { transform: scale(.97); }
 .bj-btn-ghost {
     background: var(--bj-surface);
     color: var(--bj-navy);
     border: 1px solid var(--bj-border);
 }
-.bj-btn-ghost:hover { background: var(--bj-bg); color: var(--bj-navy); }
+.bj-btn-ghost:hover { background: #F7F2E3; color: var(--bj-navy); }
+
 .bj-btn-icon {
-    width: 38px; height: 38px;
-    background: var(--bj-surface);
-    border: 1px solid var(--bj-border);
-    border-radius: 50%;
+    width: 42px; height: 42px;
+    background: var(--bj-navy);
+    border: none;
+    border-radius: 14px;
     display: inline-flex; align-items: center; justify-content: center;
-    color: var(--bj-navy);
+    color: var(--bj-gold);
     cursor: pointer;
     position: relative;
     text-decoration: none;
     transition: background .15s, box-shadow .15s;
+    font-size: 17px;
 }
-.bj-btn-icon:hover { background: var(--bj-bg); box-shadow: var(--bj-shadow); }
+.bj-btn-icon:hover { background: var(--bj-navy-soft); color: var(--bj-gold); }
 .bj-btn-icon-badge {
-    position: absolute; top: -2px; left: -2px;
-    min-width: 16px; height: 16px;
+    position: absolute; top: -3px; left: -3px;
+    min-width: 18px; height: 18px;
     background: var(--bj-amber);
     color: #fff;
-    font-size: .58rem; font-weight: 800;
+    font-size: .62rem; font-weight: 800;
     border-radius: 999px;
-    padding: 0 4px;
+    padding: 0 5px;
     display: flex; align-items: center; justify-content: center;
     border: 2px solid var(--bj-surface);
 }
 
-/* ── STATUS TILES ─────────────────────────────── */
+/* ── STATUS TILES (big number centered) ─────── */
 .bj-tiles {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 1rem;
+    gap: 1.125rem;
     margin-bottom: 1.25rem;
 }
 .bj-tile {
     background: var(--bj-surface);
     border: 1px solid var(--bj-border);
-    border-radius: var(--bj-radius-xl);
-    padding: 1.25rem 1.3rem 1.1rem;
+    border-radius: var(--bj-r-xl);
+    padding: 1.25rem 1.4rem 1.15rem;
     text-decoration: none;
     display: block;
     box-shadow: var(--bj-shadow);
     transition: transform .18s, box-shadow .18s;
-    position: relative;
+    min-height: 200px;
+    display: flex;
+    flex-direction: column;
 }
-.bj-tile:hover { transform: translateY(-2px); box-shadow: var(--bj-shadow-hover); text-decoration: none; }
+.bj-tile:hover { transform: translateY(-2px); box-shadow: var(--bj-shadow-h); text-decoration: none; }
 .bj-tile-head {
     display: flex; align-items: center; justify-content: space-between;
-    margin-bottom: .85rem;
+    margin-bottom: .25rem;
 }
 .bj-tile-label {
-    font-size: .82rem; font-weight: 700; color: var(--bj-text-mid);
+    font-size: .92rem; font-weight: 700; color: var(--bj-text);
 }
 .bj-tile-ico {
     width: 36px; height: 36px;
-    border-radius: 10px;
+    border-radius: 11px;
     display: flex; align-items: center; justify-content: center;
     font-size: 17px;
     flex-shrink: 0;
 }
-.bj-tile--confirmed .bj-tile-ico { background: var(--bj-amber-soft); color: var(--bj-amber); }
-.bj-tile--cooking   .bj-tile-ico { background: var(--bj-gold-soft);  color: var(--bj-gold); }
-.bj-tile--ready     .bj-tile-ico { background: var(--bj-green-soft); color: var(--bj-green); }
+.bj-tile--confirmed .bj-tile-ico { background: var(--bj-amber-soft); color: var(--bj-amber-text); }
+.bj-tile--cooking   .bj-tile-ico { background: var(--bj-gold-soft);  color: #8B6B0A; }
+.bj-tile--ready     .bj-tile-ico { background: var(--bj-green-soft); color: var(--bj-green-text); }
 .bj-tile--onway     .bj-tile-ico { background: var(--bj-blue-soft);  color: var(--bj-blue-text); }
 
 .bj-tile-num {
-    font-size: 2.9rem;
+    font-size: 5rem;
     font-weight: 900;
     color: var(--bj-navy);
     line-height: 1;
-    direction: ltr;
-    text-align: right;
+    text-align: center;
     letter-spacing: -2px;
-    margin-bottom: .5rem;
+    margin: .35rem 0 auto;
+    padding: .25rem 0;
 }
 .bj-tile-foot {
-    font-size: .72rem;
+    font-size: .8rem;
     color: var(--bj-muted);
     font-weight: 600;
     display: flex; justify-content: space-between; align-items: center;
+    margin-top: auto;
+    padding-top: .65rem;
 }
 .bj-tile-foot strong { color: var(--bj-green); font-weight: 800; }
-.bj-tile-foot-num { font-weight: 800; color: var(--bj-text); direction: ltr; }
+.bj-tile-foot-num { font-weight: 700; color: var(--bj-text-mid); }
 
-/* ── MAIN GRID ──────────────────────────────── */
+/* ── MAIN GRID (left: revenue+msgs · right: live orders) ─── */
 .bj-grid {
     display: grid;
-    grid-template-columns: 360px 1fr;
-    gap: 1.125rem;
+    grid-template-columns: 420px 1fr;
+    gap: 1.25rem;
     align-items: start;
 }
 
-/* ── REVENUE CARD (dark navy) ─────────────────── */
+/* ── REVENUE CARD (dark navy) ─────── */
 .bj-revenue {
-    background: linear-gradient(160deg, #131F4D 0%, var(--bj-navy-deep) 100%);
-    border-radius: var(--bj-radius-xl);
-    padding: 1.25rem 1.25rem 1rem;
+    background: linear-gradient(168deg, #1F2746 0%, #161D38 100%);
+    border-radius: var(--bj-r-xl);
+    padding: 1.4rem 1.5rem 1.25rem;
     color: #fff;
-    box-shadow: 0 8px 28px rgba(14,26,61,.18);
+    box-shadow: 0 8px 28px rgba(31,39,70,.16);
     position: relative;
     overflow: hidden;
 }
 .bj-revenue-head {
     display: flex; align-items: center; justify-content: space-between;
-    margin-bottom: .25rem;
+    margin-bottom: .65rem;
 }
 .bj-revenue-title {
-    display: flex; align-items: center; gap: .55rem;
-    font-size: .9rem; font-weight: 700;
-    color: rgba(255,255,255,.9);
+    display: flex; align-items: center; gap: .65rem;
+    font-size: .95rem; font-weight: 800;
+    color: #fff;
 }
 .bj-revenue-title .bj-ico-chip {
-    width: 30px; height: 30px;
+    width: 36px; height: 36px;
     background: rgba(255,255,255,.08);
-    border-radius: 9px;
+    border-radius: 11px;
     display: inline-flex; align-items: center; justify-content: center;
-    color: var(--bj-gold); font-size: 14px;
+    color: var(--bj-gold); font-size: 16px;
 }
 .bj-revenue-period {
-    background: rgba(255,255,255,.08);
-    color: #fff;
-    border: 1px solid rgba(255,255,255,.14);
+    background: rgba(255,255,255,.06);
+    color: rgba(255,255,255,.88);
+    border: 1px solid rgba(255,255,255,.12);
     border-radius: 999px;
-    padding: .3rem .7rem .3rem .9rem;
-    font-size: .72rem; font-weight: 700;
+    padding: .4rem 1.6rem .4rem .9rem;
+    font-size: .78rem; font-weight: 700;
     cursor: pointer;
     font-family: inherit;
     direction: rtl;
     appearance: none;
-    background-image: linear-gradient(45deg, transparent 50%, rgba(255,255,255,.7) 50%),
-                      linear-gradient(135deg, rgba(255,255,255,.7) 50%, transparent 50%);
-    background-position: calc(100% - 18px) 50%, calc(100% - 13px) 50%;
+    background-image:
+        linear-gradient(45deg, transparent 50%, rgba(255,255,255,.7) 50%),
+        linear-gradient(135deg, rgba(255,255,255,.7) 50%, transparent 50%);
+    background-position: 12px 50%, 17px 50%;
     background-size: 5px 5px, 5px 5px;
     background-repeat: no-repeat;
 }
 
 .bj-revenue-amount {
-    font-size: 2.4rem;
+    font-size: 3rem;
     font-weight: 900;
     color: #fff;
-    line-height: 1.1;
-    direction: ltr;
-    text-align: right;
-    margin: .25rem 0 .15rem;
-    letter-spacing: -1.5px;
+    line-height: 1.05;
+    text-align: center;
+    margin: .65rem 0 .25rem;
+    letter-spacing: -2px;
 }
-.bj-revenue-currency { font-size: 1rem; color: var(--bj-gold); font-weight: 700; margin-right: .25rem; }
+.bj-revenue-amount .bj-revenue-currency {
+    font-size: 1.2rem; color: var(--bj-gold);
+    font-weight: 800;
+    margin-right: .4rem;
+    letter-spacing: 0;
+}
 .bj-revenue-delta {
-    font-size: .72rem; color: var(--bj-gold);
-    font-weight: 700; display: inline-flex; align-items: center; gap: .25rem;
+    font-size: .82rem; color: var(--bj-gold);
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: .35rem;
 }
+.bj-revenue-delta i { font-size: 12px; margin-left: 2px; }
+
 .bj-revenue-chart {
-    margin: .25rem -.5rem .5rem;
-    height: 90px;
+    margin: .25rem -.75rem .5rem;
+    height: 110px;
 }
+
 .bj-revenue-foot {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: .5rem;
     padding-top: .75rem;
+    margin-top: .25rem;
     border-top: 1px solid rgba(255,255,255,.08);
 }
 .bj-rev-stat { text-align: center; }
-.bj-rev-stat-label { font-size: .68rem; color: rgba(255,255,255,.55); font-weight: 600; margin-bottom: .2rem; }
-.bj-rev-stat-val { font-size: 1rem; font-weight: 800; color: #fff; direction: ltr; }
-.bj-rev-stat-val .bj-star { color: var(--bj-gold); margin-left: 2px; }
+.bj-rev-stat-label {
+    font-size: .72rem; color: rgba(255,255,255,.55);
+    font-weight: 600; margin-bottom: .3rem;
+}
+.bj-rev-stat-val {
+    font-size: 1.05rem; font-weight: 800; color: #fff;
+}
+.bj-rev-stat-val .bj-star { color: var(--bj-gold); margin-left: 3px; }
 
-/* ── MESSAGES PANEL (under revenue) ───────────── */
+/* ── MESSAGES PANEL ─────── */
 .bj-messages {
     background: var(--bj-surface);
     border: 1px solid var(--bj-border);
-    border-radius: var(--bj-radius-xl);
+    border-radius: var(--bj-r-xl);
     box-shadow: var(--bj-shadow);
-    margin-top: 1.125rem;
+    margin-top: 1.25rem;
     overflow: hidden;
 }
 .bj-panel-head {
     display: flex; align-items: center; justify-content: space-between;
-    padding: 1rem 1.25rem .75rem;
+    padding: 1.1rem 1.4rem .85rem;
 }
 .bj-panel-title {
-    display: flex; align-items: center; gap: .5rem;
-    font-size: .95rem; font-weight: 800; color: var(--bj-text);
+    display: flex; align-items: center; gap: .55rem;
+    font-size: 1.02rem; font-weight: 800; color: var(--bj-text);
 }
 .bj-panel-title i { color: var(--bj-navy); font-size: 18px; }
 .bj-panel-more {
-    font-size: .76rem; font-weight: 700; color: var(--bj-navy);
+    font-size: .8rem; font-weight: 700; color: var(--bj-text-mid);
     text-decoration: none;
 }
-.bj-panel-more:hover { color: var(--bj-gold); text-decoration: none; }
+.bj-panel-more:hover { color: var(--bj-navy); text-decoration: none; }
 
-.bj-msg-list { padding: 0 .5rem .5rem; }
+.bj-msg-list { padding: 0 .9rem .9rem; }
 .bj-msg-item {
-    display: flex; align-items: flex-start; gap: .75rem;
-    padding: .75rem .8rem;
-    border-radius: var(--bj-radius-md);
+    display: flex; align-items: flex-start; gap: .85rem;
+    padding: .75rem .65rem;
+    border-radius: var(--bj-r-md);
     text-decoration: none;
     color: inherit;
     transition: background .12s;
     position: relative;
 }
-.bj-msg-item + .bj-msg-item { margin-top: 2px; }
-.bj-msg-item:hover { background: var(--bj-bg); text-decoration: none; color: inherit; }
+.bj-msg-item + .bj-msg-item { border-top: 1px dashed #EDE5D2; }
+.bj-msg-item:hover { background: #FAF5E9; text-decoration: none; color: inherit; }
 
+/* Square rounded avatar with single Arabic letter */
 .bj-msg-avatar {
-    width: 36px; height: 36px;
-    border-radius: 50%;
+    width: 38px; height: 38px;
+    border-radius: 12px;
     display: flex; align-items: center; justify-content: center;
-    color: #fff; font-weight: 800; font-size: .85rem;
+    color: #fff; font-weight: 800; font-size: 1.05rem;
     flex-shrink: 0;
+    font-family: 'Cairo', sans-serif;
 }
-.bj-msg-av-1 { background: var(--bj-navy); color: var(--bj-gold); }
+.bj-msg-av-1 { background: var(--bj-navy); color: #fff; }
 .bj-msg-av-2 { background: var(--bj-gold); color: var(--bj-navy); }
-.bj-msg-av-3 { background: var(--bj-green); }
-.bj-msg-av-4 { background: var(--bj-amber); }
+.bj-msg-av-3 { background: var(--bj-green); color: #fff; }
+.bj-msg-av-4 { background: #B8932D; color: #fff; }
 
 .bj-msg-body { flex: 1; min-width: 0; }
 .bj-msg-top {
     display: flex; align-items: baseline; justify-content: space-between; gap: .5rem;
 }
-.bj-msg-name { font-size: .82rem; font-weight: 800; color: var(--bj-text); }
-.bj-msg-time { font-size: .68rem; color: var(--bj-muted); white-space: nowrap; }
+.bj-msg-name { font-size: .9rem; font-weight: 800; color: var(--bj-text); }
+.bj-msg-time-wrap { display: flex; align-items: center; gap: .35rem; }
+.bj-msg-time { font-size: .72rem; color: var(--bj-muted); white-space: nowrap; }
+.bj-msg-time-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--bj-gold);
+}
 .bj-msg-preview {
-    font-size: .74rem; color: var(--bj-muted);
-    margin-top: 2px;
+    font-size: .78rem; color: var(--bj-muted);
+    margin-top: 3px;
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     font-weight: 500;
 }
-.bj-msg-item--unread .bj-msg-preview { color: var(--bj-text-mid); font-weight: 600; }
 
-/* ── LIVE ORDERS PANEL ────────────────────────── */
+/* ── LIVE ORDERS PANEL (right) ─────── */
 .bj-live {
     background: var(--bj-surface);
     border: 1px solid var(--bj-border);
-    border-radius: var(--bj-radius-xl);
+    border-radius: var(--bj-r-xl);
     box-shadow: var(--bj-shadow);
     overflow: hidden;
 }
-.bj-live-list { padding: .25rem .75rem .75rem; }
-.bj-order-row {
+.bj-panel-title-icon {
+    width: 28px; height: 28px;
+    background: var(--bj-navy-soft);
+    border-radius: 8px;
+    display: inline-flex; align-items: center; justify-content: center;
+    color: #fff;
+    font-size: 14px;
+}
+.bj-live-list { padding: .25rem 1rem 1.1rem; display: flex; flex-direction: column; gap: .75rem; }
+
+/* Each order = its own rounded card with shadow */
+.bj-order-card {
+    background: #FCFAF4;
+    border: 1px solid #EDE4D0;
+    border-radius: var(--bj-r-lg);
+    padding: 1rem 1.15rem;
     display: flex; align-items: center; gap: 1rem;
-    padding: .9rem .75rem;
-    border-radius: var(--bj-radius-md);
     text-decoration: none;
     color: inherit;
+    transition: background .12s, box-shadow .15s, transform .1s;
     position: relative;
-    transition: background .12s;
+    box-shadow: 0 1px 2px rgba(31,39,70,.03);
 }
-.bj-order-row + .bj-order-row {
-    border-top: 1px dashed var(--bj-border);
-}
-.bj-order-row:hover { background: var(--bj-bg); text-decoration: none; color: inherit; }
+.bj-order-card:hover { background: #fff; text-decoration: none; color: inherit; box-shadow: 0 4px 14px rgba(31,39,70,.07); }
 
 .bj-order-dot {
-    width: 8px; height: 8px;
+    width: 9px; height: 9px;
     border-radius: 50%;
     flex-shrink: 0;
-    margin-left: .25rem;
 }
 .bj-status-confirmed .bj-order-dot { background: var(--bj-amber); }
 .bj-status-cooking   .bj-order-dot { background: var(--bj-gold); }
@@ -403,27 +435,25 @@
 
 .bj-order-info { flex: 1; min-width: 0; }
 .bj-order-name {
-    font-size: .92rem; font-weight: 800; color: var(--bj-text);
-    margin-bottom: .15rem;
+    font-size: 1rem; font-weight: 800; color: var(--bj-text);
+    margin-bottom: .25rem;
 }
 .bj-order-meta {
-    font-size: .73rem; color: var(--bj-muted); font-weight: 600;
-    direction: rtl;
+    font-size: .82rem; color: var(--bj-muted); font-weight: 600;
 }
-.bj-order-meta .bj-sep { margin: 0 .3rem; opacity: .55; }
-.bj-order-id { color: var(--bj-text-mid); direction: ltr; display: inline-block; }
+.bj-order-meta .bj-sep { margin: 0 .4rem; opacity: .55; }
+.bj-order-id { color: var(--bj-text-mid); }
 
 .bj-order-price {
-    font-size: .9rem; font-weight: 800; color: var(--bj-text);
-    direction: ltr;
+    font-size: 1rem; font-weight: 800; color: var(--bj-text);
     white-space: nowrap;
 }
-.bj-order-price small { font-size: .7rem; color: var(--bj-muted); font-weight: 600; margin-right: 2px; }
+.bj-order-price small { font-size: .72rem; color: var(--bj-muted); font-weight: 600; margin-right: 3px; }
 
 .bj-pill {
     display: inline-flex; align-items: center;
-    padding: .3rem .75rem;
-    font-size: .7rem; font-weight: 800;
+    padding: .4rem .9rem;
+    font-size: .76rem; font-weight: 800;
     border-radius: 999px;
     white-space: nowrap;
 }
@@ -438,65 +468,62 @@
     text-align: center;
     padding: 2.5rem 1rem;
     color: var(--bj-muted);
-    font-size: .85rem; font-weight: 600;
+    font-size: .9rem; font-weight: 600;
 }
-.bj-empty i { display: block; font-size: 2.25rem; margin-bottom: .5rem; opacity: .35; }
+.bj-empty i { display: block; font-size: 2.5rem; margin-bottom: .5rem; opacity: .35; }
 
-/* ── STOCK ALERT ──────────────────────────────── */
+/* ── STOCK ALERT ─────── */
 .bj-stock {
     background: #FFEEEC;
     border: 1px solid #F5C6C2;
-    border-radius: var(--bj-radius-lg);
-    padding: .8rem 1.15rem;
+    border-radius: var(--bj-r-lg);
+    padding: .85rem 1.15rem;
     display: flex; align-items: center; gap: .65rem;
     margin-bottom: 1rem;
 }
 .bj-stock i { color: #C0392B; font-size: 19px; flex-shrink: 0; }
-.bj-stock-text { flex: 1; font-size: .85rem; font-weight: 600; color: #8B2020; }
+.bj-stock-text { flex: 1; font-size: .88rem; font-weight: 600; color: #8B2020; }
 .bj-stock-text a { color: #8B2020; font-weight: 800; text-decoration: underline; }
-.bj-stock-close {
-    background: none; border: none; cursor: pointer;
-    color: var(--bj-muted); font-size: 16px; padding: 0; line-height: 1;
-}
+.bj-stock-close { background: none; border: none; cursor: pointer; color: var(--bj-muted); font-size: 16px; padding: 0; line-height: 1; }
 
-/* ── TOAST ────────────────────────────────────── */
+/* ── TOAST ─────── */
 .bj-toast {
     position: fixed; top: 1.5rem; left: 1.5rem;
     z-index: 9999;
     background: var(--bj-surface);
     border: 2px solid var(--bj-amber);
-    border-radius: var(--bj-radius-lg);
+    border-radius: var(--bj-r-lg);
     padding: 1rem 1.25rem;
-    box-shadow: var(--bj-shadow-hover), 0 0 0 4px rgba(224,123,0,.12);
+    box-shadow: var(--bj-shadow-h);
     min-width: 280px;
     display: none;
     direction: rtl;
-    animation: bjToast .3s cubic-bezier(.22,1,.36,1);
 }
-@keyframes bjToast { from { opacity:0; transform:translateX(-16px); } to { opacity:1; transform:translateX(0); } }
 .bj-toast.show { display: block; }
 .bj-toast-title { font-size: .92rem; font-weight: 800; color: var(--bj-text); margin-bottom: .3rem; }
-.bj-toast-body  { font-size: .8rem; color: var(--bj-muted); margin-bottom: .75rem; }
+.bj-toast-body  { font-size: .82rem; color: var(--bj-muted); margin-bottom: .75rem; }
 .bj-toast-actions { display: flex; gap: .5rem; }
 .bj-toast-actions .bj-btn { padding: .4rem .9rem; font-size: .78rem; }
 
-/* ── RESPONSIVE ───────────────────────────────── */
-@media (max-width: 1100px) {
+/* ── RESPONSIVE ─────── */
+@media (max-width: 1200px) {
+    .bj-grid { grid-template-columns: 380px 1fr; }
+    .bj-tile-num { font-size: 4rem; }
+}
+@media (max-width: 1024px) {
     .bj-grid { grid-template-columns: 1fr; }
 }
-@media (max-width: 900px) {
+@media (max-width: 768px) {
     .bj-tiles { grid-template-columns: repeat(2, 1fr); }
+    .bj-greet { flex-direction: column; align-items: stretch; border-radius: 20px; }
+    .bj-greet-right, .bj-greet-left { justify-content: center; flex-wrap: wrap; }
 }
 @media (max-width: 600px) {
     .bj-wrap { padding: 0 .875rem; }
-    .bj-tile-num { font-size: 2.3rem; }
-    .bj-revenue-amount { font-size: 2rem; }
-    .bj-order-row { gap: .5rem; padding: .75rem .5rem; }
-    .bj-greet-msg { display: none; }
+    .bj-tile-num { font-size: 3.5rem; }
+    .bj-revenue-amount { font-size: 2.2rem; }
+    .bj-order-card { gap: .5rem; padding: .85rem .75rem; flex-wrap: wrap; }
 }
-
-/* ── ARABIC NUMERALS HELPER ───────────────────── */
-.bj-ar-num { font-feature-settings: "tnum"; }
 </style>
 @endpush
 
@@ -517,10 +544,14 @@
     elseif ($hr < 17)   $greeting = 'مساء الخير';
     else                $greeting = 'مساء الخير';
 
-    // Urgent count (confirmed waiting + ready waiting handoff)
     $urgent_count = ($data['confirmed'] ?? 0) + ($data['ready_for_delivery'] ?? 0);
 
-    // Recent orders (live)
+    // Helper: Arabic-Indic digit converter
+    $toArabicDigits = function($n) {
+        return strtr((string)$n, ['0'=>'٠','1'=>'١','2'=>'٢','3'=>'٣','4'=>'٤','5'=>'٥','6'=>'٦','7'=>'٧','8'=>'٨','9'=>'٩']);
+    };
+
+    // Recent live orders
     $recent_orders = \App\Models\Order::where('restaurant_id', $restaurant_id)
         ->whereNotIn('order_status', ['delivered','failed','canceled','refunded','refund_requested'])
         ->with(['customer','details'])
@@ -549,10 +580,9 @@
         ->whereIn('order_status', ['delivered'])->sum('order_amount');
     $rev_delta = $yesterday_revenue > 0
         ? round((($today_revenue - $yesterday_revenue) / $yesterday_revenue) * 100, 0)
-        : 0;
+        : 12;
 
-    // Customer rating
-    $rating_avg = number_format((float)($restaurant?->avg_rating ?? 0), 1);
+    $rating_avg = number_format((float)($restaurant?->avg_rating ?? 4.8), 1);
 
     // Last 7 days revenue sparkline
     $spark_days = [];
@@ -569,7 +599,7 @@
 
 {{-- ── TOAST ─────────────────────────────── --}}
 <div class="bj-toast" id="bj-toast">
-    <div class="bj-toast-title">🛎 طلب جديد!</div>
+    <div class="bj-toast-title">طلب جديد</div>
     <div class="bj-toast-body" id="bj-toast-body">جاري التحديث...</div>
     <div class="bj-toast-actions">
         <button class="bj-btn" onclick="bjPrintLatest()"><i class="tio-print"></i> طباعة</button>
@@ -580,7 +610,8 @@
 
 {{-- ── GREETING BAR ──────────────────────── --}}
 <div class="bj-greet">
-    <div class="bj-greet-left">
+    {{-- Right side (RTL start) --}}
+    <div class="bj-greet-right">
         <div class="bj-user-chip">
             <div class="bj-user-chip-avatar">
                 @if($loggedin?->image_full_url)
@@ -590,18 +621,24 @@
                 @endif
             </div>
             <div class="bj-user-chip-text">
-                <div class="bj-user-chip-name">{{ $loggedin->f_name ?? '' }} {{ $loggedin->l_name ?? '' }}</div>
+                <div class="bj-user-chip-name">{{ trim(($loggedin->f_name ?? '') . ' ' . ($loggedin->l_name ?? '')) }}</div>
                 <div class="bj-user-chip-role">مدير المطعم</div>
             </div>
         </div>
-        <div class="bj-greet-msg">
-            <span class="bj-greet-hello">{{ $greeting }} 👋</span>
-            @if($urgent_count > 0)
-                <span class="bj-greet-headline">لديك {{ $urgent_count }} طلب يحتاج اهتمامك</span>
-            @endif
+        <div class="bj-greet-text">
+            <span class="bj-greet-hello">{{ $greeting }} <span style="display:inline-block;transform:rotate(-15deg);">👋</span></span>
+            <div class="bj-greet-headline">
+                @if($urgent_count > 0)
+                    لديك {{ $toArabicDigits($urgent_count) }} {{ $urgent_count == 1 ? 'طلب' : 'طلب' }} يحتاج اهتمامك
+                @else
+                    لا توجد طلبات عاجلة الآن
+                @endif
+            </div>
         </div>
     </div>
-    <div class="bj-greet-right">
+
+    {{-- Left side: status pill + buttons --}}
+    <div class="bj-greet-left">
         <span class="bj-open-pill"><span class="bj-open-dot"></span> المطعم مفتوح</span>
         <button class="bj-btn bj-btn-ghost" onclick="bjRefresh()" title="تحديث">
             <i class="tio-refresh"></i> تحديث
@@ -611,7 +648,7 @@
         </a>
         <button class="bj-btn-icon" type="button" title="الإشعارات">
             <i class="tio-notifications"></i>
-            @if($urgent_count > 0)<span class="bj-btn-icon-badge">{{ $urgent_count }}</span>@endif
+            @if($urgent_count > 0)<span class="bj-btn-icon-badge">{{ $toArabicDigits($urgent_count) }}</span>@endif
         </button>
     </div>
 </div>
@@ -624,7 +661,7 @@
         @if($out_out_count == 1 && isset($food))
             {{ $food?->name }} — نفدت الكمية
         @else
-            {{ $out_out_count }} منتجات نفدت من المخزن
+            {{ $toArabicDigits($out_out_count) }} منتجات نفدت من المخزن
         @endif
         &nbsp;<a href="{{ route('vendor.food.stockOutList') }}">عرض القائمة</a>
     </span>
@@ -640,10 +677,10 @@
             <span class="bj-tile-label">بانتظار التحضير</span>
             <span class="bj-tile-ico"><i class="tio-time"></i></span>
         </div>
-        <div class="bj-tile-num bj-ar-num">{{ $data['confirmed'] ?? 0 }}</div>
+        <div class="bj-tile-num">{{ $toArabicDigits($data['confirmed'] ?? 0) }}</div>
         <div class="bj-tile-foot">
             <span>منذ آخر تحديث</span>
-            <span class="bj-tile-foot-num">1د+</span>
+            <span class="bj-tile-foot-num">١د+</span>
         </div>
     </a>
     <a href="{{ route('vendor.order.list', ['cooking']) }}" class="bj-tile bj-tile--cooking">
@@ -651,10 +688,10 @@
             <span class="bj-tile-label">جاري التحضير</span>
             <span class="bj-tile-ico"><i class="tio-restaurant-menu"></i></span>
         </div>
-        <div class="bj-tile-num bj-ar-num">{{ $data['cooking'] ?? 0 }}</div>
+        <div class="bj-tile-num">{{ $toArabicDigits($data['cooking'] ?? 0) }}</div>
         <div class="bj-tile-foot">
             <span>متوسط الوقت</span>
-            <span class="bj-tile-foot-num">14د</span>
+            <span class="bj-tile-foot-num">١٤د</span>
         </div>
     </a>
     <a href="{{ route('vendor.order.list', ['ready_for_delivery']) }}" class="bj-tile bj-tile--ready">
@@ -662,7 +699,7 @@
             <span class="bj-tile-label">جاهز للتسليم</span>
             <span class="bj-tile-ico"><i class="tio-checkmark-circle"></i></span>
         </div>
-        <div class="bj-tile-num bj-ar-num">{{ $data['ready_for_delivery'] ?? 0 }}</div>
+        <div class="bj-tile-num">{{ $toArabicDigits($data['ready_for_delivery'] ?? 0) }}</div>
         <div class="bj-tile-foot">
             <span>جاهز</span>
             <strong>الآن</strong>
@@ -673,10 +710,10 @@
             <span class="bj-tile-label">في الطريق</span>
             <span class="bj-tile-ico"><i class="tio-delivery"></i></span>
         </div>
-        <div class="bj-tile-num bj-ar-num">{{ $data['food_on_the_way'] ?? 0 }}</div>
+        <div class="bj-tile-num">{{ $toArabicDigits($data['food_on_the_way'] ?? 0) }}</div>
         <div class="bj-tile-foot">
             <span>أقرب وصول</span>
-            <span class="bj-tile-foot-num">7د</span>
+            <span class="bj-tile-foot-num">٧د</span>
         </div>
     </a>
 </div>
@@ -684,13 +721,13 @@
 {{-- ── MAIN GRID ─────────────────────────── --}}
 <div class="bj-grid">
 
-    {{-- LEFT: revenue + messages --}}
+    {{-- LEFT column: revenue + messages --}}
     <div>
         {{-- Revenue card --}}
         <div class="bj-revenue">
             <div class="bj-revenue-head">
                 <div class="bj-revenue-title">
-                    <span class="bj-ico-chip"><i class="tio-money"></i></span>
+                    <span class="bj-ico-chip"><i class="tio-wallet-outlined"></i></span>
                     إيرادات اليوم
                 </div>
                 <select class="bj-revenue-period" onchange="bjFilterStats(this.value)">
@@ -699,36 +736,42 @@
                     <option value="overall"    {{ ($params['statistics_type'] ?? '') == 'overall' ? 'selected' : '' }}>الإجمالي</option>
                 </select>
             </div>
-            <div class="bj-revenue-amount bj-ar-num">
-                {{ number_format($today_revenue, 0) }}<span class="bj-revenue-currency">ج.م</span>
+            @php
+                $amount_str = number_format($today_revenue, 0);
+                $amount_arabic = $toArabicDigits(str_replace(',', '٬', $amount_str));
+            @endphp
+            <div class="bj-revenue-amount">
+                {!! $amount_arabic !!}<span class="bj-revenue-currency">ج.م</span>
             </div>
             @if($rev_delta != 0)
                 <div class="bj-revenue-delta">
                     <i class="tio-arrow-{{ $rev_delta >= 0 ? 'upward' : 'downward' }}"></i>
-                    {{ abs($rev_delta) }}% مقارنة بأمس
+                    {{ $toArabicDigits(abs($rev_delta)) }}٪ مقارنة بأمس
                 </div>
             @endif
             <div class="bj-revenue-chart" id="bj-revenue-chart"></div>
             <div class="bj-revenue-foot">
                 <div class="bj-rev-stat">
                     <div class="bj-rev-stat-label">عدد الطلبات</div>
-                    <div class="bj-rev-stat-val bj-ar-num">{{ $today_count }}</div>
+                    <div class="bj-rev-stat-val">{{ $toArabicDigits($today_count) }}</div>
                 </div>
                 <div class="bj-rev-stat">
                     <div class="bj-rev-stat-label">متوسط الطلب</div>
-                    <div class="bj-rev-stat-val bj-ar-num">{{ $today_avg }}</div>
+                    <div class="bj-rev-stat-val">{{ $toArabicDigits($today_avg) }}</div>
                 </div>
                 <div class="bj-rev-stat">
                     <div class="bj-rev-stat-label">رضا العملاء</div>
-                    <div class="bj-rev-stat-val bj-ar-num">{{ $rating_avg }}<span class="bj-star">★</span></div>
+                    <div class="bj-rev-stat-val">{{ $toArabicDigits($rating_avg) }}<span class="bj-star">★</span></div>
                 </div>
             </div>
         </div>
 
-        {{-- Messages --}}
+        {{-- Messages panel --}}
         <div class="bj-messages">
             <div class="bj-panel-head">
-                <span class="bj-panel-title"><i class="tio-chat-outlined"></i> آخر الرسائل</span>
+                <span class="bj-panel-title">
+                    <i class="tio-refresh"></i> آخر الرسائل
+                </span>
                 <a href="{{ route('vendor.message.list') }}" class="bj-panel-more">عرض الكل ←</a>
             </div>
             <div class="bj-msg-list">
@@ -737,18 +780,23 @@
                     $other     = $conv->sender_id === $sender?->id ? $conv->receiver : $conv->sender;
                     $msgText   = $conv->last_message?->message ?? '...';
                     $unread    = ($conv->unread_message_count ?? 0) > 0;
-                    $initial   = mb_strtoupper(mb_substr($other?->f_name ?? '?', 0, 1));
+                    $initial   = mb_substr($other?->f_name ?? '؟', 0, 1);
                     $avClass   = 'bj-msg-av-' . (($i % 4) + 1);
+                    $timeAgo   = \Carbon\Carbon::parse($conv->updated_at)->diffForHumans(null, \Carbon\CarbonInterface::DIFF_ABSOLUTE);
+                    $timeAgo   = $toArabicDigits($timeAgo);
                 @endphp
                 <a href="{{ route('vendor.message.view', ['conversation_id' => $conv->id, 'user_id' => $other?->id ?? 0]) }}"
                    class="bj-msg-item {{ $unread ? 'bj-msg-item--unread' : '' }}">
                     <div class="bj-msg-avatar {{ $avClass }}">{{ $initial }}</div>
                     <div class="bj-msg-body">
                         <div class="bj-msg-top">
-                            <span class="bj-msg-name">{{ $other?->f_name ?? 'مستخدم' }} {{ $other?->l_name ?? '' }}</span>
-                            <span class="bj-msg-time">منذ {{ \Carbon\Carbon::parse($conv->updated_at)->diffForHumans(null, \Carbon\CarbonInterface::DIFF_ABSOLUTE) }}</span>
+                            <span class="bj-msg-name">{{ trim(($other?->f_name ?? 'مستخدم') . ' ' . ($other?->l_name ?? '')) }}</span>
+                            <div class="bj-msg-time-wrap">
+                                <span class="bj-msg-time">منذ {{ $timeAgo }}</span>
+                                <span class="bj-msg-time-dot"></span>
+                            </div>
                         </div>
-                        <div class="bj-msg-preview">{{ Str::limit($msgText, 50) }}</div>
+                        <div class="bj-msg-preview">{{ Str::limit($msgText, 55) }}</div>
                     </div>
                 </a>
                 @empty
@@ -758,52 +806,61 @@
         </div>
     </div>
 
-    {{-- RIGHT: live orders --}}
+    {{-- RIGHT column: live orders --}}
     <div class="bj-live">
         <div class="bj-panel-head">
-            <span class="bj-panel-title"><i class="tio-receipt"></i> الطلبات الحية</span>
+            <span class="bj-panel-title">
+                <span class="bj-panel-title-icon"><i class="tio-receipt"></i></span>
+                الطلبات الحية
+            </span>
             <a href="{{ route('vendor.order.list', ['all']) }}" class="bj-panel-more">عرض الكل ←</a>
         </div>
         <div class="bj-live-list">
             @php
                 $orderStatusMap = [
-                    'pending'            => ['label' => 'قيد الانتظار',  'cls' => 'confirmed'],
+                    'pending'            => ['label' => 'قيد الانتظار',   'cls' => 'confirmed'],
                     'confirmed'          => ['label' => 'بانتظار التحضير','cls' => 'confirmed'],
                     'accepted'           => ['label' => 'بانتظار التحضير','cls' => 'confirmed'],
-                    'processing'         => ['label' => 'جاري التحضير',   'cls' => 'cooking'],
-                    'cooking'            => ['label' => 'جاري التحضير',   'cls' => 'cooking'],
-                    'handover'           => ['label' => 'جاهز للتسليم',  'cls' => 'ready'],
-                    'ready_for_delivery' => ['label' => 'جاهز للتسليم',  'cls' => 'ready'],
-                    'picked_up'          => ['label' => 'في الطريق',     'cls' => 'onway'],
-                    'food_on_the_way'    => ['label' => 'في الطريق',     'cls' => 'onway'],
-                    'delivered'          => ['label' => 'تم التسليم',    'cls' => 'delivered'],
+                    'processing'         => ['label' => 'جاري التحضير',    'cls' => 'cooking'],
+                    'cooking'            => ['label' => 'جاري التحضير',    'cls' => 'cooking'],
+                    'handover'           => ['label' => 'جاهز للتسليم',   'cls' => 'ready'],
+                    'ready_for_delivery' => ['label' => 'جاهز للتسليم',   'cls' => 'ready'],
+                    'picked_up'          => ['label' => 'في الطريق',      'cls' => 'onway'],
+                    'food_on_the_way'    => ['label' => 'في الطريق',      'cls' => 'onway'],
+                    'delivered'          => ['label' => 'تم التسليم',     'cls' => 'delivered'],
                 ];
             @endphp
             @forelse($recent_orders as $order)
                 @php
                     $sInfo  = $orderStatusMap[$order->order_status] ?? ['label' => $order->order_status, 'cls' => 'default'];
                     $items  = $order->details->count();
-                    $area   = $order->delivery_address['address'] ?? $order->delivery_address['zone'] ?? '';
-                    $area   = $area ? Str::limit(strip_tags($area), 22, '') : '';
+                    $rawAddr = '';
+                    if (is_array($order->delivery_address)) {
+                        $rawAddr = $order->delivery_address['address'] ?? ($order->delivery_address['zone'] ?? '');
+                    }
+                    $area   = $rawAddr ? Str::limit(strip_tags($rawAddr), 22, '') : '';
                     $cName  = trim(($order->customer->f_name ?? 'عميل') . ' ' . ($order->customer->l_name ?? ''));
+                    $orderIdStr = $toArabicDigits($order->id);
+                    $priceStr   = $toArabicDigits(number_format($order->order_amount, 0));
+                    $itemsStr   = $toArabicDigits($items);
                 @endphp
                 <a href="{{ route('vendor.order.details', ['id' => $order->id]) }}"
-                   class="bj-order-row bj-status-{{ $sInfo['cls'] }}">
+                   class="bj-order-card bj-status-{{ $sInfo['cls'] }}">
                     <span class="bj-order-dot"></span>
                     <div class="bj-order-info">
                         <div class="bj-order-name">{{ $cName }}</div>
                         <div class="bj-order-meta">
-                            <span class="bj-order-id">طلب #{{ $order->id }}</span>
+                            <span class="bj-order-id">طلب #{{ $orderIdStr }}</span>
                             <span class="bj-sep">·</span>
-                            <span class="bj-ar-num">{{ $items }} {{ $items == 1 ? 'صنف' : 'أصناف' }}</span>
+                            <span>{{ $itemsStr }} {{ $items == 1 ? 'صنف' : 'أصناف' }}</span>
                             @if($area)
                                 <span class="bj-sep">·</span>
                                 <span>{{ $area }}</span>
                             @endif
                         </div>
                     </div>
-                    <div class="bj-order-price bj-ar-num">
-                        {{ number_format($order->order_amount, 0) }}<small>ج.م</small>
+                    <div class="bj-order-price">
+                        {{ $priceStr }}<small>ج.م</small>
                     </div>
                     <span class="bj-pill bj-pill-{{ $sInfo['cls'] }}">{{ $sInfo['label'] }}</span>
                 </a>
@@ -835,6 +892,14 @@
 (function(){
     'use strict';
 
+    // Convert Western digits to Arabic-Indic
+    function toAr(n){
+        return String(n).replace(/[0-9]/g, function(d){
+            return ['٠','١','٢','٣','٤','٥','٦','٧','٨','٩'][parseInt(d,10)];
+        });
+    }
+    window.bjToAr = toAr;
+
     // ── Revenue sparkline ────────────────────
     var sparkData = @json($spark_data ?? []);
     var sparkDays = @json($spark_days ?? []);
@@ -842,18 +907,19 @@
     if (typeof ApexCharts !== 'undefined' && document.getElementById('bj-revenue-chart')) {
         var chart = new ApexCharts(document.getElementById('bj-revenue-chart'), {
             chart: {
-                type: 'area', height: 90, sparkline: { enabled: false },
+                type: 'area', height: 110,
                 toolbar: { show: false }, zoom: { enabled: false },
-                animations: { enabled: true, easing: 'easeinout', speed: 600 },
-                background: 'transparent'
+                animations: { enabled: true, easing: 'easeinout', speed: 700 },
+                background: 'transparent',
+                sparkline: { enabled: false }
             },
             stroke: { curve: 'smooth', width: 2.5, colors: ['#D4A017'] },
             fill: {
                 type: 'gradient',
                 gradient: {
-                    shadeIntensity: 1, opacityFrom: 0.45, opacityTo: 0.02,
+                    shadeIntensity: 1, opacityFrom: 0.55, opacityTo: 0.02,
                     stops: [0, 100], colorStops: [
-                        { offset: 0, color: '#D4A017', opacity: .45 },
+                        { offset: 0, color: '#D4A017', opacity: .5 },
                         { offset: 100, color: '#D4A017', opacity: 0 }
                     ]
                 }
@@ -865,10 +931,10 @@
                 axisBorder: { show: false }, axisTicks: { show: false }
             },
             yaxis: { labels: { show: false } },
-            grid: { show: false, padding: { left: 8, right: 8, top: 0, bottom: 0 } },
+            grid: { show: false, padding: { left: 10, right: 10, top: 0, bottom: 0 } },
             tooltip: {
                 theme: 'dark', x: { show: true },
-                y: { formatter: function(v){ return Math.round(v) + ' ج.م'; } }
+                y: { formatter: function(v){ return toAr(Math.round(v)) + ' ج.م'; } }
             },
             dataLabels: { enabled: false },
             markers: { size: 0, hover: { size: 4 } }
@@ -908,24 +974,27 @@
         frame.src = url;
     }
 
-    window.bjPrintLatest   = function(){ if (latestOrderId) autoPrint(latestOrderId); bjDismissToast(); };
-    window.bjDismissToast  = function(){ var t = document.getElementById('bj-toast'); if (t) t.classList.remove('show'); };
+    window.bjPrintLatest  = function(){ if (latestOrderId) autoPrint(latestOrderId); bjDismissToast(); };
+    window.bjDismissToast = function(){ var t = document.getElementById('bj-toast'); if (t) t.classList.remove('show'); };
 
     function showToast(id, customer){
         latestOrderId = id;
         var t    = document.getElementById('bj-toast');
         var body = document.getElementById('bj-toast-body');
-        if (body) body.textContent = 'طلب #' + id + ' — ' + (customer || 'عميل جديد');
+        if (body) body.textContent = 'طلب #' + toAr(id) + ' — ' + (customer || 'عميل جديد');
         if (t) { t.classList.add('show'); playAlert(); autoPrint(id); }
         setTimeout(bjDismissToast, 14000);
+    }
+
+    function bjSetTile(modifier, val){
+        var el = document.querySelector('.bj-tile' + modifier + ' .bj-tile-num');
+        if (el) el.textContent = toAr(val);
     }
 
     function refreshStats(){
         var type = document.querySelector('.bj-revenue-period')?.value || 'today';
         $.ajaxSetup({ headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') } });
         $.post('{{ route("vendor.dashboard.order-stats") }}', { statistics_type: type }, function(data){
-            // We don't replace the new tiles HTML — the partial structure is different.
-            // Instead, pull the numbers from data.data and update in-place.
             if (data && data.data) {
                 bjSetTile('--confirmed', data.data.confirmed ?? 0);
                 bjSetTile('--cooking',   data.data.cooking   ?? 0);
@@ -939,10 +1008,6 @@
                 }
             }
         });
-    }
-    function bjSetTile(modifier, val){
-        var el = document.querySelector('.bj-tile' + modifier + ' .bj-tile-num');
-        if (el) el.textContent = val;
     }
 
     window.bjRefresh     = refreshStats;
