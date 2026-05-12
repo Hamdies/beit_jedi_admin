@@ -71,7 +71,7 @@
     <link rel="stylesheet" href="{{dynamicAsset('public/assets/admin/css/toastr.css')}}">
 </head>
 
-<body class="footer-offset">
+<body class="footer-offset bj-shell">
 
     @if (env('APP_MODE')=='demo')
     <div class="direction-toggle">
@@ -100,12 +100,12 @@
 @include('layouts.vendor.partials._front-settings')
 <!-- End Builder -->
 
-<!-- JS Preview mode only -->
+<div class="bj-app-shell">
+<!-- Sidebar -->
 @include('layouts.vendor.partials._sidebar')
-<!-- END ONLY DEV -->
+<!-- End Sidebar -->
 
-<main id="content" role="main" class="main pointer-event">
-@include('layouts.vendor.partials._header')
+<main id="content" role="main" class="main pointer-event" style="min-width:0;background:#faf7f2;">
     <!-- Content -->
 @yield('content')
 <!-- End Content -->
@@ -154,6 +154,7 @@
     </div>
 
 </main>
+</div>{{-- /.bj-app-shell --}}
     <div class="modal fade" id="toggle-modal">
         <div class="modal-dialog status-warning-modal">
             <div class="modal-content">

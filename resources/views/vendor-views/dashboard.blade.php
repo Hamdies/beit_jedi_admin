@@ -58,25 +58,10 @@
     --font-ar: 'Cairo', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
-/* ── Hide framework chrome on this page ─────── */
-body.bj-page .js-navbar-vertical-aside,
-body.bj-page .navbar-vertical-aside,
-body.bj-page #sidebarMain,
-body.bj-page #bj-header,
-body.bj-page .footer { display: none !important; }
-body.bj-page #content,
-body.bj-page main#content {
-    padding: 0 !important;
-    margin: 0 !important;
-    background: var(--cream, #faf7f2) !important;
-}
-body.bj-page { background: var(--cream, #faf7f2) !important; }
-
 /* ── Reset ───────────────────────────────────── */
 .bj-dash, .bj-dash * { box-sizing: border-box; }
 .bj-dash {
     background: var(--cream);
-    min-height: 100vh;
     direction: rtl;
     font-family: var(--font-ar);
     color: var(--ink-900);
@@ -88,93 +73,6 @@ body.bj-page { background: var(--cream, #faf7f2) !important; }
     background-clip: border-box !important;
     -webkit-text-fill-color: currentColor !important;
 }
-
-/* ── App shell: sidebar + main ─────────────── */
-.bj-app {
-    display: grid;
-    grid-template-columns: 260px 1fr;
-    min-height: 100vh;
-    direction: rtl;
-}
-
-/* ── SIDEBAR ───────────────────────────────── */
-.bj-sidebar {
-    background: var(--navy-800);
-    padding: 28px 22px;
-    display: flex;
-    flex-direction: column;
-    gap: 28px;
-    position: sticky;
-    top: 0;
-    height: 100vh;
-    overflow-y: auto;
-    scrollbar-width: none;
-}
-.bj-sidebar::-webkit-scrollbar { display: none; }
-
-.bj-brand {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-.bj-brand .mark {
-    width: 36px; height: 36px;
-    background: var(--gold-600);
-    border-radius: var(--r-sm);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 1.1rem; font-weight: 900;
-    color: var(--navy-800);
-    flex-shrink: 0;
-}
-.bj-brand .titles { line-height: 1.2; }
-.bj-brand .titles .name {
-    font-size: .95rem; font-weight: 800;
-    color: #fff;
-}
-.bj-brand .titles .sub {
-    font-size: .72rem; color: rgba(255,255,255,.5);
-    font-weight: 500;
-}
-
-.bj-navsec { display: flex; flex-direction: column; gap: 4px; }
-.bj-navsec > .label {
-    font-size: .68rem; font-weight: 700;
-    color: rgba(255,255,255,.35);
-    text-transform: uppercase;
-    letter-spacing: .06em;
-    padding: 0 6px;
-    margin-bottom: 4px;
-}
-.bj-nav-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 9px 10px;
-    border-radius: var(--r-sm);
-    color: rgba(255,255,255,.62);
-    font-size: .875rem; font-weight: 600;
-    text-decoration: none;
-    transition: background .12s, color .12s;
-    position: relative;
-}
-.bj-nav-item:hover { background: rgba(255,255,255,.06); color: rgba(255,255,255,.9); text-decoration: none; }
-.bj-nav-item.active {
-    background: rgba(255,255,255,.1);
-    color: #fff;
-}
-.bj-nav-item .ico { width: 18px; text-align: center; font-size: 16px; flex-shrink: 0; }
-.bj-nav-item .badge {
-    margin-right: auto;
-    margin-left: 0;
-    background: var(--s-pending-dot);
-    color: #fff;
-    font-size: .6rem; font-weight: 800;
-    min-width: 18px; height: 18px;
-    border-radius: 999px;
-    padding: 0 5px;
-    display: inline-flex; align-items: center; justify-content: center;
-}
-.bj-nav-item .badge.green { background: var(--s-ready-dot); }
 
 /* ── MAIN CONTENT ──────────────────────────── */
 .bj-main {
@@ -637,12 +535,9 @@ body.bj-page { background: var(--cream, #faf7f2) !important; }
 
 /* ── RESPONSIVE ─────────────────────────────── */
 @media (max-width: 1280px) {
-    .bj-app { grid-template-columns: 220px 1fr; }
     .bj-grid { grid-template-columns: 1fr 380px; }
 }
 @media (max-width: 1024px) {
-    .bj-app { grid-template-columns: 1fr; }
-    .bj-sidebar { display: none; }
     .bj-main { padding: 16px; }
     .bj-grid { grid-template-columns: 1fr; }
     .bj-kpis { grid-template-columns: repeat(2, 1fr); }
@@ -657,7 +552,6 @@ body.bj-page { background: var(--cream, #faf7f2) !important; }
 
 @section('content')
 <div class="bj-dash">
-<div class="bj-app">
 
 @if(auth('vendor')->check())
 @php
@@ -748,88 +642,8 @@ body.bj-page { background: var(--cream, #faf7f2) !important; }
 </div>
 <iframe id="bj-print-frame" style="display:none"></iframe>
 
-{{-- ── SIDEBAR ── --}}
-<aside class="bj-sidebar">
-    {{-- Brand --}}
-    <div class="bj-brand">
-        <div class="mark">ج</div>
-        <div class="titles">
-            <div class="name">بيت جدي</div>
-            <div class="sub">لوحة التحكم</div>
-        </div>
-    </div>
-
-    {{-- Primary nav --}}
-    <nav class="bj-navsec">
-        <span class="label">الرئيسية</span>
-        <a href="{{ route('vendor.dashboard') }}" class="bj-nav-item active">
-            <span class="ico"><i class="tio-home-outlined"></i></span>
-            لوحة التحكم
-        </a>
-        <a href="{{ route('vendor.order.list', ['all']) }}" class="bj-nav-item">
-            <span class="ico"><i class="tio-receipt"></i></span>
-            الطلبات
-            @if(($data['confirmed'] ?? 0) > 0)
-                <span class="badge">{{ $toAr($data['confirmed']) }}</span>
-            @endif
-        </a>
-        <a href="{{ route('vendor.delivery-man.list') }}" class="bj-nav-item">
-            <span class="ico"><i class="tio-delivery"></i></span>
-            التوصيل
-        </a>
-        <a href="{{ route('vendor.message.list') }}" class="bj-nav-item">
-            <span class="ico"><i class="tio-chat-outlined"></i></span>
-            الرسائل
-            @php $unread_msgs = $recent_convs->where('unread_message_count', '>', 0)->count(); @endphp
-            @if($unread_msgs > 0)<span class="badge green">{{ $toAr($unread_msgs) }}</span>@endif
-        </a>
-    </nav>
-
-    {{-- Menu nav --}}
-    <nav class="bj-navsec">
-        <span class="label">القائمة</span>
-        <a href="{{ route('vendor.food.list') }}" class="bj-nav-item">
-            <span class="ico"><i class="tio-restaurant-menu"></i></span>
-            الأطباق
-        </a>
-        <a href="{{ route('vendor.category.add') }}" class="bj-nav-item">
-            <span class="ico"><i class="tio-grid"></i></span>
-            التصنيفات
-        </a>
-        <a href="{{ route('vendor.addon.add-new') }}" class="bj-nav-item">
-            <span class="ico"><i class="tio-add-circle-outlined"></i></span>
-            الإضافات
-        </a>
-        <a href="{{ route('vendor.campaign.list') }}" class="bj-nav-item">
-            <span class="ico"><i class="tio-label-outlined"></i></span>
-            العروض
-        </a>
-    </nav>
-
-    {{-- Admin nav --}}
-    <nav class="bj-navsec">
-        <span class="label">الإدارة</span>
-        <a href="{{ route('vendor.reviews') }}" class="bj-nav-item">
-            <span class="ico"><i class="tio-star-outlined"></i></span>
-            التقييمات
-        </a>
-        <a href="{{ route('vendor.delivery-man.list') }}" class="bj-nav-item">
-            <span class="ico"><i class="tio-group-equal"></i></span>
-            المناديب
-        </a>
-        <a href="{{ route('vendor.report.order-report') }}" class="bj-nav-item">
-            <span class="ico"><i class="tio-chart-bar-1"></i></span>
-            التقارير
-        </a>
-        <a href="{{ route('vendor.business-settings.restaurant-setup') }}" class="bj-nav-item">
-            <span class="ico"><i class="tio-settings-outlined"></i></span>
-            الإعدادات
-        </a>
-    </nav>
-</aside>
-
 {{-- ── MAIN ── --}}
-<main class="bj-main">
+<div class="bj-main">
 
     {{-- TOPBAR --}}
     <div class="bj-topbar">
@@ -1076,7 +890,7 @@ body.bj-page { background: var(--cream, #faf7f2) !important; }
         </div>{{-- /bj-col-right --}}
     </div>{{-- /bj-grid --}}
 
-</main>{{-- /bj-main --}}
+</div>{{-- /bj-main --}}
 
 @else
 {{-- Employee fallback --}}
@@ -1088,15 +902,12 @@ body.bj-page { background: var(--cream, #faf7f2) !important; }
 </div>
 @endif
 
-</div>{{-- /bj-app --}}
 </div>{{-- /bj-dash --}}
 @endsection
 
 @push('script')
 <script src="{{dynamicAsset('public/assets/admin/apexcharts/apexcharts.min.js')}}"></script>
 <script>
-document.body.classList.add('bj-page');
-
 (function(){
     'use strict';
 

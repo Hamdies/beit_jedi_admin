@@ -1,732 +1,300 @@
-<div id="sidebarMain" class="d-none">
-    <style>
-    /* ═══════════════════════════════════════════════
-       BEIT JEDI — SIDEBAR (reference-pixel-matched)
-    ═══════════════════════════════════════════════ */
-    :root {
-        --bj-navy:        #1F2746;
-        --bj-navy-deep:   #161D38;
-        --bj-navy-active: #2A3258;
-        --bj-navy-hover:  #262E50;
-        --bj-gold:        #D4A017;
-        --bj-text:        rgba(255,255,255,.78);
-        --bj-text-mute:   rgba(255,255,255,.45);
-        --bj-text-dim:    rgba(255,255,255,.62);
-    }
-    .js-navbar-vertical-aside.navbar-vertical-aside {
-        background: var(--bj-navy) !important;
-        border: none !important;
-        box-shadow: none;
-        width: 260px !important;
-    }
-    .navbar-vertical-container,
-    .navbar-vertical-content { background: var(--bj-navy) !important; }
-    .navbar-vertical-content .nav-sub { background: var(--bj-navy-deep) !important; }
-
-    /* ── Brand: gold chip + name (single line) ── */
-    .navbar-brand-wrapper {
-        background: var(--bj-navy) !important;
-        border-bottom: 1px solid rgba(255,255,255,.06) !important;
-        padding: 1.35rem 1.25rem 1.15rem !important;
-        min-height: auto !important;
-    }
-    .sidebar-logo-container { width: 100%; }
-    .navbar-brand {
-        display: flex !important;
-        align-items: center !important;
-        gap: .75rem !important;
-        flex-direction: row-reverse;
-        text-decoration: none !important;
-    }
-    .navbar-brand-logo,
-    .navbar-brand-logo-mini {
-        width: 42px !important; height: 42px !important;
-        border-radius: 11px !important;
-        background: var(--bj-gold) !important;
-        padding: 6px !important;
-        object-fit: contain !important;
-        box-shadow: 0 2px 10px rgba(212,160,23,.22);
-        flex-shrink: 0 !important;
-    }
-    .navbar-brand .ps-2 { padding: 0 !important; }
-    .navbar-brand h6 {
-        color: #fff !important;
-        font-size: 1.25rem !important;
-        font-weight: 800 !important;
-        margin: 0 !important;
-        letter-spacing: -.3px;
-        line-height: 1.1 !important;
-    }
-    .navbar-brand h6::after {
-        content: 'لوحة التحكم';
-        display: block;
-        font-size: .7rem;
-        color: var(--bj-text-mute);
-        font-weight: 500;
-        margin-top: 3px;
-        letter-spacing: 0;
-    }
-
-    /* ── Section subtitles (plain Arabic, NOT uppercase) ── */
-    .navbar-vertical-content .nav-subtitle {
-        color: var(--bj-text-mute) !important;
-        font-size: .82rem !important;
-        font-weight: 700 !important;
-        letter-spacing: 0 !important;
-        text-transform: none !important;
-        padding: 1.35rem 1.5rem .55rem !important;
-        display: block !important;
-        margin: 0 !important;
-    }
-    .navbar-vertical-content .nav-subtitle-replacer { display: none !important; }
-    .navbar-vertical-content .nav-item:first-child .nav-subtitle { padding-top: .85rem !important; }
-
-    /* ── Top-level items ── */
-    .navbar-vertical-aside-has-menu > .nav-link,
-    .navbar-vertical-content .navbar-nav > li > a.nav-link {
-        color: var(--bj-text) !important;
-        font-size: .95rem !important;
-        font-weight: 600 !important;
-        padding: .75rem 1.25rem !important;
-        margin: 1px .75rem !important;
-        border-radius: 10px !important;
-        border: none !important;
-        display: flex !important;
-        align-items: center !important;
-        gap: .85rem !important;
-        position: relative;
-        transition: background .15s, color .15s;
-    }
-    .navbar-vertical-aside-has-menu > .nav-link .nav-icon,
-    .navbar-vertical-content .navbar-nav .nav-icon {
-        font-size: 18px !important;
-        color: var(--bj-text-dim) !important;
-        opacity: 1 !important;
-        min-width: 22px;
-        text-align: center;
-        margin: 0 !important;
-        transition: color .15s;
-    }
-    .navbar-vertical-aside-has-menu > .nav-link:hover,
-    .navbar-vertical-content .navbar-nav > li > a.nav-link:hover {
-        background: var(--bj-navy-hover) !important;
-        color: #fff !important;
-        text-decoration: none;
-    }
-
-    /* ── Active item: solid dark fill, white text ── */
-    .navbar-vertical-aside-has-menu.active > .nav-link,
-    .navbar-vertical-content .navbar-nav > li.active > a.nav-link {
-        background: var(--bj-navy-active) !important;
-        color: #fff !important;
-        font-weight: 700 !important;
-    }
-    .navbar-vertical-aside-has-menu.active > .nav-link .nav-icon,
-    .navbar-vertical-content .navbar-nav > li.active > a.nav-link .nav-icon {
-        color: #fff !important;
-    }
-
-    /* ── Sidebar item badges: dark navy circular ── */
-    .navbar-vertical-content .badge {
-        font-size: .72rem !important;
-        font-weight: 800 !important;
-        padding: 0 !important;
-        min-width: 22px;
-        height: 22px;
-        border-radius: 50% !important;
-        line-height: 22px !important;
-        text-align: center;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-    }
-    .navbar-vertical-content .badge-soft-info,
-    .navbar-vertical-content .badge-soft-success {
-        background: var(--bj-navy-deep) !important;
-        color: var(--bj-gold) !important;
-        border: 1px solid rgba(255,255,255,.06) !important;
-    }
-    .sidebar--badge-container {
-        display: inline-flex !important;
-        align-items: center !important;
-        justify-content: space-between !important;
-        width: 100%;
-        gap: .5rem;
-    }
-    .ml-1 { margin-right: auto !important; margin-left: 0 !important; }
-
-    /* ── Submenu ── */
-    .navbar-vertical-content .nav-sub {
-        padding: .25rem .5rem .5rem !important;
-        margin: 0 .75rem !important;
-        border-radius: 8px !important;
-    }
-    .navbar-vertical-content .nav-sub .nav-link {
-        color: var(--bj-text-dim) !important;
-        font-size: .82rem !important;
-        font-weight: 500 !important;
-        padding: .45rem .85rem !important;
-        border-radius: 7px !important;
-        margin: 1px 0 !important;
-    }
-    .navbar-vertical-content .nav-sub .nav-link:hover {
-        background: rgba(255,255,255,.04) !important;
-        color: #fff !important;
-    }
-    .navbar-vertical-content .nav-sub .nav-item.active > .nav-link {
-        background: rgba(255,255,255,.06) !important;
-        color: #fff !important;
-        font-weight: 600 !important;
-    }
-    .nav-indicator-icon {
-        color: var(--bj-text-mute) !important;
-        font-size: 6px !important;
-        margin-left: .5rem;
-    }
-    .nav-link-toggle::after {
-        color: var(--bj-text-mute) !important;
-        font-size: 11px !important;
-    }
-
-    /* ── Arabic-Indic digits for the entire sidebar ── */
-    .navbar-vertical-aside,
-    .navbar-vertical-aside * {
-        font-feature-settings: "ss01", "tnum";
-    }
-    .navbar-vertical-aside { font-variant-numeric: tabular-nums; }
-    .navbar-vertical-content .badge {
-        font-family: 'Cairo', -apple-system, sans-serif !important;
-        unicode-bidi: plaintext;
-    }
-
-    .js-navbar-vertical-aside-toggle-invoker { color: var(--bj-text-mute) !important; }
-    .js-navbar-vertical-aside-toggle-invoker:hover { color:#fff !important; background:rgba(255,255,255,.06) !important; }
-
-    .navbar-vertical-content::-webkit-scrollbar { width: 5px; }
-    .navbar-vertical-content::-webkit-scrollbar-track { background: transparent; }
-    .navbar-vertical-content::-webkit-scrollbar-thumb { background: rgba(255,255,255,.08); border-radius: 999px; }
-    </style>
-    <aside
-        class="js-navbar-vertical-aside navbar navbar-vertical-aside navbar-vertical navbar-vertical-fixed navbar-expand-xl navbar-bordered">
-        <div class="navbar-vertical-container">
-            <div class="navbar-brand-wrapper justify-content-between">
-                <!-- Logo -->
-                <div class="sidebar-logo-container">
-                    @php($restaurant_data=\App\CentralLogics\Helpers::get_restaurant_data())
-                    <a class="navbar-brand pt-0 pb-0" href="{{route('vendor.dashboard')}}" aria-label="Front">
-                            <img class="navbar-brand-logo"
-                            src="{{ $restaurant_data?->logo_full_url }}"
-                            alt="image">
-                            <img class="navbar-brand-logo-mini"
-                            src="{{ $restaurant_data?->logo_full_url }}"
-                            alt="image">
-
-                        <div class="ps-2">
-                            <h6>
-                                {{\Illuminate\Support\Str::limit($restaurant_data->name,15)}}
-                            </h6>
-                        </div>
-                    </a>
-                    <!-- End Logo -->
-
-                    <!-- Navbar Vertical Toggle -->
-                    <button type="button"
-                            class="js-navbar-vertical-aside-toggle-invoker navbar-vertical-aside-toggle btn btn-icon btn-xs btn-ghost-dark">
-                        <i class="tio-clear tio-lg"></i>
-                    </button>
-                    <!-- End Navbar Vertical Toggle -->
-                </div>
-                <div class="navbar-nav-wrap-content-left ml-auto d-none d-xl-block">
-                    <!-- Navbar Vertical Toggle -->
-                    <button type="button" class="js-navbar-vertical-aside-toggle-invoker close">
-                        <i class="tio-first-page navbar-vertical-aside-toggle-short-align" data-toggle="tooltip"
-                        data-placement="right" title="Collapse"></i>
-                        <i class="tio-last-page navbar-vertical-aside-toggle-full-align"
-                        data-template='<div class="tooltip d-none d-sm-block" role="tooltip"><div class="arrow"></div><div class="tooltip-inner"></div></div>'></i>
-                    </button>
-                    <!-- End Navbar Vertical Toggle -->
-                </div>
-
-            </div>
-
-            <!-- Content -->
-            <div class="navbar-vertical-content text-capitalize bg-334257" style="background-color:#111a4d;">
-                <ul class="navbar-nav navbar-nav-lg nav-tabs mt-3">
-                    <li class="navbar-vertical-aside-has-menu {{Request::is('restaurant-panel')?'active':''}}">
-                        <a class="js-navbar-vertical-aside-menu-link nav-link"
-                            href="{{route('vendor.dashboard')}}" title="لوحة التحكم">
-                            <i class="tio-home-vs-1-outlined nav-icon"></i>
-                            <span class="navbar-vertical-aside-mini-mode-hidden-elements text-truncate">
-                                لوحة التحكم
-                            </span>
-                        </a>
-                    </li>
-                    <!-- End Dashboards -->
-
-                    @if(\App\CentralLogics\Helpers::employee_module_permission_check('pos'))
-                    <!-- POS -->
-                    <li class="navbar-vertical-aside-has-menu {{Request::is('restaurant-panel/pos')?'active':''}}">
-                        <a class="js-navbar-vertical-aside-menu-link nav-link" href="{{route('vendor.pos.index')}}" title="{{translate('Point Of Sale')}}"
-                        >
-                            <i class="tio-shopping nav-icon"></i>
-                            <span
-                                class="navbar-vertical-aside-mini-mode-hidden-elements text-truncate">{{translate('Point Of Sale')}}</span>
-                        </a>
-                    </li>
-                    <!-- End POS -->
-                    @endif
-
-                    <li class="nav-item">
-                        <small
-                            class="nav-subtitle">العروض والترويج</small>
-                        <small class="tio-more-horizontal nav-subtitle-replacer"></small>
-                    </li>
-                    <!-- Campaign removed from vendor sidebar -->
-
-
-                <!-- Coupon -->
-                @if (\App\CentralLogics\Helpers::employee_module_permission_check('coupon'))
-                <li class="navbar-vertical-aside-has-menu {{ Request::is('restaurant-panel/coupon*') ? 'active' : '' }}">
-                <a class="js-navbar-vertical-aside-menu-link nav-link"
-                    href="{{ route('vendor.coupon.add-new') }}"
-                    title="القسائم والعروض">
-                    <i class="tio-ticket nav-icon"></i>
-                    <span
-                        class="navbar-vertical-aside-mini-mode-hidden-elements text-truncate">القسائم</span>
-                </a>
-                </li>
-                @endif
-                <!-- End Coupon   --}}
-
-                    @if(\App\CentralLogics\Helpers::employee_module_permission_check('order'))
-                    <li class="nav-item">
-                        <small class="nav-subtitle" title="إدارة الطلبات">إدارة الطلبات</small>
-                        <small class="tio-more-horizontal nav-subtitle-replacer"></small>
-                    </li>
-
-                    <!-- Order -->
-                    <li class="navbar-vertical-aside-has-menu {{Request::is('restaurant-panel/order*') && (Request::is('restaurant-panel/order/subscription*') == false ) ?'active':''}}">
-                        <a class="js-navbar-vertical-aside-menu-link nav-link nav-link-toggle" href="javascript:"
-                            title="الطلبات">
-                            <i class="tio-shopping-cart nav-icon"></i>
-                            <span class="navbar-vertical-aside-mini-mode-hidden-elements text-truncate">
-                                الطلبات
-                            </span>
-                        </a>
-
-
-                        @php($data =0)
-                        @php($restaurant =\App\CentralLogics\Helpers::get_restaurant_data())
-                        @if (($restaurant->restaurant_model == 'subscription' && isset($restaurant->restaurant_sub) && $restaurant->restaurant_sub->self_delivery == 1)  || ($restaurant->restaurant_model == 'commission' && $restaurant->self_delivery_system == 1) )
-                        @php($data =1)
-                        @endif
-
-                        <ul class="js-navbar-vertical-aside-submenu nav nav-sub"
-                        style="display:  {{Request::is('restaurant-panel/order*') && (Request::is('restaurant-panel/order/subscription*') == false )?'block':'none'}}">
-                            <li class="nav-item {{Request::is('restaurant-panel/order/list/all')?'active':''}} @yield('all_order') ">
-                                <a class="nav-link" href="{{route('vendor.order.list',['all'])}}" title="{{translate('messages.all_order')}}">
-                                    <span class="tio-circle nav-indicator-icon"></span>
-                                    <span class="text-truncate sidebar--badge-container">
-                                        الكل
-                                        <span class="badge badge-soft-info badge-pill ml-1">
-                                            {{\App\Models\Order::where('restaurant_id', \App\CentralLogics\Helpers::get_restaurant_id())
-                                                ->where(function($query) use($data){
-                                                    return $query->whereNotIn('order_status',(config('order_confirmation_model') == 'restaurant'|| $data)?['failed','canceled', 'refund_requested', 'refunded']:['pending','failed','canceled', 'refund_requested', 'refunded'])
-                                                    ->orWhere(function($query){
-                                                        return $query->where('order_status','pending')->whereIn('order_type', ['take_away','dine_in']);
-                                                    });
-                                            })->Notpos()->HasSubscriptionToday()->NotDigitalOrder()
-                                            ->count()}}
-                                        </span>
-                                    </span>
-                                </a>
-                            </li>
-                            <li class="nav-item {{Request::is('restaurant-panel/order/list/pending')?'active':'' }} @yield('pending')">
-                                <a class="nav-link " href="{{route('vendor.order.list',['pending'])}}" title="{{translate('messages.pending')}}">
-                                    <span class="tio-circle nav-indicator-icon"></span>
-                                    <span class="text-truncate sidebar--badge-container">
-                                        قيد الانتظار
-                                            <span class="badge badge-soft-success badge-pill ml-1">
-                                            @if(config('order_confirmation_model') == 'restaurant' || $data)
-                                            {{\App\Models\Order::where(['order_status'=>'pending','restaurant_id'=>\App\CentralLogics\Helpers::get_restaurant_id()])->Notpos()->NotDigitalOrder()->HasSubscriptionToday()->OrderScheduledIn(30)->count()}}
-                                            @else
-                                            {{\App\Models\Order::where(['order_status'=>'pending','restaurant_id'=>\App\CentralLogics\Helpers::get_restaurant_id()])->whereIn('order_type',['take_away','dine_in'])->NotDigitalOrder()->Notpos()->HasSubscriptionToday()->OrderScheduledIn(30)->count()}}
-                                            @endif
-                                        </span>
-                                    </span>
-                                </a>
-                            </li>
-
-                            <li class="nav-item {{Request::is('restaurant-panel/order/list/confirmed')?'active':''}} @yield('confirmed') ">
-                                <a class="nav-link " href="{{route('vendor.order.list',['confirmed'])}}" title="{{translate('messages.confirmed')}}">
-                                    <span class="tio-circle nav-indicator-icon"></span>
-                                    <span class="text-truncate sidebar--badge-container">
-                                        تم التأكيد
-                                            <span class="badge badge-soft-success badge-pill ml-1">
-                                            {{\App\Models\Order::whereIn('order_status',['confirmed',])->NotDigitalOrder()->Notpos()->whereNotNull('confirmed')->where('restaurant_id', \App\CentralLogics\Helpers::get_restaurant_id())->HasSubscriptionToday()->OrderScheduledIn(30)->count()}}
-                                        </span>
-                                    </span>
-                                </a>
-                            </li>
-                            <li class="nav-item {{Request::is('restaurant-panel/order/list/accepted')?'active':''}} @yield('accepted')">
-                                <a class="nav-link " href="{{route('vendor.order.list',['accepted'])}}"  title="{{translate('accepted')}}">
-                                    <span class="tio-circle nav-indicator-icon"></span>
-                                    <span class="text-truncate sidebar--badge-container">
-                                        تم القبول
-                                            <span class="badge badge-soft-success badge-pill ml-1">
-                                            {{\App\Models\Order::whereIn('order_status',['accepted'])->NotDigitalOrder()->hasSubscriptionToday()->where(['restaurant_id'=>\App\CentralLogics\Helpers::get_restaurant_id()])->Notpos()->count()}}
-                                        </span>
-                                    </span>
-                                </a>
-                            </li>
-
-                            <li class="nav-item {{Request::is('restaurant-panel/order/list/cooking')?'active':''}} @yield('processing')">
-                                <a class="nav-link" href="{{route('vendor.order.list',['cooking'])}}" title="{{translate('messages.cooking')}}">
-                                    <span class="tio-circle nav-indicator-icon"></span>
-                                    <span class="text-truncate sidebar--badge-container">
-                                        قيد التحضير
-                                        <span class="badge badge-soft-info badge-pill ml-1">
-                                            {{\App\Models\Order::where(['order_status'=>'processing', 'restaurant_id'=>\App\CentralLogics\Helpers::get_restaurant_id()])->NotDigitalOrder()->HasSubscriptionToday()->Notpos()->count()}}
-                                        </span>
-                                    </span>
-                                </a>
-                            </li>
-                            <li class="nav-item {{Request::is('restaurant-panel/order/list/ready_for_delivery')?'active':''}} @yield('handover')">
-                                <a class="nav-link" href="{{route('vendor.order.list',['ready_for_delivery'])}}" title="{{translate('Ready For Delivery')}}">
-                                    <span class="tio-circle nav-indicator-icon"></span>
-                                    <span class="text-truncate sidebar--badge-container">
-                                        جاهز للتسليم
-                                        <span class="badge badge-soft-info badge-pill ml-1">
-                                            {{\App\Models\Order::where(['order_status'=>'handover', 'restaurant_id'=>\App\CentralLogics\Helpers::get_restaurant_id()])->NotDigitalOrder()->HasSubscriptionToday()->Notpos()->count()}}
-                                        </span>
-                                    </span>
-                                </a>
-                            </li>
-                            <li class="nav-item {{Request::is('restaurant-panel/order/list/food_on_the_way')?'active':''}} @yield('picked_up')">
-                                <a class="nav-link" href="{{route('vendor.order.list',['food_on_the_way'])}}" title="{{translate('Food On The Way')}}">
-                                    <span class="tio-circle nav-indicator-icon"></span>
-                                    <span class="text-truncate sidebar--badge-container">
-                                        في الطريق
-                                        <span class="badge badge-soft-info badge-pill ml-1">
-                                            {{\App\Models\Order::where(['order_status'=>'picked_up', 'restaurant_id'=>\App\CentralLogics\Helpers::get_restaurant_id()])->NotDigitalOrder()->HasSubscriptionToday()->Notpos()->count()}}
-                                        </span>
-                                    </span>
-                                </a>
-                            </li>
-                            <li class="nav-item {{Request::is('restaurant-panel/order/list/delivered')?'active':''}} @yield('delivered')">
-                                <a class="nav-link " href="{{route('vendor.order.list',['delivered'])}}"  title="{{translate('Delivered')}}">
-                                    <span class="tio-circle nav-indicator-icon"></span>
-                                    <span class="text-truncate sidebar--badge-container">
-                                        مكتمل
-                                            <span class="badge badge-soft-success badge-pill ml-1">
-                                            {{\App\Models\Order::where(['order_status'=>'delivered','restaurant_id'=>\App\CentralLogics\Helpers::get_restaurant_id()])->NotDigitalOrder()->HasSubscriptionToday()->Notpos()->count()}}
-                                        </span>
-                                    </span>
-                                </a>
-                            </li>
-                            <li class="nav-item {{Request::is('restaurant-panel/order/list/refunded')?'active':''}} @yield('refunded')">
-                                <a class="nav-link " href="{{route('vendor.order.list',['refunded'])}}"  title="{{translate('Refunded')}}">
-                                    <span class="tio-circle nav-indicator-icon"></span>
-                                    <span class="text-truncate sidebar--badge-container">
-                                        مسترجع
-                                            <span class="badge badge-soft-danger bg-light badge-pill ml-1">
-                                            {{\App\Models\Order::Refunded()->where(['restaurant_id'=>\App\CentralLogics\Helpers::get_restaurant_id()])->NotDigitalOrder()->HasSubscriptionToday()->Notpos()->count()}}
-                                        </span>
-                                    </span>
-                                </a>
-                            </li>
-                            <li class="nav-item {{Request::is('restaurant-panel/order/list/refund_requested')?'active':''}} @yield('refund_requested')">
-                                <a class="nav-link " href="{{route('vendor.order.list',['refund_requested'])}}"  title="{{translate('refund_requested')}}">
-                                    <span class="tio-circle nav-indicator-icon"></span>
-                                    <span class="text-truncate sidebar--badge-container">
-                                        طلب استرجاع
-                                            <span class="badge badge-soft-danger bg-light badge-pill ml-1">
-                                            {{\App\Models\Order::Refund_requested()->NotDigitalOrder()->where(['restaurant_id'=>\App\CentralLogics\Helpers::get_restaurant_id()])->Notpos()->count()}}
-                                        </span>
-                                    </span>
-                                </a>
-                            </li>
-
-
-                            <li class="nav-item {{Request::is('restaurant-panel/order/list/payment_failed')?'active':''}} @yield('failed')">
-                                <a class="nav-link " href="{{route('vendor.order.list',['payment_failed'])}}"  title="{{translate('payment_failed')}}">
-                                    <span class="tio-circle nav-indicator-icon"></span>
-                                    <span class="text-truncate sidebar--badge-container">
-                                        فشل الدفع
-                                            <span class="badge badge-soft-success badge-pill ml-1">
-                                            {{\App\Models\Order::where('order_status','failed')->NotDigitalOrder()->where(['restaurant_id'=>\App\CentralLogics\Helpers::get_restaurant_id()])->Notpos()->count()}}
-                                        </span>
-                                    </span>
-                                </a>
-                            </li>
-                            <li class="nav-item {{Request::is('restaurant-panel/order/list/canceled')?'active':''}} @yield('canceled')">
-                                <a class="nav-link " href="{{route('vendor.order.list',['canceled'])}}"  title="{{translate('canceled')}}">
-                                    <span class="tio-circle nav-indicator-icon"></span>
-                                    <span class="text-truncate sidebar--badge-container">
-                                        ملغى
-                                            <span class="badge badge-soft-success badge-pill ml-1">
-                                            {{\App\Models\Order::where('order_status','canceled')->NotDigitalOrder()->where(['restaurant_id'=>\App\CentralLogics\Helpers::get_restaurant_id()])->Notpos()->count()}}
-                                        </span>
-                                    </span>
-                                </a>
-                            </li>
-
-
-
-                        </ul>
-                    </li>
-
-                    {{-- Order subscription menu removed from vendor sidebar --}}
-
-                    <!-- End Order -->
-                    @endif
-                    <li class="nav-item">
-                        <small
-                            class="nav-subtitle">إدارة القائمة والأطباق</small>
-                        <small class="tio-more-horizontal nav-subtitle-replacer"></small>
-                    </li>
-                    <!-- End AddOn -->
-                    @if(\App\CentralLogics\Helpers::employee_module_permission_check('food'))
-                    <li class="navbar-vertical-aside-has-menu {{Request::is('restaurant-panel/category*')?'active':''}}">
-                        <a class="js-navbar-vertical-aside-menu-link nav-link nav-link-toggle"
-                            href="javascript:" title="التصنيفات"
-                        >
-                            <i class="tio-category nav-icon"></i>
-                            <span
-                                class="navbar-vertical-aside-mini-mode-hidden-elements text-truncate">التصنيفات</span>
-                        </a>
-                        <ul class="js-navbar-vertical-aside-submenu nav nav-sub"
-                        style="display: {{Request::is('restaurant-panel/category*')?'block':'none'}}">
-                            <li class="nav-item {{Request::is('restaurant-panel/category/list')?'active':''}}">
-                                <a class="nav-link " href="{{route('vendor.category.add')}}"
-                                    title="{{translate('messages.category')}}">
-                                    <span class="tio-circle nav-indicator-icon"></span>
-                                    <span class="text-truncate">تصنيفات رئيسية</span>
-                                </a>
-                            </li>
-
-                            <li class="nav-item {{Request::is('restaurant-panel/category/sub-category-list')?'active':''}}">
-                                <a class="nav-link " href="{{route('vendor.category.add-sub-category')}}"
-                                    title="{{translate('messages.sub_category')}}">
-                                    <span class="tio-circle nav-indicator-icon"></span>
-                                    <span class="text-truncate">تصنيفات فرعية</span>
-                                </a>
-                            </li>
-                        </ul>
-                    </li>
-                    <!-- Food -->
-                    <li class="navbar-vertical-aside-has-menu {{Request::is('restaurant-panel/food*')?'active':''}}">
-                        <a class="js-navbar-vertical-aside-menu-link nav-link nav-link-toggle" href="javascript:" title="الأطباق"
-                        >
-                            <i class="tio-premium-outlined nav-icon"></i>
-                            <span
-                                class="navbar-vertical-aside-mini-mode-hidden-elements text-truncate">الأطباق</span>
-                        </a>
-                        <ul class="js-navbar-vertical-aside-submenu nav nav-sub"
-                        style="display:{{Request::is('restaurant-panel/food*')?'block':'none'}}">
-                            <li class="nav-item {{Request::is('restaurant-panel/food/add-new')?'active':''}}">
-                                <a class="nav-link " href="{{route('vendor.food.add-new')}}"
-                                     title="{{translate('Add New Food')}}">
-                                    <span class="tio-circle nav-indicator-icon"></span>
-                                    <span
-                                        class="text-truncate">إضافة طبق جديد</span>
-                                </a>
-                            </li>
-                            <li class="nav-item {{Request::is('restaurant-panel/food/list')?'active':''}}">
-                                <a class="nav-link " href="{{route('vendor.food.list')}}"  title="{{translate('Food List')}}">
-                                    <span class="tio-circle nav-indicator-icon"></span>
-                                    <span class="text-truncate">قائمة الأطباق</span>
-                                </a>
-                            </li>
-                            @if(\App\CentralLogics\Helpers::get_restaurant_data()->food_section)
-                            {{-- Bulk Import/Export hidden from vendor Foods sidebar --}}
-                            @endif
-                        </ul>
-                    </li>
-                    <!-- End Food -->
-                    @endif
-                    <!-- AddOn -->
-                    @if(\App\CentralLogics\Helpers::employee_module_permission_check('addon'))
-                    <li class="navbar-vertical-aside-has-menu {{Request::is('restaurant-panel/addon*')?'active':''}}">
-                        <a class="js-navbar-vertical-aside-menu-link nav-link"
-                            href="{{route('vendor.addon.add-new')}}" title="الإضافات"
-                        >
-                            <i class="tio-add-circle-outlined nav-icon"></i>
-                            <span class="navbar-vertical-aside-mini-mode-hidden-elements text-truncate">
-                                الإضافات
-                            </span>
-                        </a>
-                    </li>
-                    @endif
-
-                    <!-- DeliveryMan -->
-                    @if(\App\CentralLogics\Helpers::employee_module_permission_check('deliveryman'))
-                        <li class="nav-item">
-                            <small class="nav-subtitle"
-                                   title="{{translate('messages.deliveryman_section')}}">{{translate('messages.deliveryman_management')}}</small>
-                            <small class="tio-more-horizontal nav-subtitle-replacer"></small>
-                        </li>
-                        <li class="navbar-vertical-aside-has-menu {{Request::is('restaurant-panel/delivery-man/add')?'active':''}}">
-                            <a class="js-navbar-vertical-aside-menu-link nav-link"
-                               href="{{route('vendor.delivery-man.add')}}"
-                               title="{{translate('messages.add_delivery_man')}}"
-                            >
-                                <i class="tio-running nav-icon"></i>
-                                <span class="navbar-vertical-aside-mini-mode-hidden-elements text-truncate">
-                                    {{translate('messages.add_delivery_man')}}
-                                </span>
-                            </a>
-                        </li>
-
-                        <li class="navbar-vertical-aside-has-menu {{Request::is('restaurant-panel/delivery-man/list')?'active':''}}">
-                            <a class="js-navbar-vertical-aside-menu-link nav-link"
-                               href="{{route('vendor.delivery-man.list')}}"
-                               title="{{translate('messages.deliveryman_list')}}"
-                            >
-                                <i class="tio-filter-list nav-icon"></i>
-                                <span class="navbar-vertical-aside-mini-mode-hidden-elements text-truncate">
-                                    {{translate('messages.deliverymen_list')}}
-                                </span>
-                            </a>
-                        </li>
-
-                        {{--<li class="navbar-vertical-aside-has-menu {{Request::is('restaurant-panel/delivery-man/reviews/list')?'active':''}}">
-                            <a class="js-navbar-vertical-aside-menu-link nav-link"
-                               href="{{route('vendor.delivery-man.reviews.list')}}" title="{{translate('messages.reviews')}}"
-                            >
-                                <i class="tio-star-outlined nav-icon"></i>
-                                <span class="navbar-vertical-aside-mini-mode-hidden-elements text-truncate">
-                                    {{translate('messages.reviews')}}
-                                </span>
-                            </a>
-                        </li>--}}
-                    @endif
-                <!-- End DeliveryMan -->
-
-
-                    <!-- Business Section-->
-                    <li class="nav-item">
-                        <small class="nav-subtitle"
-                                title="{{translate('messages.business_section')}}">{{translate('messages.business_management')}}</small>
-                        <small class="tio-more-horizontal nav-subtitle-replacer"></small>
-                    </li>
-
-                    @if(\App\CentralLogics\Helpers::employee_module_permission_check('restaurant_setup'))
-                    <li class="navbar-vertical-aside-has-menu {{Request::is('restaurant-panel/business-settings/restaurant-setup')?'active':''}}">
-                        <a class="nav-link " href="{{route('vendor.business-settings.restaurant-setup')}}" title="إعدادات المطعم"
-                        >
-                            <span class="tio-settings nav-icon"></span>
-                            <span
-                                class="text-truncate">إعدادات المطعم</span>
-                        </a>
-                    </li>
-                    @endif
-                    {{-- Notification Setup hidden from Business Management sidebar --}}
-
-                    @if(\App\CentralLogics\Helpers::employee_module_permission_check('my_shop'))
-                    <li class="navbar-vertical-aside-has-menu {{Request::is('restaurant-panel/restaurant/view')?'active':''}}">
-                        <a class="js-navbar-vertical-aside-menu-link nav-link"
-                            href="{{route('vendor.shop.view')}}"
-                            title="{{translate('My Resturant')}}">
-                            <i class="tio-home nav-icon"></i>
-                            <span class="navbar-vertical-aside-mini-mode-hidden-elements text-truncate">
-                                متجري
-                            </span>
-                        </a>
-                    </li>
-                    {{-- My Qr Code hidden from Business Management sidebar --}}
-                    @endif
-                    {{-- My Business Plan hidden from Business Management sidebar --}}
-
-
-
-
-                    @if(\App\CentralLogics\Helpers::employee_module_permission_check('wallet'))
-                    {{-- My Wallet & Wallet Method hidden from Business Management sidebar --}}
-                    @endif
-                    <!-- End RestaurantWallet -->
-                    @if(\App\CentralLogics\Helpers::employee_module_permission_check('reviews'))
-                    <li class="navbar-vertical-aside-has-menu {{Request::is('restaurant-panel/reviews')?'active':''}}">
-                        <a class="js-navbar-vertical-aside-menu-link nav-link"
-                            href="{{route('vendor.reviews')}}" title="التقييمات"
-                        >
-                            <i class="tio-star-outlined nav-icon"></i>
-                            <span class="navbar-vertical-aside-mini-mode-hidden-elements text-truncate">
-                                التقييمات
-                            </span>
-                        </a>
-                    </li>
-                    @endif
-                    <!-- End RestaurantWallet -->
-                    @if(\App\CentralLogics\Helpers::employee_module_permission_check('chat'))
-                    <li class="navbar-vertical-aside-has-menu {{Request::is('restaurant-panel/message*')?'active':''}}">
-                        <a class="js-navbar-vertical-aside-menu-link nav-link"
-                            href="{{route('vendor.message.list', ['tab' => 'customer'])}}" title="{{translate('messages.chat')}}"
-                        >
-                            <i class="tio-chat nav-icon"></i>
-                            <span class="navbar-vertical-aside-mini-mode-hidden-elements text-truncate">
-                                {{translate('messages.chat')}}
-                            </span>
-                        </a>
-                    </li>
-                    @endif
-                    <!-- End Business Settings -->
-                    <!-- Employee-->
-                    <li class="nav-item">
-                        <small class="nav-subtitle" title="قسم التقارير">قسم التقارير</small>
-                        <small class="tio-more-horizontal nav-subtitle-replacer"></small>
-                    </li>
-
-                    @if(\App\CentralLogics\Helpers::employee_module_permission_check('report'))
-                    {{-- Expense Report hidden from Report Section --}}
-
-                    {{-- Transaction Report hidden from Report Section --}}
-
-                    {{-- Disbursement Report hidden from Report Section --}}
-
-
-                    <li class="navbar-vertical-aside-has-menu  {{Request::is('restaurant-panel/report/order-report') || Request::is('restaurant-panel/report/campaign-order-report') ? 'active' : '' }}">
-                        <a class="js-navbar-vertical-aside-menu-link nav-link nav-link-toggle" href="javascript:"
-                            title="تقرير الطلبات">
-                            <i class="tio-user nav-icon"></i>
-                            <span
-                                class="navbar-vertical-aside-mini-mode-hidden-elements text-truncate">تقرير الطلبات</span>
-                        </a>
-                        <ul class="js-navbar-vertical-aside-submenu nav nav-sub"
-                            style="display: {{Request::is('restaurant-panel/report/order-report') || Request::is('restaurant-panel/report/campaign-order-report') ? 'block' : 'none' }}">
-                            <li class="navbar-vertical-aside-has-menu {{ Request::is('restaurant-panel/report/order-report') ? 'active' : '' }}">
-                                <a class="nav-link " href="{{ route('vendor.report.order-report') }}" title="تقرير الطلبات العادية">
-                                    <span class="tio-circle nav-indicator-icon"></span>
-                                    <span class="text-truncate text-capitalize">تقرير الطلبات العادية</span>
-                                </a>
-                            </li>
-                        </ul>
-                    </li>
-                    @endif
-                    <!-- End Employee -->
-
-                    {{-- Highlights / promo card hidden from sidebar --}}
-            </div>
-            <!-- End Content -->
-        </div>
-    </aside>
-</div>
-
-<div id="sidebarCompact" class="d-none">
-
-</div>
-
-
-
-@push('script_2')
-<script>
-    "use strict";
-    $(window).on('load' , function() {
-        if($(".navbar-vertical-content li.active").length) {
-            $('.navbar-vertical-content').animate({
-                scrollTop: $(".navbar-vertical-content li.active").offset().top - 150
-            }, 100);
+@php
+    $restaurant_data = \App\CentralLogics\Helpers::get_restaurant_data();
+    $bj_order_count  = \App\Models\Order::where('restaurant_id', \App\CentralLogics\Helpers::get_restaurant_id())
+        ->whereNotIn('order_status', ['delivered','failed','canceled','refunded','refund_requested'])
+        ->Notpos()->HasSubscriptionToday()->NotDigitalOrder()->count();
+    $bj_msg_count = 0;
+    try {
+        $bj_vendor = auth('vendor')->user();
+        if ($bj_vendor) {
+            $bj_msg_count = \App\Models\Conversation::where(function($q) use ($bj_vendor) {
+                $q->where('sender_id', $bj_vendor->id)->orWhere('receiver_id', $bj_vendor->id);
+            })->where('unread_message_count', '>', 0)->count();
         }
-        });
-</script>
-@endpush
+    } catch(\Exception $e) {}
+@endphp
+
+<style>
+/* ═══════════════════════════════════════════════
+   BEIT JEDI — GLOBAL SIDEBAR
+   Navy #1a2447 · Gold #c9a96b
+═══════════════════════════════════════════════ */
+:root {
+    --bj-sb-bg:       #1a2447;
+    --bj-sb-deep:     #0f1a3a;
+    --bj-sb-hover:    rgba(255,255,255,.06);
+    --bj-sb-active:   rgba(255,255,255,.10);
+    --bj-sb-gold:     #c9a96b;
+    --bj-sb-text:     rgba(255,255,255,.62);
+    --bj-sb-white:    #ffffff;
+    --bj-sb-mute:     rgba(255,255,255,.35);
+    --bj-sb-r:        10px;
+    --bj-sb-badge-pending: #e89556;
+    --bj-sb-badge-msg:     #5a87d6;
+}
+
+/* ── Shell: suppress framework chrome globally ── */
+.js-navbar-vertical-aside,
+.navbar-vertical-aside,
+#sidebarCompact,
+#bj-header,
+.navbar-vertical-aside-mobile-overlay { display: none !important; }
+
+/* main#content gets no left padding since we own the layout */
+main#content {
+    padding-right: 0 !important;
+    margin-right: 0 !important;
+}
+
+/* ── App grid shell ── */
+body.bj-shell {
+    background: #faf7f2 !important;
+    overflow-x: hidden;
+}
+body.bj-shell main#content {
+    padding: 0 !important;
+    margin: 0 !important;
+    background: #faf7f2 !important;
+}
+body.bj-shell .footer { display: none !important; }
+
+.bj-app-shell {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    min-height: 100vh;
+    direction: rtl;
+    font-family: 'Cairo', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/* ── Sidebar ── */
+.bj-sidebar {
+    background: var(--bj-sb-bg);
+    width: 260px;
+    padding: 28px 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+    scrollbar-width: none;
+    flex-shrink: 0;
+    z-index: 100;
+}
+.bj-sidebar::-webkit-scrollbar { display: none; }
+
+/* Brand */
+.bj-sb-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+}
+.bj-sb-brand .mark {
+    width: 36px; height: 36px;
+    background: var(--bj-sb-gold);
+    border-radius: var(--bj-sb-r);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.05rem; font-weight: 900;
+    color: var(--bj-sb-bg);
+    flex-shrink: 0;
+    overflow: hidden;
+}
+.bj-sb-brand .mark img { width: 100%; height: 100%; object-fit: cover; border-radius: var(--bj-sb-r); }
+.bj-sb-brand .titles { line-height: 1.2; }
+.bj-sb-brand .titles .name {
+    font-size: .95rem; font-weight: 800;
+    color: var(--bj-sb-white);
+}
+.bj-sb-brand .titles .sub {
+    font-size: .72rem; color: var(--bj-sb-mute);
+    font-weight: 500;
+}
+
+/* Nav section */
+.bj-sb-sec { display: flex; flex-direction: column; gap: 4px; }
+.bj-sb-sec > .lbl {
+    font-size: .68rem; font-weight: 700;
+    color: var(--bj-sb-mute);
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    padding: 0 6px;
+    margin-bottom: 4px;
+}
+
+/* Nav item */
+.bj-sb-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 10px;
+    border-radius: var(--bj-sb-r);
+    color: var(--bj-sb-text);
+    font-size: .875rem; font-weight: 600;
+    text-decoration: none;
+    transition: background .12s, color .12s;
+    position: relative;
+    white-space: nowrap;
+}
+.bj-sb-item:hover { background: var(--bj-sb-hover); color: rgba(255,255,255,.9); text-decoration: none; }
+.bj-sb-item.active { background: var(--bj-sb-active); color: var(--bj-sb-white); }
+.bj-sb-item .ico { width: 18px; text-align: center; font-size: 16px; flex-shrink: 0; }
+.bj-sb-item .bdg {
+    margin-right: auto;
+    margin-left: 0;
+    font-size: .6rem; font-weight: 800;
+    min-width: 18px; height: 18px;
+    border-radius: 999px;
+    padding: 0 5px;
+    display: inline-flex; align-items: center; justify-content: center;
+    color: #fff;
+    flex-shrink: 0;
+}
+.bj-sb-item .bdg.orders { background: var(--bj-sb-badge-pending); }
+.bj-sb-item .bdg.msgs   { background: var(--bj-sb-badge-msg); }
+
+/* Responsive */
+@media (max-width: 1024px) {
+    .bj-app-shell { grid-template-columns: 1fr; }
+    .bj-sidebar { display: none; }
+}
+@media (max-width: 1280px) {
+    .bj-app-shell { grid-template-columns: 220px 1fr; }
+    .bj-sidebar { width: 220px; padding: 24px 16px; }
+}
+</style>
+
+<aside class="bj-sidebar">
+    {{-- Brand --}}
+    <a href="{{ route('vendor.dashboard') }}" class="bj-sb-brand">
+        <div class="mark">
+            @if($restaurant_data?->logo_full_url)
+                <img src="{{ $restaurant_data->logo_full_url }}" alt="{{ $restaurant_data->name ?? 'بيت جدي' }}">
+            @else
+                ج
+            @endif
+        </div>
+        <div class="titles">
+            <div class="name">{{ \Illuminate\Support\Str::limit($restaurant_data->name ?? 'بيت جدي', 18) }}</div>
+            <div class="sub">لوحة التحكم</div>
+        </div>
+    </a>
+
+    {{-- Primary --}}
+    <nav class="bj-sb-sec">
+        <span class="lbl">الرئيسية</span>
+        <a href="{{ route('vendor.dashboard') }}"
+           class="bj-sb-item {{ Request::is('restaurant-panel') ? 'active' : '' }}">
+            <span class="ico"><i class="tio-home-outlined"></i></span>
+            لوحة التحكم
+        </a>
+
+        @if(\App\CentralLogics\Helpers::employee_module_permission_check('order'))
+        <a href="{{ route('vendor.order.list', ['all']) }}"
+           class="bj-sb-item {{ Request::is('restaurant-panel/order*') && !Request::is('restaurant-panel/order/subscription*') ? 'active' : '' }}">
+            <span class="ico"><i class="tio-receipt"></i></span>
+            الطلبات
+            @if($bj_order_count > 0)
+                <span class="bdg orders">{{ $bj_order_count }}</span>
+            @endif
+        </a>
+        @endif
+
+        @if(\App\CentralLogics\Helpers::employee_module_permission_check('deliveryman'))
+        <a href="{{ route('vendor.delivery-man.list') }}"
+           class="bj-sb-item {{ Request::is('restaurant-panel/delivery-man*') ? 'active' : '' }}">
+            <span class="ico"><i class="tio-delivery"></i></span>
+            التوصيل
+        </a>
+        @endif
+
+        @if(\App\CentralLogics\Helpers::employee_module_permission_check('chat'))
+        <a href="{{ route('vendor.message.list', ['tab' => 'customer']) }}"
+           class="bj-sb-item {{ Request::is('restaurant-panel/message*') ? 'active' : '' }}">
+            <span class="ico"><i class="tio-chat-outlined"></i></span>
+            الرسائل
+            @if($bj_msg_count > 0)
+                <span class="bdg msgs">{{ $bj_msg_count }}</span>
+            @endif
+        </a>
+        @endif
+
+        @if(\App\CentralLogics\Helpers::employee_module_permission_check('pos'))
+        <a href="{{ route('vendor.pos.index') }}"
+           class="bj-sb-item {{ Request::is('restaurant-panel/pos*') ? 'active' : '' }}">
+            <span class="ico"><i class="tio-shopping"></i></span>
+            نقطة البيع
+        </a>
+        @endif
+    </nav>
+
+    {{-- Menu --}}
+    @if(\App\CentralLogics\Helpers::employee_module_permission_check('food'))
+    <nav class="bj-sb-sec">
+        <span class="lbl">القائمة</span>
+        <a href="{{ route('vendor.food.list') }}"
+           class="bj-sb-item {{ Request::is('restaurant-panel/food*') ? 'active' : '' }}">
+            <span class="ico"><i class="tio-restaurant-menu"></i></span>
+            الأطباق
+        </a>
+        <a href="{{ route('vendor.category.add') }}"
+           class="bj-sb-item {{ Request::is('restaurant-panel/category*') ? 'active' : '' }}">
+            <span class="ico"><i class="tio-grid"></i></span>
+            التصنيفات
+        </a>
+        @if(\App\CentralLogics\Helpers::employee_module_permission_check('addon'))
+        <a href="{{ route('vendor.addon.add-new') }}"
+           class="bj-sb-item {{ Request::is('restaurant-panel/addon*') ? 'active' : '' }}">
+            <span class="ico"><i class="tio-add-circle-outlined"></i></span>
+            الإضافات
+        </a>
+        @endif
+        @if(\App\CentralLogics\Helpers::employee_module_permission_check('coupon'))
+        <a href="{{ route('vendor.coupon.add-new') }}"
+           class="bj-sb-item {{ Request::is('restaurant-panel/coupon*') ? 'active' : '' }}">
+            <span class="ico"><i class="tio-ticket"></i></span>
+            القسائم
+        </a>
+        @endif
+        <a href="{{ route('vendor.campaign.list') }}"
+           class="bj-sb-item {{ Request::is('restaurant-panel/campaign*') ? 'active' : '' }}">
+            <span class="ico"><i class="tio-label-outlined"></i></span>
+            العروض
+        </a>
+    </nav>
+    @endif
+
+    {{-- Management --}}
+    <nav class="bj-sb-sec">
+        <span class="lbl">الإدارة</span>
+        @if(\App\CentralLogics\Helpers::employee_module_permission_check('reviews'))
+        <a href="{{ route('vendor.reviews') }}"
+           class="bj-sb-item {{ Request::is('restaurant-panel/reviews*') ? 'active' : '' }}">
+            <span class="ico"><i class="tio-star-outlined"></i></span>
+            التقييمات
+        </a>
+        @endif
+        @if(\App\CentralLogics\Helpers::employee_module_permission_check('my_shop'))
+        <a href="{{ route('vendor.shop.view') }}"
+           class="bj-sb-item {{ Request::is('restaurant-panel/restaurant/view*') ? 'active' : '' }}">
+            <span class="ico"><i class="tio-home"></i></span>
+            متجري
+        </a>
+        @endif
+        @if(\App\CentralLogics\Helpers::employee_module_permission_check('report'))
+        <a href="{{ route('vendor.report.order-report') }}"
+           class="bj-sb-item {{ Request::is('restaurant-panel/report*') ? 'active' : '' }}">
+            <span class="ico"><i class="tio-chart-bar-1"></i></span>
+            التقارير
+        </a>
+        @endif
+        @if(\App\CentralLogics\Helpers::employee_module_permission_check('restaurant_setup'))
+        <a href="{{ route('vendor.business-settings.restaurant-setup') }}"
+           class="bj-sb-item {{ Request::is('restaurant-panel/business-settings*') ? 'active' : '' }}">
+            <span class="ico"><i class="tio-settings-outlined"></i></span>
+            الإعدادات
+        </a>
+        @endif
+    </nav>
+</aside>
