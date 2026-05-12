@@ -773,7 +773,7 @@ body.bj-page { background: var(--cream, #faf7f2) !important; }
                 <span class="badge">{{ $toAr($data['confirmed']) }}</span>
             @endif
         </a>
-        <a href="{{ route('vendor.delivery-man.index') }}" class="bj-nav-item">
+        <a href="{{ route('vendor.delivery-man.list') }}" class="bj-nav-item">
             <span class="ico"><i class="tio-delivery"></i></span>
             التوصيل
         </a>
@@ -788,19 +788,19 @@ body.bj-page { background: var(--cream, #faf7f2) !important; }
     {{-- Menu nav --}}
     <nav class="bj-navsec">
         <span class="label">القائمة</span>
-        <a href="{{ route('vendor.food.index') }}" class="bj-nav-item">
+        <a href="{{ route('vendor.food.list') }}" class="bj-nav-item">
             <span class="ico"><i class="tio-restaurant-menu"></i></span>
             الأطباق
         </a>
-        <a href="{{ route('vendor.category.index') }}" class="bj-nav-item">
+        <a href="{{ route('vendor.category.add') }}" class="bj-nav-item">
             <span class="ico"><i class="tio-grid"></i></span>
             التصنيفات
         </a>
-        <a href="{{ route('vendor.addon.index') }}" class="bj-nav-item">
+        <a href="{{ route('vendor.addon.add-new') }}" class="bj-nav-item">
             <span class="ico"><i class="tio-add-circle-outlined"></i></span>
             الإضافات
         </a>
-        <a href="{{ route('vendor.campaign.index') }}" class="bj-nav-item">
+        <a href="{{ route('vendor.campaign.list') }}" class="bj-nav-item">
             <span class="ico"><i class="tio-label-outlined"></i></span>
             العروض
         </a>
@@ -813,15 +813,15 @@ body.bj-page { background: var(--cream, #faf7f2) !important; }
             <span class="ico"><i class="tio-star-outlined"></i></span>
             التقييمات
         </a>
-        <a href="{{ route('vendor.delivery-man.index') }}" class="bj-nav-item">
+        <a href="{{ route('vendor.delivery-man.list') }}" class="bj-nav-item">
             <span class="ico"><i class="tio-group-equal"></i></span>
             المناديب
         </a>
-        <a href="{{ route('vendor.report.order') }}" class="bj-nav-item">
+        <a href="{{ route('vendor.report.order-report') }}" class="bj-nav-item">
             <span class="ico"><i class="tio-chart-bar-1"></i></span>
             التقارير
         </a>
-        <a href="{{ route('vendor.restaurant.index') }}" class="bj-nav-item">
+        <a href="{{ route('vendor.business-settings.restaurant-setup') }}" class="bj-nav-item">
             <span class="ico"><i class="tio-settings-outlined"></i></span>
             الإعدادات
         </a>
