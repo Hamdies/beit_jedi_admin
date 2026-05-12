@@ -356,15 +356,24 @@ $isNewCustomer = $order->customer && $order->customer->orders_count <= 1;
                     </div>
                     @else
                     <ul class="ov-dm-list">
-                        @forelse ($deliveryMen as $dm)
-                        @php $eta = isset($dm['distance']) ? $dm['distance'] : '—'; @endphp
-                        @php $mins = isset($dm['distance']) ? round($dm['distance'] * 3) : '—'; @endphp
+                        @if(count($deliveryMen) == 0)
+                        <li class="ov-dm-empty">لا يوجد مناديب متاحون الآن</li>
+                        @endif
+                        @foreach ($deliveryMen as $dm)
+                        @php
+                            $eta = isset($dm['distance']) ? $dm['distance'] : '—';
+                            $mins = isset($dm['distance']) ? round($dm['distance'] * 3) : '—';
+                            $dmColors = ['#e8d5c4','#c4d5e8','#c4e8d5','#e8c4d5'];
+                            $dmColor = $dmColors[$loop->index % 4];
+                            $dmBusy = isset($dm['current_orders']) && $dm['current_orders'] > 0;
+                            $dmCanAssign = !in_array($order['order_status'],['handover','delivered','canceled','refunded']);
+                        @endphp
                         <li class="ov-dm-card">
-                            <div class="ov-dm-avatar" style="background:{{ ['#e8d5c4','#c4d5e8','#c4e8d5','#e8c4d5'][$loop->index % 4] }}">{{ mb_substr($dm['name'] ?? 'م', 0, 1) }}</div>
+                            <div class="ov-dm-avatar" style="background:{{ $dmColor }}">{{ mb_substr($dm['name'] ?? 'م', 0, 1) }}</div>
                             <div class="ov-dm-info">
                                 <span class="ov-dm-name">{{ $dm['name'] }}</span>
                                 <span class="ov-dm-meta">
-                                    @if(isset($dm['current_orders']) && $dm['current_orders'] > 0)
+                                    @if($dmBusy)
                                         <span class="ov-dm-badge warn">{{ $dm['current_orders'] }} طلبات</span>
                                     @else
                                         <span class="ov-dm-badge ok">متاح</span>
@@ -376,13 +385,11 @@ $isNewCustomer = $order->customer && $order->customer->orders_count <= 1;
                                 <span class="ov-dm-eta-val">{{ $mins }} د</span>
                                 <span class="ov-dm-eta-sub">وصول متوقع</span>
                             </div>
-                            @if (!in_array($order['order_status'],['handover','delivered','canceled','refunded']))
+                            @if($dmCanAssign)
                             <a class="ov-dm-assign add-delivery-man" data-id="{{ $dm['id'] }}" href="javascript:">تعيين</a>
                             @endif
                         </li>
-                        @empty
-                        <li class="ov-dm-empty">لا يوجد مناديب متاحون الآن</li>
-                        @endforelse
+                        @endforeach
                     </ul>
                     @endif
                 </div>
