@@ -356,8 +356,9 @@ $isNewCustomer = $order->customer && $order->customer->orders_count <= 1;
                     </div>
                     @else
                     <ul class="ov-dm-list">
-                        @foreach ($deliveryMen as $dm)
+                        @forelse ($deliveryMen as $dm)
                         @php $eta = isset($dm['distance']) ? $dm['distance'] : '—'; @endphp
+                        @php $mins = isset($dm['distance']) ? round($dm['distance'] * 3) : '—'; @endphp
                         <li class="ov-dm-card">
                             <div class="ov-dm-avatar" style="background:{{ ['#e8d5c4','#c4d5e8','#c4e8d5','#e8c4d5'][$loop->index % 4] }}">{{ mb_substr($dm['name'] ?? 'م', 0, 1) }}</div>
                             <div class="ov-dm-info">
@@ -372,9 +373,6 @@ $isNewCustomer = $order->customer && $order->customer->orders_count <= 1;
                                 </span>
                             </div>
                             <div class="ov-dm-eta">
-                                @php
-                                    $mins = isset($dm['distance']) ? round($dm['distance'] * 3) : '—';
-                                @endphp
                                 <span class="ov-dm-eta-val">{{ $mins }} د</span>
                                 <span class="ov-dm-eta-sub">وصول متوقع</span>
                             </div>
@@ -382,10 +380,9 @@ $isNewCustomer = $order->customer && $order->customer->orders_count <= 1;
                             <a class="ov-dm-assign add-delivery-man" data-id="{{ $dm['id'] }}" href="javascript:">تعيين</a>
                             @endif
                         </li>
-                        @endforeach
-                        @if(count($deliveryMen) == 0)
+                        @empty
                         <li class="ov-dm-empty">لا يوجد مناديب متاحون الآن</li>
-                        @endif
+                        @endforelse
                     </ul>
                     @endif
                 </div>
