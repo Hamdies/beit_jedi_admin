@@ -5,638 +5,659 @@
 @push('css_or_js')
 <style>
 /* ═══════════════════════════════════════════════
-   BEIT JEDI — RESTAURANT DASHBOARD (reference-pixel-matched)
+   BEIT JEDI — RESTAURANT DASHBOARD v2
+   Pixel-matched to AIDesigner reference
 ═══════════════════════════════════════════════ */
 :root {
-    --bj-bg:          #FAF5E9;
-    --bj-surface:     #FFFFFF;
-    --bj-navy:        #1F2746;
-    --bj-navy-deep:   #161D38;
-    --bj-navy-soft:   #2A3258;
-    --bj-gold:        #D4A017;
-    --bj-gold-soft:   #FBEFCB;
-    --bj-amber:       #E89B3C;
-    --bj-amber-soft:  #FDE5C9;
-    --bj-amber-text:  #B26100;
-    --bj-green:       #2A8755;
-    --bj-green-soft:  #D7EEDD;
-    --bj-green-text:  #1E6940;
-    --bj-blue-soft:   #DDE6F5;
-    --bj-blue-text:   #3D5A99;
-    --bj-border:      #ECE4D2;
-    --bj-text:        #1F2746;
-    --bj-text-mid:    #4A5068;
-    --bj-muted:       #9099AD;
-    --bj-r-xl:        20px;
-    --bj-r-lg:        16px;
-    --bj-r-md:        12px;
-    --bj-shadow:      0 1px 2px rgba(31,39,70,.04), 0 4px 14px rgba(31,39,70,.04);
-    --bj-shadow-h:    0 8px 28px rgba(31,39,70,.10);
+    /* Palette */
+    --cream:            #faf7f2;
+    --ivory:            #f5f1e8;
+    --paper:            #ffffff;
+    --hairline:         #ecdfc8;
+    --hairline-soft:    #f0e8d6;
+    --navy-900:         #0f1a3a;
+    --navy-800:         #1a2447;
+    --navy-700:         #2a3560;
+    --navy-600:         #3d4a7a;
+    --navy-100:         #e7eaf3;
+    --navy-50:          #f1f3f9;
+    --gold-50:          #fbf6ea;
+    --gold-100:         #f5ecd9;
+    --gold-500:         #dbbf86;
+    --gold-600:         #c9a96b;
+    --gold-700:         #a88944;
+    --ink-900:          #1a1a24;
+    --ink-700:          #3d3d4f;
+    --ink-500:          #6d6d80;
+    --ink-400:          #9a9aab;
+    /* Status: pending (بانتظار التحضير) */
+    --s-pending-bg:     #fde9d6;
+    --s-pending-fg:     #a45a1c;
+    --s-pending-dot:    #e89556;
+    /* Status: prep (جاري التحضير) */
+    --s-prep-bg:        #fff3cf;
+    --s-prep-fg:        #8a6515;
+    --s-prep-dot:       #e0b13b;
+    /* Status: ready (جاهز للتسليم) */
+    --s-ready-bg:       #d9efdb;
+    --s-ready-fg:       #2e6b35;
+    --s-ready-dot:      #5fb46b;
+    /* Status: out (في الطريق) */
+    --s-out-bg:         #d8e6fb;
+    --s-out-fg:         #2c4f8c;
+    --s-out-dot:        #5a87d6;
+    /* Radii */
+    --r-sm:  10px;
+    --r-md:  14px;
+    --r-lg:  20px;
+    --r-xl:  28px;
+    /* Shadows */
+    --shadow-sm: 0 1px 2px rgba(20,30,60,.04);
+    --shadow-md: 0 4px 18px -8px rgba(20,30,60,.10), 0 1px 3px rgba(20,30,60,.04);
+    --shadow-lg: 0 18px 48px -24px rgba(20,30,60,.18), 0 2px 6px rgba(20,30,60,.05);
+    --font-ar: 'Cairo', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
+/* ── Hide framework chrome on this page ─────── */
+body.bj-page .js-navbar-vertical-aside,
+body.bj-page .navbar-vertical-aside,
+body.bj-page #sidebarMain,
+body.bj-page #bj-header,
+body.bj-page .footer { display: none !important; }
+body.bj-page #content,
+body.bj-page main#content {
+    padding: 0 !important;
+    margin: 0 !important;
+    background: var(--cream, #faf7f2) !important;
+}
+body.bj-page { background: var(--cream, #faf7f2) !important; }
+
+/* ── Reset ───────────────────────────────────── */
 .bj-dash, .bj-dash * { box-sizing: border-box; }
 .bj-dash {
-    background: var(--bj-bg);
+    background: var(--cream);
     min-height: 100vh;
-    padding: 1.5rem 0 3rem;
     direction: rtl;
-    font-family: 'Cairo', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-family: var(--font-ar);
+    color: var(--ink-900);
 }
-
-/* Hide the framework's default top "Marwan" header on this page only */
-body.bj-has-dash #bj-header,
-body.bj-has-dash #header,
-body.bj-has-dash #headerMain,
-body.bj-has-dash #headerFluid,
-body.bj-has-dash #headerDouble { display: none !important; }
-body.bj-has-dash > main#content { padding-top: 0 !important; }
-
-/* Force solid text colors across the dashboard (override any global fill/clip rules) */
-.bj-dash,
 .bj-dash *,
 .bj-dash *::before,
 .bj-dash *::after {
     -webkit-background-clip: border-box !important;
     background-clip: border-box !important;
-}
-.bj-dash { color: #1F2746 !important; -webkit-text-fill-color: #1F2746 !important; }
-
-/* Explicit colors on every text element inside light cards (orders, messages, tiles) */
-html body .bj-dash .bj-order-card,
-html body .bj-dash .bj-order-card * {
     -webkit-text-fill-color: currentColor !important;
 }
-html body .bj-dash .bj-order-card .bj-order-name {
-    color: #1F2746 !important;
-    -webkit-text-fill-color: #1F2746 !important;
-}
-html body .bj-dash .bj-order-card .bj-order-meta,
-html body .bj-dash .bj-order-card .bj-order-meta * {
-    color: #9099AD !important;
-    -webkit-text-fill-color: #9099AD !important;
-}
-html body .bj-dash .bj-order-card .bj-order-id {
-    color: #4A5068 !important;
-    -webkit-text-fill-color: #4A5068 !important;
-}
-html body .bj-dash .bj-order-card .bj-order-price {
-    color: #1F2746 !important;
-    -webkit-text-fill-color: #1F2746 !important;
-}
-html body .bj-dash .bj-order-card .bj-order-price small {
-    color: #9099AD !important;
-    -webkit-text-fill-color: #9099AD !important;
-}
 
-/* Messages panel */
-html body .bj-dash .bj-msg-item .bj-msg-name {
-    color: #1F2746 !important;
-    -webkit-text-fill-color: #1F2746 !important;
-}
-html body .bj-dash .bj-msg-item .bj-msg-time,
-html body .bj-dash .bj-msg-item .bj-msg-preview {
-    color: #9099AD !important;
-    -webkit-text-fill-color: #9099AD !important;
-}
-
-/* Greeting bar text */
-html body .bj-dash .bj-greet .bj-user-chip-name { color: #1F2746 !important; -webkit-text-fill-color: #1F2746 !important; }
-html body .bj-dash .bj-greet .bj-user-chip-role { color: #9099AD !important; -webkit-text-fill-color: #9099AD !important; }
-html body .bj-dash .bj-greet .bj-greet-hello   { color: #9099AD !important; -webkit-text-fill-color: #9099AD !important; }
-html body .bj-dash .bj-greet .bj-greet-headline { color: #1F2746 !important; -webkit-text-fill-color: #1F2746 !important; }
-
-/* Tile foot text */
-html body .bj-dash .bj-tile .bj-tile-label   { color: #1F2746 !important; -webkit-text-fill-color: #1F2746 !important; }
-html body .bj-dash .bj-tile .bj-tile-foot    { color: #9099AD !important; -webkit-text-fill-color: #9099AD !important; }
-html body .bj-dash .bj-tile .bj-tile-foot-num { color: #4A5068 !important; -webkit-text-fill-color: #4A5068 !important; }
-
-/* Panel titles */
-html body .bj-dash .bj-panel-title { color: #1F2746 !important; -webkit-text-fill-color: #1F2746 !important; }
-html body .bj-dash .bj-panel-more  { color: #4A5068 !important; -webkit-text-fill-color: #4A5068 !important; }
-.bj-wrap { max-width: 1480px; margin: 0 auto; padding: 0 1.5rem; }
-
-/* ── GREETING BAR (single elongated pill-card) ─────── */
-.bj-greet {
-    background: var(--bj-surface);
-    border: 1px solid var(--bj-border);
-    border-radius: 28px;
-    padding: 1rem 1.25rem;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    margin-bottom: 1.25rem;
-    box-shadow: var(--bj-shadow);
-}
-/* RTL: right side is "start" → user chip + greeting */
-.bj-greet-right { display: flex; align-items: center; gap: 1rem; }
-.bj-greet-left  { display: flex; align-items: center; gap: .5rem; }
-
-.bj-user-chip {
-    display: flex; align-items: center; gap: .625rem;
-    background: var(--bj-gold-soft);
-    border: 1px solid #F2E0A8;
-    border-radius: 999px;
-    padding: .35rem .75rem .35rem .4rem;
-    flex-direction: row-reverse;
-    text-align: right;
-}
-.bj-user-chip-avatar {
-    width: 34px; height: 34px;
-    border-radius: 50%;
-    background: var(--bj-navy);
-    color: var(--bj-gold);
-    display: flex; align-items: center; justify-content: center;
-    font-weight: 800; font-size: .95rem;
-    overflow: hidden;
-    flex-shrink: 0;
-}
-.bj-user-chip-avatar img { width:100%; height:100%; object-fit:cover; }
-.bj-user-chip-text { line-height: 1.15; }
-.bj-user-chip-name { font-size: .9rem; font-weight: 800; color: var(--bj-text); }
-.bj-user-chip-role { font-size: .7rem; color: var(--bj-muted); font-weight: 600; margin-top: 2px; }
-
-/* Two-line stacked greeting */
-.bj-greet-text { text-align: right; line-height: 1.25; }
-.bj-greet-hello {
-    font-size: .82rem; color: var(--bj-muted); font-weight: 600;
-    display: block;
-}
-.bj-greet-headline {
-    font-size: .98rem; color: var(--bj-text); font-weight: 800;
-    margin-top: 2px;
-}
-
-.bj-open-pill {
-    display: inline-flex; align-items: center; gap: .45rem;
-    background: var(--bj-green-soft);
-    color: var(--bj-green-text);
-    font-size: .82rem; font-weight: 800;
-    padding: .55rem 1rem;
-    border-radius: 999px;
-    border: 1px solid #B9DDC2;
-}
-.bj-open-dot { width: 7px; height: 7px; background: var(--bj-green); border-radius: 50%; animation: bjBlink 2s ease-in-out infinite; }
-@keyframes bjBlink { 0%,100% { opacity:1; transform:scale(1); } 50% { opacity:.45; transform:scale(.7); } }
-
-.bj-btn {
-    display: inline-flex; align-items: center; gap: .45rem;
-    background: var(--bj-navy);
-    color: #fff;
-    font-size: .85rem; font-weight: 700;
-    padding: .6rem 1.15rem;
-    border-radius: 14px;
-    border: none;
-    cursor: pointer;
-    text-decoration: none;
-    transition: background .15s, transform .1s, box-shadow .15s;
-    font-family: inherit;
-    white-space: nowrap;
-}
-.bj-btn:hover { background: var(--bj-navy-soft); color:#fff; text-decoration:none; }
-.bj-btn:active { transform: scale(.97); }
-.bj-btn-ghost {
-    background: var(--bj-surface);
-    color: var(--bj-navy);
-    border: 1px solid var(--bj-border);
-}
-.bj-btn-ghost:hover { background: #F7F2E3; color: var(--bj-navy); }
-
-.bj-btn-icon {
-    width: 42px; height: 42px;
-    background: var(--bj-navy);
-    border: none;
-    border-radius: 14px;
-    display: inline-flex; align-items: center; justify-content: center;
-    color: var(--bj-gold);
-    cursor: pointer;
-    position: relative;
-    text-decoration: none;
-    transition: background .15s, box-shadow .15s;
-    font-size: 17px;
-}
-.bj-btn-icon:hover { background: var(--bj-navy-soft); color: var(--bj-gold); }
-.bj-btn-icon-badge {
-    position: absolute; top: -3px; left: -3px;
-    min-width: 18px; height: 18px;
-    background: var(--bj-amber);
-    color: #fff;
-    font-size: .62rem; font-weight: 800;
-    border-radius: 999px;
-    padding: 0 5px;
-    display: flex; align-items: center; justify-content: center;
-    border: 2px solid var(--bj-surface);
-}
-
-/* ── STATUS TILES (big number centered) ─────── */
-.bj-tiles {
+/* ── App shell: sidebar + main ─────────────── */
+.bj-app {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 1.125rem;
-    margin-bottom: 1.25rem;
+    grid-template-columns: 260px 1fr;
+    min-height: 100vh;
+    direction: rtl;
 }
-.bj-tile {
-    background: var(--bj-surface);
-    border: 1px solid var(--bj-border);
-    border-radius: var(--bj-r-xl);
-    padding: 1.25rem 1.4rem 1.15rem;
-    text-decoration: none;
-    display: block;
-    box-shadow: var(--bj-shadow);
-    transition: transform .18s, box-shadow .18s;
-    min-height: 200px;
+
+/* ── SIDEBAR ───────────────────────────────── */
+.bj-sidebar {
+    background: var(--navy-800);
+    padding: 28px 22px;
     display: flex;
     flex-direction: column;
+    gap: 28px;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+    scrollbar-width: none;
 }
-.bj-tile:hover { transform: translateY(-2px); box-shadow: var(--bj-shadow-h); text-decoration: none; }
-.bj-tile-head {
-    display: flex; align-items: center; justify-content: space-between;
-    margin-bottom: .25rem;
+.bj-sidebar::-webkit-scrollbar { display: none; }
+
+.bj-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
-.bj-tile-label {
-    font-size: .92rem; font-weight: 700; color: var(--bj-text);
-}
-.bj-tile-ico {
+.bj-brand .mark {
     width: 36px; height: 36px;
-    border-radius: 11px;
+    background: var(--gold-600);
+    border-radius: var(--r-sm);
     display: flex; align-items: center; justify-content: center;
-    font-size: 17px;
+    font-size: 1.1rem; font-weight: 900;
+    color: var(--navy-800);
     flex-shrink: 0;
 }
-.bj-tile--confirmed .bj-tile-ico { background: var(--bj-amber-soft); color: var(--bj-amber-text); }
-.bj-tile--cooking   .bj-tile-ico { background: var(--bj-gold-soft);  color: #8B6B0A; }
-.bj-tile--ready     .bj-tile-ico { background: var(--bj-green-soft); color: var(--bj-green-text); }
-.bj-tile--onway     .bj-tile-ico { background: var(--bj-blue-soft);  color: var(--bj-blue-text); }
-
-html body .bj-dash .bj-tile .bj-tile-num,
-.bj-dash a.bj-tile .bj-tile-num,
-.bj-dash .bj-tile-num {
-    font-size: 5rem !important;
-    font-weight: 900 !important;
-    color: #1F2746 !important;
-    -webkit-text-fill-color: #1F2746 !important;
-    line-height: 1 !important;
-    text-align: center !important;
-    letter-spacing: -2px !important;
-    margin: .35rem 0 auto !important;
-    padding: .25rem 0 !important;
-    background: transparent !important;
-    text-shadow: none !important;
-    opacity: 1 !important;
-    visibility: visible !important;
-    display: block !important;
-    font-family: 'Cairo', -apple-system, sans-serif !important;
-}
-html body .bj-dash .bj-revenue .bj-revenue-amount {
-    color: #fff !important;
-    -webkit-text-fill-color: #fff !important;
-}
-html body .bj-dash .bj-revenue .bj-rev-stat-val {
-    color: #fff !important;
-    -webkit-text-fill-color: #fff !important;
-}
-.bj-tile-foot {
-    font-size: .8rem;
-    color: var(--bj-muted);
-    font-weight: 600;
-    display: flex; justify-content: space-between; align-items: center;
-    margin-top: auto;
-    padding-top: .65rem;
-}
-.bj-tile-foot strong { color: var(--bj-green); font-weight: 800; }
-.bj-tile-foot-num { font-weight: 700; color: var(--bj-text-mid); }
-
-/* ── MAIN GRID (flexbox, LTR for explicit ordering) ─── */
-.bj-grid {
-    display: flex !important;
-    flex-direction: row !important;
-    direction: ltr !important;
-    gap: 1.25rem !important;
-    align-items: flex-start !important;
-    width: 100% !important;
-    min-width: 0;
-}
-/* Source order: .bj-col-side first → LEFT, .bj-col-orders second → RIGHT */
-.bj-grid > .bj-col-side {
-    flex: 0 0 420px !important;
-    width: 420px !important;
-    max-width: 420px !important;
-    min-width: 0 !important;
-    direction: rtl !important;
-}
-.bj-grid > .bj-col-orders {
-    flex: 1 1 0 !important;
-    min-width: 0 !important;
-    width: auto !important;
-    direction: rtl !important;
-}
-@media (max-width: 1024px) {
-    .bj-grid { flex-direction: column !important; }
-    .bj-grid > .bj-col-side { flex: 1 1 auto !important; width: 100% !important; max-width: none !important; }
-}
-
-/* ── REVENUE CARD (dark navy) ─────── */
-.bj-revenue {
-    background: linear-gradient(168deg, #1F2746 0%, #161D38 100%);
-    border-radius: var(--bj-r-xl);
-    padding: 1.4rem 1.5rem 1.25rem;
-    color: #fff;
-    box-shadow: 0 8px 28px rgba(31,39,70,.16);
-    position: relative;
-    overflow: hidden;
-}
-.bj-revenue-head {
-    display: flex; align-items: center; justify-content: space-between;
-    margin-bottom: .65rem;
-}
-.bj-revenue-title {
-    display: flex; align-items: center; gap: .65rem;
+.bj-brand .titles { line-height: 1.2; }
+.bj-brand .titles .name {
     font-size: .95rem; font-weight: 800;
     color: #fff;
 }
-.bj-revenue-title .bj-ico-chip {
-    width: 36px; height: 36px;
-    background: rgba(255,255,255,.08);
-    border-radius: 11px;
-    display: inline-flex; align-items: center; justify-content: center;
-    color: var(--bj-gold); font-size: 16px;
-}
-.bj-revenue-period {
-    background: rgba(255,255,255,.06);
-    color: rgba(255,255,255,.88);
-    border: 1px solid rgba(255,255,255,.12);
-    border-radius: 999px;
-    padding: .4rem 1.6rem .4rem .9rem;
-    font-size: .78rem; font-weight: 700;
-    cursor: pointer;
-    font-family: inherit;
-    direction: rtl;
-    appearance: none;
-    background-image:
-        linear-gradient(45deg, transparent 50%, rgba(255,255,255,.7) 50%),
-        linear-gradient(135deg, rgba(255,255,255,.7) 50%, transparent 50%);
-    background-position: 12px 50%, 17px 50%;
-    background-size: 5px 5px, 5px 5px;
-    background-repeat: no-repeat;
-}
-
-.bj-revenue-amount {
-    font-size: 3rem;
-    font-weight: 900;
-    color: #fff;
-    line-height: 1.05;
-    text-align: center;
-    margin: .65rem 0 .25rem;
-    letter-spacing: -2px;
-}
-.bj-revenue-amount .bj-revenue-currency {
-    font-size: 1.2rem; color: var(--bj-gold);
-    font-weight: 800;
-    margin-right: .4rem;
-    letter-spacing: 0;
-}
-.bj-revenue-delta {
-    font-size: .82rem; color: var(--bj-gold);
-    font-weight: 700;
-    text-align: center;
-    margin-bottom: .35rem;
-}
-.bj-revenue-delta i { font-size: 12px; margin-left: 2px; }
-
-.bj-revenue-chart {
-    margin: .25rem -.75rem .5rem;
-    height: 110px;
-}
-
-.bj-revenue-foot {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: .5rem;
-    padding-top: .75rem;
-    margin-top: .25rem;
-    border-top: 1px solid rgba(255,255,255,.08);
-}
-.bj-rev-stat { text-align: center; }
-.bj-rev-stat-label {
-    font-size: .72rem; color: rgba(255,255,255,.55);
-    font-weight: 600; margin-bottom: .3rem;
-}
-.bj-rev-stat-val {
-    font-size: 1.05rem; font-weight: 800; color: #fff;
-}
-.bj-rev-stat-val .bj-star { color: var(--bj-gold); margin-left: 3px; }
-
-/* ── MESSAGES PANEL ─────── */
-.bj-messages {
-    background: var(--bj-surface);
-    border: 1px solid var(--bj-border);
-    border-radius: var(--bj-r-xl);
-    box-shadow: var(--bj-shadow);
-    margin-top: 1.25rem;
-    overflow: hidden;
-}
-.bj-panel-head {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 1.1rem 1.4rem .85rem;
-}
-.bj-panel-title {
-    display: flex; align-items: center; gap: .55rem;
-    font-size: 1.02rem; font-weight: 800; color: var(--bj-text);
-}
-.bj-panel-title i { color: var(--bj-navy); font-size: 18px; }
-.bj-panel-more {
-    font-size: .8rem; font-weight: 700; color: var(--bj-text-mid);
-    text-decoration: none;
-}
-.bj-panel-more:hover { color: var(--bj-navy); text-decoration: none; }
-
-.bj-msg-list { padding: 0 .9rem .9rem; }
-.bj-msg-item {
-    display: flex; align-items: flex-start; gap: .85rem;
-    padding: .75rem .65rem;
-    border-radius: var(--bj-r-md);
-    text-decoration: none;
-    color: inherit;
-    transition: background .12s;
-    position: relative;
-}
-.bj-msg-item + .bj-msg-item { border-top: 1px dashed #EDE5D2; }
-.bj-msg-item:hover { background: #FAF5E9; text-decoration: none; color: inherit; }
-
-/* Square rounded avatar with single Arabic letter */
-.bj-msg-avatar {
-    width: 38px; height: 38px;
-    border-radius: 12px;
-    display: flex; align-items: center; justify-content: center;
-    color: #fff; font-weight: 800; font-size: 1.05rem;
-    flex-shrink: 0;
-    font-family: 'Cairo', sans-serif;
-}
-.bj-msg-av-1 { background: var(--bj-navy); color: #fff; }
-.bj-msg-av-2 { background: var(--bj-gold); color: var(--bj-navy); }
-.bj-msg-av-3 { background: var(--bj-green); color: #fff; }
-.bj-msg-av-4 { background: #B8932D; color: #fff; }
-
-.bj-msg-body { flex: 1; min-width: 0; }
-.bj-msg-top {
-    display: flex; align-items: baseline; justify-content: space-between; gap: .5rem;
-}
-.bj-msg-name { font-size: .9rem; font-weight: 800; color: var(--bj-text); }
-.bj-msg-time-wrap { display: flex; align-items: center; gap: .35rem; }
-.bj-msg-time { font-size: .72rem; color: var(--bj-muted); white-space: nowrap; }
-.bj-msg-time-dot {
-    width: 6px; height: 6px; border-radius: 50%;
-    background: var(--bj-gold);
-}
-.bj-msg-preview {
-    font-size: .78rem; color: var(--bj-muted);
-    margin-top: 3px;
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+.bj-brand .titles .sub {
+    font-size: .72rem; color: rgba(255,255,255,.5);
     font-weight: 500;
 }
 
-/* ── LIVE ORDERS PANEL (right) ─────── */
-.bj-live {
-    background: var(--bj-surface);
-    border: 1px solid var(--bj-border);
-    border-radius: var(--bj-r-xl);
-    box-shadow: var(--bj-shadow);
-    overflow: hidden;
+.bj-navsec { display: flex; flex-direction: column; gap: 4px; }
+.bj-navsec > .label {
+    font-size: .68rem; font-weight: 700;
+    color: rgba(255,255,255,.35);
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    padding: 0 6px;
+    margin-bottom: 4px;
 }
-.bj-panel-title-icon {
-    width: 28px; height: 28px;
-    background: var(--bj-navy-soft);
-    border-radius: 8px;
-    display: inline-flex; align-items: center; justify-content: center;
-    color: #fff;
-    font-size: 14px;
-}
-.bj-live-list { padding: .25rem 1rem 1.1rem; display: flex; flex-direction: column; gap: .75rem; }
-
-/* Each order = its own rounded card with shadow */
-.bj-order-card {
-    background: #FCFAF4;
-    border: 1px solid #EDE4D0;
-    border-radius: var(--bj-r-lg);
-    padding: 1rem 1.15rem;
-    display: flex; align-items: center; gap: 1rem;
+.bj-nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 10px;
+    border-radius: var(--r-sm);
+    color: rgba(255,255,255,.62);
+    font-size: .875rem; font-weight: 600;
     text-decoration: none;
-    color: inherit;
-    transition: background .12s, box-shadow .15s, transform .1s;
+    transition: background .12s, color .12s;
     position: relative;
-    box-shadow: 0 1px 2px rgba(31,39,70,.03);
 }
-.bj-order-card:hover { background: #fff; text-decoration: none; color: inherit; box-shadow: 0 4px 14px rgba(31,39,70,.07); }
+.bj-nav-item:hover { background: rgba(255,255,255,.06); color: rgba(255,255,255,.9); text-decoration: none; }
+.bj-nav-item.active {
+    background: rgba(255,255,255,.1);
+    color: #fff;
+}
+.bj-nav-item .ico { width: 18px; text-align: center; font-size: 16px; flex-shrink: 0; }
+.bj-nav-item .badge {
+    margin-right: auto;
+    margin-left: 0;
+    background: var(--s-pending-dot);
+    color: #fff;
+    font-size: .6rem; font-weight: 800;
+    min-width: 18px; height: 18px;
+    border-radius: 999px;
+    padding: 0 5px;
+    display: inline-flex; align-items: center; justify-content: center;
+}
+.bj-nav-item .badge.green { background: var(--s-ready-dot); }
 
-.bj-order-dot {
-    width: 9px; height: 9px;
-    border-radius: 50%;
+/* ── MAIN CONTENT ──────────────────────────── */
+.bj-main {
+    background: var(--cream);
+    padding: 24px 32px 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+    min-width: 0;
+}
+
+/* ── TOPBAR ──────────────────────────────── */
+.bj-topbar {
+    background: var(--paper);
+    border: 1px solid var(--hairline);
+    border-radius: var(--r-lg);
+    padding: 14px 18px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    box-shadow: var(--shadow-sm);
+}
+.bj-topbar .bj-avatar {
+    display: flex; align-items: center; gap: 10px;
+    background: var(--ivory);
+    border-radius: var(--r-xl);
+    padding: 6px 12px 6px 6px;
     flex-shrink: 0;
 }
-.bj-status-confirmed .bj-order-dot { background: var(--bj-amber); }
-.bj-status-cooking   .bj-order-dot { background: var(--bj-gold); }
-.bj-status-ready     .bj-order-dot { background: var(--bj-green); }
-.bj-status-onway     .bj-order-dot { background: var(--bj-blue-text); }
-.bj-status-delivered .bj-order-dot { background: var(--bj-green); }
-.bj-status-default   .bj-order-dot { background: var(--bj-muted); }
-
-.bj-order-info { flex: 1; min-width: 0; }
-.bj-order-name {
-    font-size: 1rem; font-weight: 800; color: var(--bj-text);
-    margin-bottom: .25rem;
+.bj-topbar .bj-avatar .photo {
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    background: var(--navy-800);
+    color: var(--gold-600);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: .95rem;
+    flex-shrink: 0;
+    overflow: hidden;
 }
-.bj-order-meta {
-    font-size: .82rem; color: var(--bj-muted); font-weight: 600;
-}
-.bj-order-meta .bj-sep { margin: 0 .4rem; opacity: .55; }
-.bj-order-id { color: var(--bj-text-mid); }
+.bj-topbar .bj-avatar .photo img { width:100%; height:100%; object-fit:cover; }
+.bj-topbar .bj-avatar .who { line-height: 1.2; }
+.bj-topbar .bj-avatar .who .n { font-size: .88rem; font-weight: 800; color: var(--ink-900); }
+.bj-topbar .bj-avatar .who .r { font-size: .7rem; color: var(--ink-400); font-weight: 500; }
 
-.bj-order-price {
-    font-size: 1rem; font-weight: 800; color: var(--bj-text);
+.bj-greeting {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    text-align: right;
+}
+.bj-greeting .hi { font-size: .8rem; color: var(--ink-400); font-weight: 500; }
+.bj-greeting .msg { font-size: .95rem; font-weight: 800; color: var(--ink-900); }
+
+.bj-topbar-actions {
+    display: flex; align-items: center; gap: 8px;
+    margin-right: auto;
+    margin-left: 0;
+}
+.bj-live-pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--s-ready-bg);
+    color: var(--s-ready-fg);
+    font-size: .8rem; font-weight: 700;
+    padding: 7px 13px;
+    border-radius: 999px;
+    border: 1px solid #b7ddb9;
     white-space: nowrap;
 }
-.bj-order-price small { font-size: .72rem; color: var(--bj-muted); font-weight: 600; margin-right: 3px; }
+.bj-live-pill .pulse {
+    width: 7px; height: 7px;
+    background: var(--s-ready-dot);
+    border-radius: 50%;
+    animation: bjPulse 2s ease-in-out infinite;
+}
+@keyframes bjPulse { 0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.65)} }
 
-.bj-pill {
+.bj-btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: .84rem; font-weight: 700;
+    padding: 8px 15px;
+    border-radius: var(--r-sm);
+    border: 1px solid transparent;
+    cursor: pointer;
+    text-decoration: none;
+    font-family: var(--font-ar);
+    white-space: nowrap;
+    transition: all .13s;
+}
+.bj-btn.primary {
+    background: var(--navy-800);
+    color: #fff;
+    border-color: var(--navy-800);
+}
+.bj-btn.primary:hover { background: var(--navy-700); color:#fff; text-decoration:none; }
+.bj-btn.ghost {
+    background: var(--paper);
+    color: var(--ink-700);
+    border-color: var(--hairline);
+}
+.bj-btn.ghost:hover { background: var(--ivory); color: var(--ink-900); text-decoration:none; }
+.bj-icon-btn {
+    width: 38px; height: 38px;
+    background: var(--navy-800);
+    border: none;
+    border-radius: var(--r-sm);
+    display: inline-flex; align-items: center; justify-content: center;
+    color: var(--gold-600);
+    cursor: pointer;
+    position: relative;
+    text-decoration: none;
+    transition: background .13s;
+    font-size: 16px;
+}
+.bj-icon-btn:hover { background: var(--navy-700); }
+.bj-icon-btn .dot {
+    position: absolute; top: -3px; left: -3px;
+    min-width: 17px; height: 17px;
+    background: var(--s-pending-dot);
+    color: #fff; font-size: .58rem; font-weight: 800;
+    border-radius: 999px; padding: 0 4px;
+    display: flex; align-items: center; justify-content: center;
+    border: 2px solid var(--paper);
+}
+
+/* ── STOCK ALERT ───────────────────────────── */
+.bj-stock {
+    background: #ffeeec;
+    border: 1px solid #f5c6c2;
+    border-radius: var(--r-md);
+    padding: 12px 16px;
+    display: flex; align-items: center; gap: 10px;
+}
+.bj-stock i { color: #c0392b; font-size: 18px; flex-shrink: 0; }
+.bj-stock-text { flex: 1; font-size: .875rem; font-weight: 600; color: #8b2020; }
+.bj-stock-text a { color: #8b2020; font-weight: 800; text-decoration: underline; }
+.bj-stock-close { background: none; border: none; cursor: pointer; color: var(--ink-400); font-size: 15px; padding: 0; line-height: 1; }
+
+/* ── KPI TILES ─────────────────────────────── */
+.bj-kpis {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+}
+.bj-kpi {
+    background: var(--paper);
+    border: 1px solid var(--hairline);
+    border-radius: var(--r-lg);
+    padding: 18px 18px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    box-shadow: var(--shadow-sm);
+    text-decoration: none;
+    color: inherit;
+    transition: box-shadow .18s, transform .18s;
+    min-height: 175px;
+}
+.bj-kpi:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); text-decoration:none; color:inherit; }
+
+.bj-kpi .top {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 4px;
+}
+.bj-kpi .top .lbl {
+    font-size: .875rem; font-weight: 700; color: var(--ink-700);
+}
+.bj-kpi .top .chip {
+    width: 34px; height: 34px;
+    border-radius: var(--r-sm);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+}
+/* Chip tones */
+.bj-kpi[data-tone="pending"] .chip { background: var(--s-pending-bg); color: var(--s-pending-fg); }
+.bj-kpi[data-tone="prep"]    .chip { background: var(--s-prep-bg);    color: var(--s-prep-fg);    }
+.bj-kpi[data-tone="ready"]   .chip { background: var(--s-ready-bg);   color: var(--s-ready-fg);   }
+.bj-kpi[data-tone="out"]     .chip { background: var(--s-out-bg);     color: var(--s-out-fg);     }
+
+.bj-kpi .num {
+    font-size: 4.5rem;
+    font-weight: 900;
+    line-height: 1;
+    color: var(--ink-900);
+    letter-spacing: -2px;
+    text-align: center;
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px 0;
+}
+
+.bj-kpi .foot {
+    display: flex; align-items: center; justify-content: space-between;
+    font-size: .78rem; color: var(--ink-400); font-weight: 600;
+    padding-top: 8px;
+    border-top: 1px dashed var(--hairline-soft);
+    margin-top: auto;
+}
+.bj-kpi .foot .delta { font-weight: 800; }
+.bj-kpi[data-tone="ready"] .foot .delta { color: var(--s-ready-fg); }
+.bj-kpi[data-tone="pending"] .foot .delta { color: var(--s-pending-fg); }
+
+/* ── STATUS DOT on footer ─────────────────── */
+.bj-kpi .status-dot {
+    width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+}
+.bj-kpi[data-tone="pending"] .status-dot { background: var(--s-pending-dot); }
+.bj-kpi[data-tone="prep"]    .status-dot { background: var(--s-prep-dot);    }
+.bj-kpi[data-tone="ready"]   .status-dot { background: var(--s-ready-dot);   }
+.bj-kpi[data-tone="out"]     .status-dot { background: var(--s-out-dot);     }
+
+/* ── MAIN GRID ─────────────────────────────── */
+.bj-grid {
+    display: grid;
+    grid-template-columns: 1fr 420px;
+    gap: 16px;
+    align-items: start;
+    direction: rtl;
+}
+.bj-col-left { display: flex; flex-direction: column; gap: 0; min-width: 0; }
+.bj-col-right { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+
+/* ── CARD shell (white bordered) ───────────── */
+.bj-card {
+    background: var(--paper);
+    border: 1px solid var(--hairline);
+    border-radius: var(--r-lg);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+}
+.bj-card-head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 20px 14px;
+    border-bottom: 1px solid var(--hairline-soft);
+}
+.bj-card-head .title {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 1rem; font-weight: 800; color: var(--ink-900);
+}
+.bj-card-head .title .ico-chip {
+    width: 26px; height: 26px;
+    background: var(--navy-800);
+    border-radius: 8px;
+    display: inline-flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 13px;
+    flex-shrink: 0;
+}
+.bj-card-head .more {
+    font-size: .78rem; font-weight: 700;
+    color: var(--ink-500); text-decoration: none;
+}
+.bj-card-head .more:hover { color: var(--navy-800); text-decoration: none; }
+.bj-card-body { padding: 12px 16px 16px; display: flex; flex-direction: column; gap: 10px; }
+
+/* ── ORDER ROWS (live orders) ──────────────── */
+.bj-tile {
+    display: flex; align-items: center; gap: 12px;
+    padding: 13px 16px;
+    border-radius: var(--r-md);
+    background: var(--ivory);
+    border: 1px solid var(--hairline-soft);
+    text-decoration: none; color: inherit;
+    transition: background .12s, box-shadow .13s;
+    position: relative;
+}
+.bj-tile:hover { background: var(--paper); box-shadow: var(--shadow-md); text-decoration:none; color:inherit; }
+
+.bj-tile .status-dot {
+    width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0;
+}
+.bj-tile[data-tone="pending"] .status-dot { background: var(--s-pending-dot); }
+.bj-tile[data-tone="prep"]    .status-dot { background: var(--s-prep-dot);    }
+.bj-tile[data-tone="ready"]   .status-dot { background: var(--s-ready-dot);   }
+.bj-tile[data-tone="out"]     .status-dot { background: var(--s-out-dot);     }
+.bj-tile[data-tone="done"]    .status-dot { background: var(--s-ready-dot);   }
+.bj-tile[data-tone="default"] .status-dot { background: var(--ink-400);       }
+
+.bj-tile .info { flex: 1; min-width: 0; }
+.bj-tile .info .cname { font-size: .95rem; font-weight: 800; color: var(--ink-900); margin-bottom: 3px; }
+.bj-tile .info .meta  { font-size: .79rem; color: var(--ink-400); font-weight: 500; }
+.bj-tile .info .meta .sep { margin: 0 .35rem; opacity: .5; }
+.bj-tile .info .meta .oid { color: var(--ink-500); }
+
+.bj-tile .price {
+    font-size: .95rem; font-weight: 800; color: var(--ink-900);
+    white-space: nowrap; text-align: left;
+}
+.bj-tile .price .ccy { font-size: .72rem; color: var(--ink-400); font-weight: 600; margin-right: 2px; }
+
+.bj-tile .stat-chip {
     display: inline-flex; align-items: center;
-    padding: .4rem .9rem;
-    font-size: .76rem; font-weight: 800;
+    padding: 5px 11px;
+    font-size: .74rem; font-weight: 800;
     border-radius: 999px;
     white-space: nowrap;
+    flex-shrink: 0;
 }
-.bj-pill-confirmed { background: var(--bj-amber-soft); color: var(--bj-amber-text); }
-.bj-pill-cooking   { background: var(--bj-gold-soft);  color: #8B6B0A; }
-.bj-pill-ready     { background: var(--bj-green-soft); color: var(--bj-green-text); }
-.bj-pill-onway     { background: var(--bj-blue-soft);  color: var(--bj-blue-text); }
-.bj-pill-delivered { background: var(--bj-green-soft); color: var(--bj-green-text); }
-.bj-pill-default   { background: #EFEFEF; color: var(--bj-text-mid); }
+.bj-tile[data-tone="pending"] .stat-chip { background: var(--s-pending-bg); color: var(--s-pending-fg); }
+.bj-tile[data-tone="prep"]    .stat-chip { background: var(--s-prep-bg);    color: var(--s-prep-fg);    }
+.bj-tile[data-tone="ready"]   .stat-chip { background: var(--s-ready-bg);   color: var(--s-ready-fg);   }
+.bj-tile[data-tone="out"]     .stat-chip { background: var(--s-out-bg);     color: var(--s-out-fg);     }
+.bj-tile[data-tone="done"]    .stat-chip { background: var(--s-ready-bg);   color: var(--s-ready-fg);   }
+.bj-tile[data-tone="default"] .stat-chip { background: #efefef;             color: var(--ink-500);      }
 
-.bj-empty {
+/* ── REVENUE CARD (dark navy, inside bj-col-right) ─── */
+.bj-revenue {
+    background: linear-gradient(135deg, var(--navy-800) 0%, var(--navy-900) 100%);
+    border-radius: var(--r-lg);
+    padding: 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    color: #fff;
+    overflow: hidden;
+    position: relative;
+    box-shadow: var(--shadow-md);
+}
+.bj-revenue * { -webkit-text-fill-color: currentColor !important; }
+.bj-revenue .head {
+    display: flex; align-items: center; justify-content: space-between;
+}
+.bj-revenue .head .title {
+    display: flex; align-items: center; gap: 10px;
+    font-size: .92rem; font-weight: 800; color: #fff;
+}
+.bj-revenue .head .title .ico-chip {
+    width: 34px; height: 34px;
+    background: rgba(255,255,255,.08);
+    border-radius: 10px;
+    display: inline-flex; align-items: center; justify-content: center;
+    color: var(--gold-600); font-size: 16px;
+}
+.bj-revenue .filter {
+    background: rgba(255,255,255,.06);
+    border: 1px solid rgba(255,255,255,.12);
+    border-radius: 999px;
+    color: rgba(255,255,255,.88);
+    font-size: .76rem; font-weight: 700;
+    padding: 6px 22px 6px 10px;
+    cursor: pointer;
+    font-family: var(--font-ar);
+    direction: rtl;
+    appearance: none;
+    background-image:
+        linear-gradient(45deg, transparent 50%, rgba(255,255,255,.6) 50%),
+        linear-gradient(135deg, rgba(255,255,255,.6) 50%, transparent 50%);
+    background-position: 11px 50%, 16px 50%;
+    background-size: 5px 5px, 5px 5px;
+    background-repeat: no-repeat, no-repeat;
+}
+
+.bj-revenue .amount {
     text-align: center;
-    padding: 2.5rem 1rem;
-    color: var(--bj-muted);
-    font-size: .9rem; font-weight: 600;
 }
-.bj-empty i { display: block; font-size: 2.5rem; margin-bottom: .5rem; opacity: .35; }
-
-/* ── STOCK ALERT ─────── */
-.bj-stock {
-    background: #FFEEEC;
-    border: 1px solid #F5C6C2;
-    border-radius: var(--bj-r-lg);
-    padding: .85rem 1.15rem;
-    display: flex; align-items: center; gap: .65rem;
-    margin-bottom: 1rem;
+.bj-revenue .amount .big {
+    font-size: 2.9rem;
+    font-weight: 900;
+    color: #fff;
+    letter-spacing: -2px;
+    line-height: 1;
 }
-.bj-stock i { color: #C0392B; font-size: 19px; flex-shrink: 0; }
-.bj-stock-text { flex: 1; font-size: .88rem; font-weight: 600; color: #8B2020; }
-.bj-stock-text a { color: #8B2020; font-weight: 800; text-decoration: underline; }
-.bj-stock-close { background: none; border: none; cursor: pointer; color: var(--bj-muted); font-size: 16px; padding: 0; line-height: 1; }
+.bj-revenue .amount .ccy {
+    font-size: 1.1rem;
+    color: var(--gold-600);
+    font-weight: 800;
+    margin-right: .3rem;
+}
 
-/* ── TOAST ─────── */
+.bj-revenue .delta {
+    text-align: center;
+    font-size: .8rem; font-weight: 700;
+    color: var(--gold-600);
+}
+.bj-revenue .delta i { font-size: 11px; margin-left: 2px; }
+
+.bj-revenue .spark { height: 100px; margin: 0 -4px; }
+
+.bj-revenue .breakdown {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    padding-top: 12px;
+    border-top: 1px solid rgba(255,255,255,.08);
+}
+.bj-revenue .breakdown .bd-item { text-align: center; }
+.bj-revenue .breakdown .bd-item .l {
+    font-size: .7rem; color: rgba(255,255,255,.5);
+    font-weight: 600; margin-bottom: 4px;
+}
+.bj-revenue .breakdown .bd-item .v {
+    font-size: 1.05rem; font-weight: 800; color: #fff;
+}
+.bj-revenue .breakdown .bd-item .v .star { color: var(--gold-600); margin-left: 2px; }
+
+/* ── MESSAGES PANEL ───────────────────────── */
+.bj-msgs .bj-msg-list { padding: 4px 0 4px; }
+.bj-msg {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 10px 20px;
+    text-decoration: none; color: inherit;
+    transition: background .12s;
+    position: relative;
+}
+.bj-msg + .bj-msg { border-top: 1px dashed var(--hairline-soft); }
+.bj-msg:hover { background: var(--ivory); text-decoration:none; color:inherit; }
+
+.bj-msg .avatar {
+    width: 36px; height: 36px;
+    border-radius: var(--r-sm);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 1rem;
+    flex-shrink: 0;
+}
+.bj-msg .av1 { background: var(--navy-800); color: #fff; }
+.bj-msg .av2 { background: var(--gold-600); color: var(--navy-800); }
+.bj-msg .av3 { background: var(--s-ready-dot); color: #fff; }
+.bj-msg .av4 { background: #b8932d; color: #fff; }
+
+.bj-msg .body { flex: 1; min-width: 0; }
+.bj-msg .body .row1 {
+    display: flex; align-items: baseline; justify-content: space-between; gap: 6px;
+}
+.bj-msg .body .row1 .n { font-size: .88rem; font-weight: 800; color: var(--ink-900); }
+.bj-msg .body .meta { display: flex; align-items: center; gap: 5px; }
+.bj-msg .body .meta .when { font-size: .7rem; color: var(--ink-400); white-space: nowrap; }
+.bj-msg .body .meta .dot { width: 5px; height: 5px; border-radius: 50%; background: var(--gold-600); }
+.bj-msg .body .preview {
+    font-size: .77rem; color: var(--ink-400);
+    margin-top: 3px; font-weight: 500;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+/* ── TOAST ─────────────────────────────────── */
 .bj-toast {
-    position: fixed; top: 1.5rem; left: 1.5rem;
+    position: fixed; top: 20px; left: 20px;
     z-index: 9999;
-    background: var(--bj-surface);
-    border: 2px solid var(--bj-amber);
-    border-radius: var(--bj-r-lg);
-    padding: 1rem 1.25rem;
-    box-shadow: var(--bj-shadow-h);
+    background: var(--paper);
+    border: 2px solid var(--s-pending-dot);
+    border-radius: var(--r-lg);
+    padding: 16px 18px;
+    box-shadow: var(--shadow-lg);
     min-width: 280px;
     display: none;
     direction: rtl;
 }
 .bj-toast.show { display: block; }
-.bj-toast-title { font-size: .92rem; font-weight: 800; color: var(--bj-text); margin-bottom: .3rem; }
-.bj-toast-body  { font-size: .82rem; color: var(--bj-muted); margin-bottom: .75rem; }
-.bj-toast-actions { display: flex; gap: .5rem; }
-.bj-toast-actions .bj-btn { padding: .4rem .9rem; font-size: .78rem; }
+.bj-toast-title { font-size: .9rem; font-weight: 800; color: var(--ink-900); margin-bottom: 4px; }
+.bj-toast-body  { font-size: .8rem; color: var(--ink-400); margin-bottom: 12px; }
+.bj-toast-actions { display: flex; gap: 6px; }
 
-/* ── RESPONSIVE ─────── */
-@media (max-width: 1200px) {
-    .bj-grid { grid-template-columns: 380px 1fr; }
-    .bj-tile-num { font-size: 4rem; }
+/* ── EMPTY STATE ────────────────────────────── */
+.bj-empty {
+    text-align: center; padding: 3rem 1rem;
+    color: var(--ink-400); font-size: .88rem; font-weight: 600;
+}
+.bj-empty i { display: block; font-size: 2.2rem; margin-bottom: .5rem; opacity: .3; }
+
+/* ── RESPONSIVE ─────────────────────────────── */
+@media (max-width: 1280px) {
+    .bj-app { grid-template-columns: 220px 1fr; }
+    .bj-grid { grid-template-columns: 1fr 380px; }
 }
 @media (max-width: 1024px) {
+    .bj-app { grid-template-columns: 1fr; }
+    .bj-sidebar { display: none; }
+    .bj-main { padding: 16px; }
     .bj-grid { grid-template-columns: 1fr; }
-}
-@media (max-width: 768px) {
-    .bj-tiles { grid-template-columns: repeat(2, 1fr); }
-    .bj-greet { flex-direction: column; align-items: stretch; border-radius: 20px; }
-    .bj-greet-right, .bj-greet-left { justify-content: center; flex-wrap: wrap; }
+    .bj-kpis { grid-template-columns: repeat(2, 1fr); }
 }
 @media (max-width: 600px) {
-    .bj-wrap { padding: 0 .875rem; }
-    .bj-tile-num { font-size: 3.5rem; }
-    .bj-revenue-amount { font-size: 2.2rem; }
-    .bj-order-card { gap: .5rem; padding: .85rem .75rem; flex-wrap: wrap; }
+    .bj-kpis { grid-template-columns: repeat(2, 1fr); }
+    .bj-kpi .num { font-size: 3.5rem; }
+    .bj-revenue .amount .big { font-size: 2.2rem; }
 }
 </style>
 @endpush
 
 @section('content')
 <div class="bj-dash">
-<div class="bj-wrap">
+<div class="bj-app">
 
 @if(auth('vendor')->check())
 @php
@@ -645,26 +666,30 @@ html body .bj-dash .bj-revenue .bj-rev-stat-val {
     $loggedin        = auth('vendor')->user();
     $vendor_initial  = mb_strtoupper(mb_substr($loggedin?->f_name ?? 'م', 0, 1));
 
-    // Time-based greeting
     $hr = (int) now()->format('H');
-    if ($hr < 12)       $greeting = 'صباح الخير';
-    elseif ($hr < 17)   $greeting = 'مساء الخير';
-    else                $greeting = 'مساء الخير';
+    $greeting = $hr < 12 ? 'صباح الخير' : 'مساء الخير';
+    $greeting_icon = $hr < 12 ? '☀️' : '🌙';
 
     $urgent_count = ($data['confirmed'] ?? 0) + ($data['ready_for_delivery'] ?? 0);
 
-    // Number helper (Western digits, returned as-is)
-    $toArabicDigits = function($n) { return (string)$n; };
+    // Convert to Arabic-Indic
+    $toAr = function($n) {
+        return str_replace(
+            ['0','1','2','3','4','5','6','7','8','9'],
+            ['٠','١','٢','٣','٤','٥','٦','٧','٨','٩'],
+            (string)$n
+        );
+    };
 
-    // Recent live orders
+    // Live orders
     $recent_orders = \App\Models\Order::where('restaurant_id', $restaurant_id)
         ->whereNotIn('order_status', ['delivered','failed','canceled','refunded','refund_requested'])
         ->with(['customer','details'])
         ->latest()
-        ->take(6)
+        ->take(8)
         ->get();
 
-    // Recent conversations
+    // Conversations
     $sender = $loggedin;
     $recent_convs = \App\Models\Conversation::with(['sender','receiver','last_message'])
         ->where(function($q) use ($sender) {
@@ -674,7 +699,7 @@ html body .bj-dash .bj-revenue .bj-rev-stat-val {
         ->take(4)
         ->get();
 
-    // Today summary
+    // Stats
     $today_orders   = \App\Models\Order::where('restaurant_id', $restaurant_id)
         ->whereDate('created_at', today())->get();
     $today_revenue  = $today_orders->whereIn('order_status', ['delivered'])->sum('order_amount');
@@ -689,343 +714,419 @@ html body .bj-dash .bj-revenue .bj-rev-stat-val {
 
     $rating_avg = number_format((float)($restaurant?->avg_rating ?? 4.8), 1);
 
-    // Last 7 days revenue sparkline
-    $spark_days = [];
-    $spark_data = [];
+    // Sparkline
+    $spark_days = []; $spark_data = [];
     for ($i = 6; $i >= 0; $i--) {
         $d = today()->copy()->subDays($i);
         $spark_days[] = $d->format('M d');
         $spark_data[] = (float) \App\Models\Order::where('restaurant_id', $restaurant_id)
-            ->whereDate('created_at', $d)
-            ->where('order_status', 'delivered')
-            ->sum('order_amount');
+            ->whereDate('created_at', $d)->where('order_status','delivered')->sum('order_amount');
     }
+
+    $orderStatusMap = [
+        'pending'            => ['label' => 'بانتظار التحضير', 'tone' => 'pending'],
+        'confirmed'          => ['label' => 'بانتظار التحضير', 'tone' => 'pending'],
+        'accepted'           => ['label' => 'بانتظار التحضير', 'tone' => 'pending'],
+        'processing'         => ['label' => 'جاري التحضير',    'tone' => 'prep'],
+        'cooking'            => ['label' => 'جاري التحضير',    'tone' => 'prep'],
+        'handover'           => ['label' => 'جاهز للتسليم',   'tone' => 'ready'],
+        'ready_for_delivery' => ['label' => 'جاهز للتسليم',   'tone' => 'ready'],
+        'picked_up'          => ['label' => 'في الطريق',       'tone' => 'out'],
+        'food_on_the_way'    => ['label' => 'في الطريق',       'tone' => 'out'],
+        'delivered'          => ['label' => 'تم التسليم',      'tone' => 'done'],
+    ];
 @endphp
 
-{{-- ── TOAST ─────────────────────────────── --}}
+{{-- ── TOAST ── --}}
 <div class="bj-toast" id="bj-toast">
     <div class="bj-toast-title">طلب جديد</div>
     <div class="bj-toast-body" id="bj-toast-body">جاري التحديث...</div>
     <div class="bj-toast-actions">
-        <button class="bj-btn" onclick="bjPrintLatest()"><i class="tio-print"></i> طباعة</button>
-        <button class="bj-btn bj-btn-ghost" onclick="bjDismissToast()">تجاهل</button>
+        <button class="bj-btn primary" onclick="bjPrintLatest()"><i class="tio-print"></i> طباعة</button>
+        <button class="bj-btn ghost" onclick="bjDismissToast()">تجاهل</button>
     </div>
 </div>
 <iframe id="bj-print-frame" style="display:none"></iframe>
 
-{{-- ── GREETING BAR ──────────────────────── --}}
-<div class="bj-greet">
-    {{-- Right side (RTL start) --}}
-    <div class="bj-greet-right">
-        <div class="bj-user-chip">
-            <div class="bj-user-chip-avatar">
+{{-- ── SIDEBAR ── --}}
+<aside class="bj-sidebar">
+    {{-- Brand --}}
+    <div class="bj-brand">
+        <div class="mark">ج</div>
+        <div class="titles">
+            <div class="name">بيت جدي</div>
+            <div class="sub">لوحة التحكم</div>
+        </div>
+    </div>
+
+    {{-- Primary nav --}}
+    <nav class="bj-navsec">
+        <span class="label">الرئيسية</span>
+        <a href="{{ route('vendor.dashboard') }}" class="bj-nav-item active">
+            <span class="ico"><i class="tio-home-outlined"></i></span>
+            لوحة التحكم
+        </a>
+        <a href="{{ route('vendor.order.list', ['all']) }}" class="bj-nav-item">
+            <span class="ico"><i class="tio-receipt"></i></span>
+            الطلبات
+            @if(($data['confirmed'] ?? 0) > 0)
+                <span class="badge">{{ $toAr($data['confirmed']) }}</span>
+            @endif
+        </a>
+        <a href="{{ route('vendor.delivery-man.index') }}" class="bj-nav-item">
+            <span class="ico"><i class="tio-delivery"></i></span>
+            التوصيل
+        </a>
+        <a href="{{ route('vendor.message.list') }}" class="bj-nav-item">
+            <span class="ico"><i class="tio-chat-outlined"></i></span>
+            الرسائل
+            @php $unread_msgs = $recent_convs->where('unread_message_count', '>', 0)->count(); @endphp
+            @if($unread_msgs > 0)<span class="badge green">{{ $toAr($unread_msgs) }}</span>@endif
+        </a>
+    </nav>
+
+    {{-- Menu nav --}}
+    <nav class="bj-navsec">
+        <span class="label">القائمة</span>
+        <a href="{{ route('vendor.food.index') }}" class="bj-nav-item">
+            <span class="ico"><i class="tio-restaurant-menu"></i></span>
+            الأطباق
+        </a>
+        <a href="{{ route('vendor.category.index') }}" class="bj-nav-item">
+            <span class="ico"><i class="tio-grid"></i></span>
+            التصنيفات
+        </a>
+        <a href="{{ route('vendor.addon.index') }}" class="bj-nav-item">
+            <span class="ico"><i class="tio-add-circle-outlined"></i></span>
+            الإضافات
+        </a>
+        <a href="{{ route('vendor.campaign.index') }}" class="bj-nav-item">
+            <span class="ico"><i class="tio-label-outlined"></i></span>
+            العروض
+        </a>
+    </nav>
+
+    {{-- Admin nav --}}
+    <nav class="bj-navsec">
+        <span class="label">الإدارة</span>
+        <a href="{{ route('vendor.reviews') }}" class="bj-nav-item">
+            <span class="ico"><i class="tio-star-outlined"></i></span>
+            التقييمات
+        </a>
+        <a href="{{ route('vendor.delivery-man.index') }}" class="bj-nav-item">
+            <span class="ico"><i class="tio-group-equal"></i></span>
+            المناديب
+        </a>
+        <a href="{{ route('vendor.report.order') }}" class="bj-nav-item">
+            <span class="ico"><i class="tio-chart-bar-1"></i></span>
+            التقارير
+        </a>
+        <a href="{{ route('vendor.restaurant.index') }}" class="bj-nav-item">
+            <span class="ico"><i class="tio-settings-outlined"></i></span>
+            الإعدادات
+        </a>
+    </nav>
+</aside>
+
+{{-- ── MAIN ── --}}
+<main class="bj-main">
+
+    {{-- TOPBAR --}}
+    <div class="bj-topbar">
+        {{-- Avatar chip --}}
+        <div class="bj-avatar">
+            <div class="photo">
                 @if($loggedin?->image_full_url)
                     <img src="{{ $loggedin->image_full_url }}" alt="">
                 @else
                     {{ $vendor_initial }}
                 @endif
             </div>
-            <div class="bj-user-chip-text">
-                <div class="bj-user-chip-name">{{ trim(($loggedin->f_name ?? '') . ' ' . ($loggedin->l_name ?? '')) }}</div>
-                <div class="bj-user-chip-role">مدير المطعم</div>
+            <div class="who">
+                <div class="n">{{ trim(($loggedin->f_name ?? '') . ' ' . ($loggedin->l_name ?? '')) }}</div>
+                <div class="r">مدير المطعم</div>
             </div>
         </div>
-        <div class="bj-greet-text">
-            <span class="bj-greet-hello">{{ $greeting }} <span style="display:inline-block;transform:rotate(-15deg);">👋</span></span>
-            <div class="bj-greet-headline">
+
+        {{-- Greeting --}}
+        <div class="bj-greeting">
+            <span class="hi">{{ $greeting }}</span>
+            <span class="msg">
                 @if($urgent_count > 0)
-                    لديك {{ ($urgent_count) }} {{ $urgent_count == 1 ? 'طلب' : 'طلب' }} يحتاج اهتمامك
+                    لديك {{ $toAr($urgent_count) }} طلب يحتاج اهتمامك
                 @else
                     لا توجد طلبات عاجلة الآن
                 @endif
-            </div>
+            </span>
+        </div>
+
+        {{-- Actions --}}
+        <div class="bj-topbar-actions">
+            <span class="bj-live-pill">
+                <span class="pulse"></span>
+                المطعم مفتوح
+            </span>
+            <button class="bj-btn ghost" onclick="bjRefresh()">
+                <i class="tio-refresh"></i> تحديث
+            </button>
+            <a href="{{ route('vendor.order.list', ['all']) }}" class="bj-btn primary">
+                <i class="tio-receipt"></i> كل الطلبات
+            </a>
+            <button class="bj-icon-btn" type="button">
+                <i class="tio-notifications"></i>
+                @if($urgent_count > 0)<span class="dot">{{ $toAr($urgent_count) }}</span>@endif
+            </button>
         </div>
     </div>
 
-    {{-- Left side: status pill + buttons --}}
-    <div class="bj-greet-left">
-        <span class="bj-open-pill"><span class="bj-open-dot"></span> المطعم مفتوح</span>
-        <button class="bj-btn bj-btn-ghost" onclick="bjRefresh()" title="تحديث">
-            <i class="tio-refresh"></i> تحديث
-        </button>
-        <a href="{{ route('vendor.order.list', ['all']) }}" class="bj-btn">
-            <i class="tio-receipt"></i> كل الطلبات
-        </a>
-        <button class="bj-btn-icon" type="button" title="الإشعارات">
-            <i class="tio-notifications"></i>
-            @if($urgent_count > 0)<span class="bj-btn-icon-badge">{{ ($urgent_count) }}</span>@endif
-        </button>
-    </div>
-</div>
-
-{{-- ── STOCK ALERT ───────────────────────── --}}
-@if(Session::get('stock_out_reminder_close_btn') !== true && isset($out_out_count) && $out_out_count > 0)
-<div class="bj-stock" id="bj-stock">
-    <i class="tio-warning-outlined"></i>
-    <span class="bj-stock-text">
-        @if($out_out_count == 1 && isset($food))
-            {{ $food?->name }} — نفدت الكمية
-        @else
-            {{ ($out_out_count) }} منتجات نفدت من المخزن
-        @endif
-        &nbsp;<a href="{{ route('vendor.food.stockOutList') }}">عرض القائمة</a>
-    </span>
-    <button class="bj-stock-close add-to-session" data-id="stock_out_reminder_close_btn"
-        onclick="this.closest('.bj-stock').remove()"><i class="tio-clear"></i></button>
-</div>
-@endif
-
-{{-- ── STATUS TILES ──────────────────────── --}}
-<div class="bj-tiles" id="order_stats">
-    <a href="{{ route('vendor.order.list', ['confirmed']) }}" class="bj-tile bj-tile--confirmed">
-        <div class="bj-tile-head">
-            <span class="bj-tile-label">بانتظار التحضير</span>
-            <span class="bj-tile-ico"><i class="tio-time"></i></span>
-        </div>
-        <div class="bj-tile-num">{{ ($data['confirmed'] ?? 0) }}</div>
-        <div class="bj-tile-foot">
-            <span>منذ آخر تحديث</span>
-            <span class="bj-tile-foot-num">1د+</span>
-        </div>
-    </a>
-    <a href="{{ route('vendor.order.list', ['cooking']) }}" class="bj-tile bj-tile--cooking">
-        <div class="bj-tile-head">
-            <span class="bj-tile-label">جاري التحضير</span>
-            <span class="bj-tile-ico"><i class="tio-restaurant-menu"></i></span>
-        </div>
-        <div class="bj-tile-num">{{ ($data['cooking'] ?? 0) }}</div>
-        <div class="bj-tile-foot">
-            <span>متوسط الوقت</span>
-            <span class="bj-tile-foot-num">14د</span>
-        </div>
-    </a>
-    <a href="{{ route('vendor.order.list', ['ready_for_delivery']) }}" class="bj-tile bj-tile--ready">
-        <div class="bj-tile-head">
-            <span class="bj-tile-label">جاهز للتسليم</span>
-            <span class="bj-tile-ico"><i class="tio-checkmark-circle"></i></span>
-        </div>
-        <div class="bj-tile-num">{{ ($data['ready_for_delivery'] ?? 0) }}</div>
-        <div class="bj-tile-foot">
-            <span>جاهز</span>
-            <strong>الآن</strong>
-        </div>
-    </a>
-    <a href="{{ route('vendor.order.list', ['food_on_the_way']) }}" class="bj-tile bj-tile--onway">
-        <div class="bj-tile-head">
-            <span class="bj-tile-label">في الطريق</span>
-            <span class="bj-tile-ico"><i class="tio-delivery"></i></span>
-        </div>
-        <div class="bj-tile-num">{{ ($data['food_on_the_way'] ?? 0) }}</div>
-        <div class="bj-tile-foot">
-            <span>أقرب وصول</span>
-            <span class="bj-tile-foot-num">7د</span>
-        </div>
-    </a>
-</div>
-
-{{-- ── MAIN GRID ─────────────────────────── --}}
-<div class="bj-grid">
-
-    {{-- LEFT column: revenue + messages --}}
-    <div class="bj-col-side">
-        {{-- Revenue card --}}
-        <div class="bj-revenue">
-            <div class="bj-revenue-head">
-                <div class="bj-revenue-title">
-                    <span class="bj-ico-chip"><i class="tio-wallet-outlined"></i></span>
-                    إيرادات اليوم
-                </div>
-                <select class="bj-revenue-period" onchange="bjFilterStats(this.value)">
-                    <option value="today"      {{ ($params['statistics_type'] ?? 'today') == 'today' ? 'selected' : '' }}>اليوم</option>
-                    <option value="this_month" {{ ($params['statistics_type'] ?? '') == 'this_month' ? 'selected' : '' }}>هذا الشهر</option>
-                    <option value="overall"    {{ ($params['statistics_type'] ?? '') == 'overall' ? 'selected' : '' }}>الإجمالي</option>
-                </select>
-            </div>
-            @php
-                $amount_str = number_format($today_revenue, 0);
-            @endphp
-            <div class="bj-revenue-amount">
-                {{ $amount_str }}<span class="bj-revenue-currency">ج.م</span>
-            </div>
-            @if($rev_delta != 0)
-                <div class="bj-revenue-delta">
-                    <i class="tio-arrow-{{ $rev_delta >= 0 ? 'upward' : 'downward' }}"></i>
-                    {{ abs($rev_delta) }}% مقارنة بأمس
-                </div>
+    {{-- STOCK ALERT --}}
+    @if(Session::get('stock_out_reminder_close_btn') !== true && isset($out_out_count) && $out_out_count > 0)
+    <div class="bj-stock" id="bj-stock">
+        <i class="tio-warning-outlined"></i>
+        <span class="bj-stock-text">
+            @if($out_out_count == 1 && isset($food))
+                {{ $food?->name }} — نفدت الكمية
+            @else
+                {{ $toAr($out_out_count) }} منتجات نفدت من المخزن
             @endif
-            <div class="bj-revenue-chart" id="bj-revenue-chart"></div>
-            <div class="bj-revenue-foot">
-                <div class="bj-rev-stat">
-                    <div class="bj-rev-stat-label">عدد الطلبات</div>
-                    <div class="bj-rev-stat-val">{{ ($today_count) }}</div>
-                </div>
-                <div class="bj-rev-stat">
-                    <div class="bj-rev-stat-label">متوسط الطلب</div>
-                    <div class="bj-rev-stat-val">{{ ($today_avg) }}</div>
-                </div>
-                <div class="bj-rev-stat">
-                    <div class="bj-rev-stat-label">رضا العملاء</div>
-                    <div class="bj-rev-stat-val">{{ ($rating_avg) }}<span class="bj-star">★</span></div>
-                </div>
-            </div>
-        </div>
+            &nbsp;<a href="{{ route('vendor.food.stockOutList') }}">عرض القائمة</a>
+        </span>
+        <button class="bj-stock-close add-to-session" data-id="stock_out_reminder_close_btn"
+            onclick="this.closest('.bj-stock').remove()"><i class="tio-clear"></i></button>
+    </div>
+    @endif
 
-        {{-- Messages panel --}}
-        <div class="bj-messages">
-            <div class="bj-panel-head">
-                <span class="bj-panel-title">
-                    <i class="tio-refresh"></i> آخر الرسائل
-                </span>
-                <a href="{{ route('vendor.message.list') }}" class="bj-panel-more">عرض الكل ←</a>
+    {{-- KPI TILES --}}
+    <div class="bj-kpis" id="order_stats">
+        <a href="{{ route('vendor.order.list', ['confirmed']) }}" class="bj-kpi" data-tone="pending">
+            <div class="top">
+                <span class="lbl">بانتظار التحضير</span>
+                <span class="chip"><i class="tio-time"></i></span>
             </div>
-            <div class="bj-msg-list">
-                @forelse($recent_convs as $i => $conv)
-                @php
-                    $other     = $conv->sender_id === $sender?->id ? $conv->receiver : $conv->sender;
-                    $msgText   = $conv->last_message?->message ?? '...';
-                    $unread    = ($conv->unread_message_count ?? 0) > 0;
-                    $initial   = mb_substr($other?->f_name ?? '؟', 0, 1);
-                    $avClass   = 'bj-msg-av-' . (($i % 4) + 1);
-                    $timeAgo   = \Carbon\Carbon::parse($conv->updated_at)->diffForHumans(null, \Carbon\CarbonInterface::DIFF_ABSOLUTE);
-                    $timeAgo   = ($timeAgo);
-                @endphp
-                <a href="{{ route('vendor.message.view', ['conversation_id' => $conv->id, 'user_id' => $other?->id ?? 0]) }}"
-                   class="bj-msg-item {{ $unread ? 'bj-msg-item--unread' : '' }}">
-                    <div class="bj-msg-avatar {{ $avClass }}">{{ $initial }}</div>
-                    <div class="bj-msg-body">
-                        <div class="bj-msg-top">
-                            <span class="bj-msg-name">{{ trim(($other?->f_name ?? 'مستخدم') . ' ' . ($other?->l_name ?? '')) }}</span>
-                            <div class="bj-msg-time-wrap">
-                                <span class="bj-msg-time">منذ {{ $timeAgo }}</span>
-                                <span class="bj-msg-time-dot"></span>
+            <div class="num">{{ $toAr($data['confirmed'] ?? 0) }}</div>
+            <div class="foot">
+                <span>منذ آخر تحديث</span>
+                <span class="delta">١د+</span>
+            </div>
+        </a>
+        <a href="{{ route('vendor.order.list', ['cooking']) }}" class="bj-kpi" data-tone="prep">
+            <div class="top">
+                <span class="lbl">جاري التحضير</span>
+                <span class="chip"><i class="tio-restaurant-menu"></i></span>
+            </div>
+            <div class="num">{{ $toAr($data['cooking'] ?? 0) }}</div>
+            <div class="foot">
+                <span>متوسط الوقت</span>
+                <span>١٤ د</span>
+            </div>
+        </a>
+        <a href="{{ route('vendor.order.list', ['ready_for_delivery']) }}" class="bj-kpi" data-tone="ready">
+            <div class="top">
+                <span class="lbl">جاهز للتسليم</span>
+                <span class="chip"><i class="tio-checkmark-circle"></i></span>
+            </div>
+            <div class="num">{{ $toAr($data['ready_for_delivery'] ?? 0) }}</div>
+            <div class="foot">
+                <span>جاهز</span>
+                <span class="delta">الآن</span>
+            </div>
+        </a>
+        <a href="{{ route('vendor.order.list', ['food_on_the_way']) }}" class="bj-kpi" data-tone="out">
+            <div class="top">
+                <span class="lbl">في الطريق</span>
+                <span class="chip"><i class="tio-delivery"></i></span>
+            </div>
+            <div class="num">{{ $toAr($data['food_on_the_way'] ?? 0) }}</div>
+            <div class="foot">
+                <span>أقرب وصول</span>
+                <span>٧ د</span>
+            </div>
+        </a>
+    </div>
+
+    {{-- MAIN GRID --}}
+    <div class="bj-grid">
+
+        {{-- LEFT: Live orders --}}
+        <div class="bj-col-left">
+            <div class="bj-card">
+                <div class="bj-card-head">
+                    <span class="title">
+                        <span class="ico-chip"><i class="tio-receipt"></i></span>
+                        الطلبات الحية
+                    </span>
+                    <a href="{{ route('vendor.order.list', ['all']) }}" class="more">عرض الكل ←</a>
+                </div>
+                <div class="bj-card-body">
+                    @forelse($recent_orders as $order)
+                    @php
+                        $sInfo  = $orderStatusMap[$order->order_status] ?? ['label' => $order->order_status, 'tone' => 'default'];
+                        $items  = $order->details->count();
+                        $rawAddr = '';
+                        if (is_array($order->delivery_address)) {
+                            $rawAddr = $order->delivery_address['address'] ?? ($order->delivery_address['zone'] ?? '');
+                        }
+                        $area  = $rawAddr ? Str::limit(strip_tags($rawAddr), 18, '') : '';
+                        $cName = trim(($order->customer->f_name ?? 'عميل') . ' ' . ($order->customer->l_name ?? ''));
+                    @endphp
+                    <a href="{{ route('vendor.order.details', ['id' => $order->id]) }}"
+                       class="bj-tile" data-tone="{{ $sInfo['tone'] }}">
+                        <span class="status-dot"></span>
+                        <div class="info">
+                            <div class="cname">{{ $cName }}</div>
+                            <div class="meta">
+                                <span class="oid">طلب #{{ $toAr($order->id) }}</span>
+                                <span class="sep">·</span>
+                                <span>{{ $toAr($items) }} {{ $items == 1 ? 'صنف' : 'أصناف' }}</span>
+                                @if($area)<span class="sep">·</span><span>{{ $area }}</span>@endif
                             </div>
                         </div>
-                        <div class="bj-msg-preview">{{ Str::limit($msgText, 55) }}</div>
-                    </div>
-                </a>
-                @empty
-                <div class="bj-empty"><i class="tio-chat-outlined"></i>لا رسائل حتى الآن</div>
-                @endforelse
+                        <div class="price">
+                            {{ $toAr(number_format($order->order_amount, 0)) }}<span class="ccy">ج.م</span>
+                        </div>
+                        <span class="stat-chip">{{ $sInfo['label'] }}</span>
+                    </a>
+                    @empty
+                    <div class="bj-empty"><i class="tio-receipt"></i>لا طلبات حية الآن</div>
+                    @endforelse
+                </div>
             </div>
         </div>
-    </div>
 
-    {{-- RIGHT column: live orders --}}
-    <div class="bj-live bj-col-orders">
-        <div class="bj-panel-head">
-            <span class="bj-panel-title">
-                <span class="bj-panel-title-icon"><i class="tio-receipt"></i></span>
-                الطلبات الحية
-            </span>
-            <a href="{{ route('vendor.order.list', ['all']) }}" class="bj-panel-more">عرض الكل ←</a>
-        </div>
-        <div class="bj-live-list">
-            @php
-                $orderStatusMap = [
-                    'pending'            => ['label' => 'قيد الانتظار',   'cls' => 'confirmed'],
-                    'confirmed'          => ['label' => 'بانتظار التحضير','cls' => 'confirmed'],
-                    'accepted'           => ['label' => 'بانتظار التحضير','cls' => 'confirmed'],
-                    'processing'         => ['label' => 'جاري التحضير',    'cls' => 'cooking'],
-                    'cooking'            => ['label' => 'جاري التحضير',    'cls' => 'cooking'],
-                    'handover'           => ['label' => 'جاهز للتسليم',   'cls' => 'ready'],
-                    'ready_for_delivery' => ['label' => 'جاهز للتسليم',   'cls' => 'ready'],
-                    'picked_up'          => ['label' => 'في الطريق',      'cls' => 'onway'],
-                    'food_on_the_way'    => ['label' => 'في الطريق',      'cls' => 'onway'],
-                    'delivered'          => ['label' => 'تم التسليم',     'cls' => 'delivered'],
-                ];
-            @endphp
-            @forelse($recent_orders as $order)
-                @php
-                    $sInfo  = $orderStatusMap[$order->order_status] ?? ['label' => $order->order_status, 'cls' => 'default'];
-                    $items  = $order->details->count();
-                    $rawAddr = '';
-                    if (is_array($order->delivery_address)) {
-                        $rawAddr = $order->delivery_address['address'] ?? ($order->delivery_address['zone'] ?? '');
-                    }
-                    $area   = $rawAddr ? Str::limit(strip_tags($rawAddr), 22, '') : '';
-                    $cName  = trim(($order->customer->f_name ?? 'عميل') . ' ' . ($order->customer->l_name ?? ''));
-                    $orderIdStr = ($order->id);
-                    $priceStr   = $toArabicDigits(number_format($order->order_amount, 0));
-                    $itemsStr   = ($items);
-                @endphp
-                <a href="{{ route('vendor.order.details', ['id' => $order->id]) }}"
-                   class="bj-order-card bj-status-{{ $sInfo['cls'] }}">
-                    <span class="bj-order-dot"></span>
-                    <div class="bj-order-info">
-                        <div class="bj-order-name">{{ $cName }}</div>
-                        <div class="bj-order-meta">
-                            <span class="bj-order-id">طلب #{{ $orderIdStr }}</span>
-                            <span class="bj-sep">·</span>
-                            <span>{{ $itemsStr }} {{ $items == 1 ? 'صنف' : 'أصناف' }}</span>
-                            @if($area)
-                                <span class="bj-sep">·</span>
-                                <span>{{ $area }}</span>
-                            @endif
+        {{-- RIGHT: Revenue + Messages --}}
+        <div class="bj-col-right">
+
+            {{-- Revenue card --}}
+            <div class="bj-revenue">
+                <div class="head">
+                    <div class="title">
+                        <span class="ico-chip"><i class="tio-wallet-outlined"></i></span>
+                        إيرادات اليوم
+                    </div>
+                    <select class="filter" onchange="bjFilterStats(this.value)">
+                        <option value="today"      {{ ($params['statistics_type'] ?? 'today') == 'today' ? 'selected' : '' }}>اليوم</option>
+                        <option value="this_month" {{ ($params['statistics_type'] ?? '') == 'this_month' ? 'selected' : '' }}>هذا الشهر</option>
+                        <option value="overall"    {{ ($params['statistics_type'] ?? '') == 'overall' ? 'selected' : '' }}>الإجمالي</option>
+                    </select>
+                </div>
+                <div class="amount">
+                    <span class="big">{{ $toAr(number_format($today_revenue, 0)) }}</span><span class="ccy">ج.م</span>
+                </div>
+                @if($rev_delta != 0)
+                <div class="delta">
+                    <i class="tio-arrow-{{ $rev_delta >= 0 ? 'upward' : 'downward' }}"></i>
+                    {{ $toAr(abs($rev_delta)) }}٪ مقارنة بأمس
+                </div>
+                @endif
+                <div class="spark" id="bj-revenue-chart"></div>
+                <div class="breakdown">
+                    <div class="bd-item">
+                        <div class="l">عدد الطلبات</div>
+                        <div class="v">{{ $toAr($today_count) }}</div>
+                    </div>
+                    <div class="bd-item">
+                        <div class="l">متوسط الطلب</div>
+                        <div class="v">{{ $toAr($today_avg) }}</div>
+                    </div>
+                    <div class="bd-item">
+                        <div class="l">رضا العملاء</div>
+                        <div class="v">{{ $toAr($rating_avg) }}<span class="star">★</span></div>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Messages panel --}}
+            <div class="bj-card bj-msgs">
+                <div class="bj-card-head">
+                    <span class="title">
+                        <i class="tio-chat-outlined" style="font-size:17px;color:var(--navy-800)"></i>
+                        آخر الرسائل
+                    </span>
+                    <a href="{{ route('vendor.message.list') }}" class="more">عرض الكل ←</a>
+                </div>
+                <div class="bj-msg-list">
+                    @forelse($recent_convs as $i => $conv)
+                    @php
+                        $other   = $conv->sender_id === $sender?->id ? $conv->receiver : $conv->sender;
+                        $msgText = $conv->last_message?->message ?? '...';
+                        $initial = mb_substr($other?->f_name ?? '؟', 0, 1);
+                        $avClass = 'av' . (($i % 4) + 1);
+                        $timeAgo = \Carbon\Carbon::parse($conv->updated_at)->diffForHumans(null, \Carbon\CarbonInterface::DIFF_ABSOLUTE);
+                    @endphp
+                    <a href="{{ route('vendor.message.view', ['conversation_id' => $conv->id, 'user_id' => $other?->id ?? 0]) }}"
+                       class="bj-msg">
+                        <div class="avatar {{ $avClass }}">{{ $initial }}</div>
+                        <div class="body">
+                            <div class="row1">
+                                <span class="n">{{ trim(($other?->f_name ?? 'مستخدم') . ' ' . ($other?->l_name ?? '')) }}</span>
+                                <div class="meta">
+                                    <span class="when">منذ {{ $timeAgo }}</span>
+                                    <span class="dot"></span>
+                                </div>
+                            </div>
+                            <div class="preview">{{ Str::limit($msgText, 55) }}</div>
                         </div>
-                    </div>
-                    <div class="bj-order-price">
-                        {{ $priceStr }}<small>ج.م</small>
-                    </div>
-                    <span class="bj-pill bj-pill-{{ $sInfo['cls'] }}">{{ $sInfo['label'] }}</span>
-                </a>
-            @empty
-                <div class="bj-empty"><i class="tio-receipt"></i>لا طلبات حية الآن</div>
-            @endforelse
-        </div>
-    </div>
+                    </a>
+                    @empty
+                    <div class="bj-empty"><i class="tio-chat-outlined"></i>لا رسائل حتى الآن</div>
+                    @endforelse
+                </div>
+            </div>
 
-</div>{{-- /bj-grid --}}
+        </div>{{-- /bj-col-right --}}
+    </div>{{-- /bj-grid --}}
+
+</main>{{-- /bj-main --}}
 
 @else
 {{-- Employee fallback --}}
-<div style="padding:4rem 0;text-align:center;">
-    <h2 style="font-weight:800;color:var(--bj-text);">
+<div style="grid-column:1/-1;padding:4rem;text-align:center;">
+    <h2 style="font-weight:800;color:var(--ink-900);">
         {{ translate('messages.welcome') }}, {{ auth('vendor_employee')->user()->f_name }}
     </h2>
-    <p style="color:var(--bj-muted);">{{ translate('messages.employee_welcome_message') }}</p>
+    <p style="color:var(--ink-400);">{{ translate('messages.employee_welcome_message') }}</p>
 </div>
 @endif
 
-</div>{{-- /bj-wrap --}}
+</div>{{-- /bj-app --}}
 </div>{{-- /bj-dash --}}
 @endsection
 
 @push('script')
 <script src="{{dynamicAsset('public/assets/admin/apexcharts/apexcharts.min.js')}}"></script>
 <script>
-document.body.classList.add('bj-has-dash');
+document.body.classList.add('bj-page');
+
 (function(){
     'use strict';
 
-    // Convert Western digits to Arabic-Indic
     function toAr(n){
         return String(n).replace(/[0-9]/g, function(d){
-            return ['٠','١','٢','٣','٤','٥','٦','٧','٨','٩'][parseInt(d,10)];
+            return '٠١٢٣٤٥٦٧٨٩'.charAt(+d);
         });
     }
     window.bjToAr = toAr;
 
-    // ── Revenue sparkline ────────────────────
+    // Revenue sparkline
     var sparkData = @json($spark_data ?? []);
     var sparkDays = @json($spark_days ?? []);
 
     if (typeof ApexCharts !== 'undefined' && document.getElementById('bj-revenue-chart')) {
-        var chart = new ApexCharts(document.getElementById('bj-revenue-chart'), {
+        new ApexCharts(document.getElementById('bj-revenue-chart'), {
             chart: {
-                type: 'area', height: 110,
+                type: 'area', height: 100,
                 toolbar: { show: false }, zoom: { enabled: false },
                 animations: { enabled: true, easing: 'easeinout', speed: 700 },
                 background: 'transparent',
-                sparkline: { enabled: false }
             },
-            stroke: { curve: 'smooth', width: 2.5, colors: ['#D4A017'] },
+            stroke: { curve: 'smooth', width: 2.5, colors: ['#c9a96b'] },
             fill: {
                 type: 'gradient',
                 gradient: {
-                    shadeIntensity: 1, opacityFrom: 0.55, opacityTo: 0.02,
+                    shadeIntensity: 1, opacityFrom: 0.5, opacityTo: 0.02,
                     stops: [0, 100], colorStops: [
-                        { offset: 0, color: '#D4A017', opacity: .5 },
-                        { offset: 100, color: '#D4A017', opacity: 0 }
+                        { offset: 0, color: '#c9a96b', opacity: .5 },
+                        { offset: 100, color: '#c9a96b', opacity: 0 }
                     ]
                 }
             },
@@ -1036,37 +1137,33 @@ document.body.classList.add('bj-has-dash');
                 axisBorder: { show: false }, axisTicks: { show: false }
             },
             yaxis: { labels: { show: false } },
-            grid: { show: false, padding: { left: 10, right: 10, top: 0, bottom: 0 } },
+            grid: { show: false, padding: { left: 0, right: 0, top: 0, bottom: 0 } },
             tooltip: {
                 theme: 'dark', x: { show: true },
                 y: { formatter: function(v){ return toAr(Math.round(v)) + ' ج.م'; } }
             },
             dataLabels: { enabled: false },
             markers: { size: 0, hover: { size: 4 } }
-        });
-        chart.render();
+        }).render();
     }
 
-    // ── New order toast / audio ──────────────
+    // New order detection
     var lastConfirmed = {{ ($data['confirmed'] ?? 0) }};
     var latestOrderId = null;
     var audioCtx = null;
 
     document.addEventListener('click', function unlock(){
         try { audioCtx = new (window.AudioContext||window.webkitAudioContext)(); } catch(e){}
-        document.removeEventListener('click', unlock);
     }, { once: true });
 
-    function beep(freq, start, dur){
+    function beep(f, s, d){
         if (!audioCtx) return;
-        var o = audioCtx.createOscillator(); var g = audioCtx.createGain();
+        var o = audioCtx.createOscillator(), g = audioCtx.createGain();
         o.connect(g); g.connect(audioCtx.destination);
-        o.type = 'sine';
-        o.frequency.setValueAtTime(freq, audioCtx.currentTime + start);
-        g.gain.setValueAtTime(0.3, audioCtx.currentTime + start);
-        g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + start + dur);
-        o.start(audioCtx.currentTime + start);
-        o.stop(audioCtx.currentTime + start + dur);
+        o.type = 'sine'; o.frequency.setValueAtTime(f, audioCtx.currentTime + s);
+        g.gain.setValueAtTime(.3, audioCtx.currentTime + s);
+        g.gain.exponentialRampToValueAtTime(.001, audioCtx.currentTime + s + d);
+        o.start(audioCtx.currentTime + s); o.stop(audioCtx.currentTime + s + d);
     }
     function playAlert(){ beep(880,0,.35); beep(660,.45,.35); beep(880,.9,.35); }
 
@@ -1075,42 +1172,43 @@ document.body.classList.add('bj-has-dash');
         var frame = document.getElementById('bj-print-frame');
         if (!frame) return;
         var url = '{{ route("vendor.order.generate-invoice", ["id" => "__X__"]) }}'.replace('__X__', id);
-        frame.onload = function(){ try { frame.contentWindow.focus(); frame.contentWindow.print(); } catch(e){} };
+        frame.onload = function(){ try{ frame.contentWindow.focus(); frame.contentWindow.print(); }catch(e){} };
         frame.src = url;
     }
 
     window.bjPrintLatest  = function(){ if (latestOrderId) autoPrint(latestOrderId); bjDismissToast(); };
-    window.bjDismissToast = function(){ var t = document.getElementById('bj-toast'); if (t) t.classList.remove('show'); };
+    window.bjDismissToast = function(){ var t=document.getElementById('bj-toast'); if(t) t.classList.remove('show'); };
 
     function showToast(id, customer){
         latestOrderId = id;
-        var t    = document.getElementById('bj-toast');
-        var body = document.getElementById('bj-toast-body');
-        if (body) body.textContent = 'طلب #' + toAr(id) + ' — ' + (customer || 'عميل جديد');
-        if (t) { t.classList.add('show'); playAlert(); autoPrint(id); }
+        var t = document.getElementById('bj-toast');
+        var b = document.getElementById('bj-toast-body');
+        if (b) b.textContent = 'طلب #' + toAr(id) + ' — ' + (customer||'عميل جديد');
+        if (t){ t.classList.add('show'); playAlert(); autoPrint(id); }
         setTimeout(bjDismissToast, 14000);
     }
 
-    function bjSetTile(modifier, val){
-        var el = document.querySelector('.bj-tile' + modifier + ' .bj-tile-num');
+    function setTile(sel, val){
+        var el = document.querySelector('.bj-kpi[data-tone="' + sel + '"] .num');
         if (el) el.textContent = toAr(val);
     }
 
     function refreshStats(){
-        var type = document.querySelector('.bj-revenue-period')?.value || 'today';
+        var type = document.querySelector('.bj-revenue .filter')?.value || 'today';
         $.ajaxSetup({ headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') } });
         $.post('{{ route("vendor.dashboard.order-stats") }}', { statistics_type: type }, function(data){
-            if (data && data.data) {
-                bjSetTile('--confirmed', data.data.confirmed ?? 0);
-                bjSetTile('--cooking',   data.data.cooking   ?? 0);
-                bjSetTile('--ready',     data.data.ready_for_delivery ?? 0);
-                bjSetTile('--onway',     data.data.food_on_the_way    ?? 0);
-
-                var newConfirmed = parseInt(data.data.confirmed ?? 0);
-                if (newConfirmed > lastConfirmed) {
-                    showToast(data.data.latest_order_id || null, data.data.latest_customer || '');
-                    lastConfirmed = newConfirmed;
-                }
+            if (!data || !data.data) return;
+            var d = data.data;
+            // Update tiles
+            setTile('pending', d.confirmed       ?? 0);
+            setTile('prep',    d.cooking          ?? 0);
+            setTile('ready',   d.ready_for_delivery ?? 0);
+            setTile('out',     d.food_on_the_way  ?? 0);
+            // New order alert
+            var newC = parseInt(d.confirmed ?? 0);
+            if (newC > lastConfirmed) {
+                showToast(d.latest_order_id||null, d.latest_customer||'');
+                lastConfirmed = newC;
             }
         });
     }
@@ -1119,12 +1217,12 @@ document.body.classList.add('bj-has-dash');
     window.bjFilterStats = function(type){
         $.ajaxSetup({ headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') } });
         $.post('{{ route("vendor.dashboard.order-stats") }}', { statistics_type: type }, function(data){
-            if (data && data.data) {
-                bjSetTile('--confirmed', data.data.confirmed ?? 0);
-                bjSetTile('--cooking',   data.data.cooking   ?? 0);
-                bjSetTile('--ready',     data.data.ready_for_delivery ?? 0);
-                bjSetTile('--onway',     data.data.food_on_the_way    ?? 0);
-            }
+            if (!data || !data.data) return;
+            var d = data.data;
+            setTile('pending', d.confirmed       ?? 0);
+            setTile('prep',    d.cooking          ?? 0);
+            setTile('ready',   d.ready_for_delivery ?? 0);
+            setTile('out',     d.food_on_the_way  ?? 0);
         });
     };
 
