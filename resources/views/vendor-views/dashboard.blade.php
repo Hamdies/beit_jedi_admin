@@ -43,23 +43,22 @@
     font-family: 'Cairo', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
-/* Hide the framework's default top header — we use bj-greet instead */
-body #header,
-body #bj-header,
-body #headerMain,
-body #headerFluid,
-body #headerDouble {
-    display: none !important;
-}
-main#content { padding-top: 0 !important; margin-top: 0 !important; }
+/* Hide the framework's default top "Marwan" header on this page only */
+body.bj-has-dash #bj-header,
+body.bj-has-dash #header,
+body.bj-has-dash #headerMain,
+body.bj-has-dash #headerFluid,
+body.bj-has-dash #headerDouble { display: none !important; }
+body.bj-has-dash > main#content { padding-top: 0 !important; }
 
-/* Force solid text colors across the dashboard (override theme.min.css) */
-.bj-dash, .bj-dash * { -webkit-text-fill-color: initial; }
-.bj-dash { color: var(--bj-text); }
-.bj-dash h1, .bj-dash h2, .bj-dash h3, .bj-dash h4, .bj-dash h5, .bj-dash h6,
-.bj-dash span, .bj-dash div, .bj-dash p, .bj-dash a {
-    -webkit-text-fill-color: currentColor !important;
+/* Force solid text colors across the dashboard (override any global fill rules) */
+.bj-dash, .bj-dash *,
+.bj-dash *::before, .bj-dash *::after {
+    -webkit-text-fill-color: inherit !important;
+    -webkit-background-clip: initial !important;
+    background-clip: initial !important;
 }
+.bj-dash { color: var(--bj-text); }
 .bj-wrap { max-width: 1480px; margin: 0 auto; padding: 0 1.5rem; }
 
 /* ── GREETING BAR (single elongated pill-card) ─────── */
@@ -215,20 +214,32 @@ main#content { padding-top: 0 !important; margin-top: 0 !important; }
 .bj-tile--ready     .bj-tile-ico { background: var(--bj-green-soft); color: var(--bj-green-text); }
 .bj-tile--onway     .bj-tile-ico { background: var(--bj-blue-soft);  color: var(--bj-blue-text); }
 
-.bj-dash .bj-tile .bj-tile-num {
+html body .bj-dash .bj-tile .bj-tile-num,
+.bj-dash a.bj-tile .bj-tile-num,
+.bj-dash .bj-tile-num {
     font-size: 5rem !important;
     font-weight: 900 !important;
     color: #1F2746 !important;
+    -webkit-text-fill-color: #1F2746 !important;
     line-height: 1 !important;
     text-align: center !important;
     letter-spacing: -2px !important;
     margin: .35rem 0 auto !important;
     padding: .25rem 0 !important;
     background: transparent !important;
-    -webkit-text-fill-color: #1F2746 !important;
     text-shadow: none !important;
     opacity: 1 !important;
+    visibility: visible !important;
     display: block !important;
+    font-family: 'Cairo', -apple-system, sans-serif !important;
+}
+html body .bj-dash .bj-revenue .bj-revenue-amount {
+    color: #fff !important;
+    -webkit-text-fill-color: #fff !important;
+}
+html body .bj-dash .bj-revenue .bj-rev-stat-val {
+    color: #fff !important;
+    -webkit-text-fill-color: #fff !important;
 }
 .bj-tile-foot {
     font-size: .8rem;
@@ -570,10 +581,8 @@ main#content { padding-top: 0 !important; margin-top: 0 !important; }
 
     $urgent_count = ($data['confirmed'] ?? 0) + ($data['ready_for_delivery'] ?? 0);
 
-    // Helper: Arabic-Indic digit converter
-    $toArabicDigits = function($n) {
-        return strtr((string)$n, ['0'=>'٠','1'=>'١','2'=>'٢','3'=>'٣','4'=>'٤','5'=>'٥','6'=>'٦','7'=>'٧','8'=>'٨','9'=>'٩']);
-    };
+    // Number helper (Western digits, returned as-is)
+    $toArabicDigits = function($n) { return (string)$n; };
 
     // Recent live orders
     $recent_orders = \App\Models\Order::where('restaurant_id', $restaurant_id)
@@ -653,7 +662,7 @@ main#content { padding-top: 0 !important; margin-top: 0 !important; }
             <span class="bj-greet-hello">{{ $greeting }} <span style="display:inline-block;transform:rotate(-15deg);">👋</span></span>
             <div class="bj-greet-headline">
                 @if($urgent_count > 0)
-                    لديك {{ $toArabicDigits($urgent_count) }} {{ $urgent_count == 1 ? 'طلب' : 'طلب' }} يحتاج اهتمامك
+                    لديك {{ ($urgent_count) }} {{ $urgent_count == 1 ? 'طلب' : 'طلب' }} يحتاج اهتمامك
                 @else
                     لا توجد طلبات عاجلة الآن
                 @endif
@@ -672,7 +681,7 @@ main#content { padding-top: 0 !important; margin-top: 0 !important; }
         </a>
         <button class="bj-btn-icon" type="button" title="الإشعارات">
             <i class="tio-notifications"></i>
-            @if($urgent_count > 0)<span class="bj-btn-icon-badge">{{ $toArabicDigits($urgent_count) }}</span>@endif
+            @if($urgent_count > 0)<span class="bj-btn-icon-badge">{{ ($urgent_count) }}</span>@endif
         </button>
     </div>
 </div>
@@ -685,7 +694,7 @@ main#content { padding-top: 0 !important; margin-top: 0 !important; }
         @if($out_out_count == 1 && isset($food))
             {{ $food?->name }} — نفدت الكمية
         @else
-            {{ $toArabicDigits($out_out_count) }} منتجات نفدت من المخزن
+            {{ ($out_out_count) }} منتجات نفدت من المخزن
         @endif
         &nbsp;<a href="{{ route('vendor.food.stockOutList') }}">عرض القائمة</a>
     </span>
@@ -701,10 +710,10 @@ main#content { padding-top: 0 !important; margin-top: 0 !important; }
             <span class="bj-tile-label">بانتظار التحضير</span>
             <span class="bj-tile-ico"><i class="tio-time"></i></span>
         </div>
-        <div class="bj-tile-num">{{ $toArabicDigits($data['confirmed'] ?? 0) }}</div>
+        <div class="bj-tile-num">{{ ($data['confirmed'] ?? 0) }}</div>
         <div class="bj-tile-foot">
             <span>منذ آخر تحديث</span>
-            <span class="bj-tile-foot-num">١د+</span>
+            <span class="bj-tile-foot-num">1د+</span>
         </div>
     </a>
     <a href="{{ route('vendor.order.list', ['cooking']) }}" class="bj-tile bj-tile--cooking">
@@ -712,10 +721,10 @@ main#content { padding-top: 0 !important; margin-top: 0 !important; }
             <span class="bj-tile-label">جاري التحضير</span>
             <span class="bj-tile-ico"><i class="tio-restaurant-menu"></i></span>
         </div>
-        <div class="bj-tile-num">{{ $toArabicDigits($data['cooking'] ?? 0) }}</div>
+        <div class="bj-tile-num">{{ ($data['cooking'] ?? 0) }}</div>
         <div class="bj-tile-foot">
             <span>متوسط الوقت</span>
-            <span class="bj-tile-foot-num">١٤د</span>
+            <span class="bj-tile-foot-num">14د</span>
         </div>
     </a>
     <a href="{{ route('vendor.order.list', ['ready_for_delivery']) }}" class="bj-tile bj-tile--ready">
@@ -723,7 +732,7 @@ main#content { padding-top: 0 !important; margin-top: 0 !important; }
             <span class="bj-tile-label">جاهز للتسليم</span>
             <span class="bj-tile-ico"><i class="tio-checkmark-circle"></i></span>
         </div>
-        <div class="bj-tile-num">{{ $toArabicDigits($data['ready_for_delivery'] ?? 0) }}</div>
+        <div class="bj-tile-num">{{ ($data['ready_for_delivery'] ?? 0) }}</div>
         <div class="bj-tile-foot">
             <span>جاهز</span>
             <strong>الآن</strong>
@@ -734,10 +743,10 @@ main#content { padding-top: 0 !important; margin-top: 0 !important; }
             <span class="bj-tile-label">في الطريق</span>
             <span class="bj-tile-ico"><i class="tio-delivery"></i></span>
         </div>
-        <div class="bj-tile-num">{{ $toArabicDigits($data['food_on_the_way'] ?? 0) }}</div>
+        <div class="bj-tile-num">{{ ($data['food_on_the_way'] ?? 0) }}</div>
         <div class="bj-tile-foot">
             <span>أقرب وصول</span>
-            <span class="bj-tile-foot-num">٧د</span>
+            <span class="bj-tile-foot-num">7د</span>
         </div>
     </a>
 </div>
@@ -762,30 +771,29 @@ main#content { padding-top: 0 !important; margin-top: 0 !important; }
             </div>
             @php
                 $amount_str = number_format($today_revenue, 0);
-                $amount_arabic = $toArabicDigits(str_replace(',', '٬', $amount_str));
             @endphp
             <div class="bj-revenue-amount">
-                {!! $amount_arabic !!}<span class="bj-revenue-currency">ج.م</span>
+                {{ $amount_str }}<span class="bj-revenue-currency">ج.م</span>
             </div>
             @if($rev_delta != 0)
                 <div class="bj-revenue-delta">
                     <i class="tio-arrow-{{ $rev_delta >= 0 ? 'upward' : 'downward' }}"></i>
-                    {{ $toArabicDigits(abs($rev_delta)) }}٪ مقارنة بأمس
+                    {{ abs($rev_delta) }}% مقارنة بأمس
                 </div>
             @endif
             <div class="bj-revenue-chart" id="bj-revenue-chart"></div>
             <div class="bj-revenue-foot">
                 <div class="bj-rev-stat">
                     <div class="bj-rev-stat-label">عدد الطلبات</div>
-                    <div class="bj-rev-stat-val">{{ $toArabicDigits($today_count) }}</div>
+                    <div class="bj-rev-stat-val">{{ ($today_count) }}</div>
                 </div>
                 <div class="bj-rev-stat">
                     <div class="bj-rev-stat-label">متوسط الطلب</div>
-                    <div class="bj-rev-stat-val">{{ $toArabicDigits($today_avg) }}</div>
+                    <div class="bj-rev-stat-val">{{ ($today_avg) }}</div>
                 </div>
                 <div class="bj-rev-stat">
                     <div class="bj-rev-stat-label">رضا العملاء</div>
-                    <div class="bj-rev-stat-val">{{ $toArabicDigits($rating_avg) }}<span class="bj-star">★</span></div>
+                    <div class="bj-rev-stat-val">{{ ($rating_avg) }}<span class="bj-star">★</span></div>
                 </div>
             </div>
         </div>
@@ -807,7 +815,7 @@ main#content { padding-top: 0 !important; margin-top: 0 !important; }
                     $initial   = mb_substr($other?->f_name ?? '؟', 0, 1);
                     $avClass   = 'bj-msg-av-' . (($i % 4) + 1);
                     $timeAgo   = \Carbon\Carbon::parse($conv->updated_at)->diffForHumans(null, \Carbon\CarbonInterface::DIFF_ABSOLUTE);
-                    $timeAgo   = $toArabicDigits($timeAgo);
+                    $timeAgo   = ($timeAgo);
                 @endphp
                 <a href="{{ route('vendor.message.view', ['conversation_id' => $conv->id, 'user_id' => $other?->id ?? 0]) }}"
                    class="bj-msg-item {{ $unread ? 'bj-msg-item--unread' : '' }}">
@@ -864,9 +872,9 @@ main#content { padding-top: 0 !important; margin-top: 0 !important; }
                     }
                     $area   = $rawAddr ? Str::limit(strip_tags($rawAddr), 22, '') : '';
                     $cName  = trim(($order->customer->f_name ?? 'عميل') . ' ' . ($order->customer->l_name ?? ''));
-                    $orderIdStr = $toArabicDigits($order->id);
+                    $orderIdStr = ($order->id);
                     $priceStr   = $toArabicDigits(number_format($order->order_amount, 0));
-                    $itemsStr   = $toArabicDigits($items);
+                    $itemsStr   = ($items);
                 @endphp
                 <a href="{{ route('vendor.order.details', ['id' => $order->id]) }}"
                    class="bj-order-card bj-status-{{ $sInfo['cls'] }}">
@@ -913,6 +921,7 @@ main#content { padding-top: 0 !important; margin-top: 0 !important; }
 @push('script')
 <script src="{{dynamicAsset('public/assets/admin/apexcharts/apexcharts.min.js')}}"></script>
 <script>
+document.body.classList.add('bj-has-dash');
 (function(){
     'use strict';
 
