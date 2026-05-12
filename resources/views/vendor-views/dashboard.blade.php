@@ -51,14 +51,68 @@ body.bj-has-dash #headerFluid,
 body.bj-has-dash #headerDouble { display: none !important; }
 body.bj-has-dash > main#content { padding-top: 0 !important; }
 
-/* Force solid text colors across the dashboard (override any global fill rules) */
-.bj-dash, .bj-dash *,
-.bj-dash *::before, .bj-dash *::after {
-    -webkit-text-fill-color: inherit !important;
-    -webkit-background-clip: initial !important;
-    background-clip: initial !important;
+/* Force solid text colors across the dashboard (override any global fill/clip rules) */
+.bj-dash,
+.bj-dash *,
+.bj-dash *::before,
+.bj-dash *::after {
+    -webkit-background-clip: border-box !important;
+    background-clip: border-box !important;
 }
-.bj-dash { color: var(--bj-text); }
+.bj-dash { color: #1F2746 !important; -webkit-text-fill-color: #1F2746 !important; }
+
+/* Explicit colors on every text element inside light cards (orders, messages, tiles) */
+html body .bj-dash .bj-order-card,
+html body .bj-dash .bj-order-card * {
+    -webkit-text-fill-color: currentColor !important;
+}
+html body .bj-dash .bj-order-card .bj-order-name {
+    color: #1F2746 !important;
+    -webkit-text-fill-color: #1F2746 !important;
+}
+html body .bj-dash .bj-order-card .bj-order-meta,
+html body .bj-dash .bj-order-card .bj-order-meta * {
+    color: #9099AD !important;
+    -webkit-text-fill-color: #9099AD !important;
+}
+html body .bj-dash .bj-order-card .bj-order-id {
+    color: #4A5068 !important;
+    -webkit-text-fill-color: #4A5068 !important;
+}
+html body .bj-dash .bj-order-card .bj-order-price {
+    color: #1F2746 !important;
+    -webkit-text-fill-color: #1F2746 !important;
+}
+html body .bj-dash .bj-order-card .bj-order-price small {
+    color: #9099AD !important;
+    -webkit-text-fill-color: #9099AD !important;
+}
+
+/* Messages panel */
+html body .bj-dash .bj-msg-item .bj-msg-name {
+    color: #1F2746 !important;
+    -webkit-text-fill-color: #1F2746 !important;
+}
+html body .bj-dash .bj-msg-item .bj-msg-time,
+html body .bj-dash .bj-msg-item .bj-msg-preview {
+    color: #9099AD !important;
+    -webkit-text-fill-color: #9099AD !important;
+}
+
+/* Greeting bar text */
+html body .bj-dash .bj-greet .bj-user-chip-name { color: #1F2746 !important; -webkit-text-fill-color: #1F2746 !important; }
+html body .bj-dash .bj-greet .bj-user-chip-role { color: #9099AD !important; -webkit-text-fill-color: #9099AD !important; }
+html body .bj-dash .bj-greet .bj-greet-hello   { color: #9099AD !important; -webkit-text-fill-color: #9099AD !important; }
+html body .bj-dash .bj-greet .bj-greet-headline { color: #1F2746 !important; -webkit-text-fill-color: #1F2746 !important; }
+
+/* Tile foot text */
+html body .bj-dash .bj-tile .bj-tile-label   { color: #1F2746 !important; -webkit-text-fill-color: #1F2746 !important; }
+html body .bj-dash .bj-tile .bj-tile-foot    { color: #9099AD !important; -webkit-text-fill-color: #9099AD !important; }
+html body .bj-dash .bj-tile .bj-tile-foot-num { color: #4A5068 !important; -webkit-text-fill-color: #4A5068 !important; }
+
+/* Panel titles */
+html body .bj-dash .bj-panel-title { color: #1F2746 !important; -webkit-text-fill-color: #1F2746 !important; }
+html body .bj-dash .bj-panel-more  { color: #4A5068 !important; -webkit-text-fill-color: #4A5068 !important; }
 .bj-wrap { max-width: 1480px; margin: 0 auto; padding: 0 1.5rem; }
 
 /* ── GREETING BAR (single elongated pill-card) ─────── */
@@ -252,16 +306,34 @@ html body .bj-dash .bj-revenue .bj-rev-stat-val {
 .bj-tile-foot strong { color: var(--bj-green); font-weight: 800; }
 .bj-tile-foot-num { font-weight: 700; color: var(--bj-text-mid); }
 
-/* ── MAIN GRID (RTL: orders on RIGHT, revenue+msgs on LEFT) ─── */
+/* ── MAIN GRID (flexbox, LTR for explicit ordering) ─── */
 .bj-grid {
-    display: grid;
-    grid-template-columns: 1fr 420px;
-    gap: 1.25rem;
-    align-items: start;
-    direction: rtl;
+    display: flex !important;
+    flex-direction: row !important;
+    direction: ltr !important;
+    gap: 1.25rem !important;
+    align-items: flex-start !important;
+    width: 100% !important;
+    min-width: 0;
 }
-.bj-grid > .bj-col-orders { grid-column: 1; }
-.bj-grid > .bj-col-side   { grid-column: 2; }
+/* Source order: .bj-col-side first → LEFT, .bj-col-orders second → RIGHT */
+.bj-grid > .bj-col-side {
+    flex: 0 0 420px !important;
+    width: 420px !important;
+    max-width: 420px !important;
+    min-width: 0 !important;
+    direction: rtl !important;
+}
+.bj-grid > .bj-col-orders {
+    flex: 1 1 0 !important;
+    min-width: 0 !important;
+    width: auto !important;
+    direction: rtl !important;
+}
+@media (max-width: 1024px) {
+    .bj-grid { flex-direction: column !important; }
+    .bj-grid > .bj-col-side { flex: 1 1 auto !important; width: 100% !important; max-width: none !important; }
+}
 
 /* ── REVENUE CARD (dark navy) ─────── */
 .bj-revenue {
