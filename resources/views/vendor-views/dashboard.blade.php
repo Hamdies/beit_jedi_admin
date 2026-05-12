@@ -41,8 +41,24 @@
     padding: 1.5rem 0 3rem;
     direction: rtl;
     font-family: 'Cairo', -apple-system, BlinkMacSystemFont, sans-serif;
-    /* Arabic-Indic digits via Cairo's ss01 stylistic set */
-    font-feature-settings: "ss01";
+}
+
+/* Hide the framework's default top header — we use bj-greet instead */
+body #header,
+body #bj-header,
+body #headerMain,
+body #headerFluid,
+body #headerDouble {
+    display: none !important;
+}
+main#content { padding-top: 0 !important; margin-top: 0 !important; }
+
+/* Force solid text colors across the dashboard (override theme.min.css) */
+.bj-dash, .bj-dash * { -webkit-text-fill-color: initial; }
+.bj-dash { color: var(--bj-text); }
+.bj-dash h1, .bj-dash h2, .bj-dash h3, .bj-dash h4, .bj-dash h5, .bj-dash h6,
+.bj-dash span, .bj-dash div, .bj-dash p, .bj-dash a {
+    -webkit-text-fill-color: currentColor !important;
 }
 .bj-wrap { max-width: 1480px; margin: 0 auto; padding: 0 1.5rem; }
 
@@ -199,15 +215,20 @@
 .bj-tile--ready     .bj-tile-ico { background: var(--bj-green-soft); color: var(--bj-green-text); }
 .bj-tile--onway     .bj-tile-ico { background: var(--bj-blue-soft);  color: var(--bj-blue-text); }
 
-.bj-tile-num {
-    font-size: 5rem;
-    font-weight: 900;
-    color: var(--bj-navy);
-    line-height: 1;
-    text-align: center;
-    letter-spacing: -2px;
-    margin: .35rem 0 auto;
-    padding: .25rem 0;
+.bj-dash .bj-tile .bj-tile-num {
+    font-size: 5rem !important;
+    font-weight: 900 !important;
+    color: #1F2746 !important;
+    line-height: 1 !important;
+    text-align: center !important;
+    letter-spacing: -2px !important;
+    margin: .35rem 0 auto !important;
+    padding: .25rem 0 !important;
+    background: transparent !important;
+    -webkit-text-fill-color: #1F2746 !important;
+    text-shadow: none !important;
+    opacity: 1 !important;
+    display: block !important;
 }
 .bj-tile-foot {
     font-size: .8rem;
@@ -220,13 +241,16 @@
 .bj-tile-foot strong { color: var(--bj-green); font-weight: 800; }
 .bj-tile-foot-num { font-weight: 700; color: var(--bj-text-mid); }
 
-/* ── MAIN GRID (left: revenue+msgs · right: live orders) ─── */
+/* ── MAIN GRID (RTL: orders on RIGHT, revenue+msgs on LEFT) ─── */
 .bj-grid {
     display: grid;
-    grid-template-columns: 420px 1fr;
+    grid-template-columns: 1fr 420px;
     gap: 1.25rem;
     align-items: start;
+    direction: rtl;
 }
+.bj-grid > .bj-col-orders { grid-column: 1; }
+.bj-grid > .bj-col-side   { grid-column: 2; }
 
 /* ── REVENUE CARD (dark navy) ─────── */
 .bj-revenue {
@@ -722,7 +746,7 @@
 <div class="bj-grid">
 
     {{-- LEFT column: revenue + messages --}}
-    <div>
+    <div class="bj-col-side">
         {{-- Revenue card --}}
         <div class="bj-revenue">
             <div class="bj-revenue-head">
@@ -807,7 +831,7 @@
     </div>
 
     {{-- RIGHT column: live orders --}}
-    <div class="bj-live">
+    <div class="bj-live bj-col-orders">
         <div class="bj-panel-head">
             <span class="bj-panel-title">
                 <span class="bj-panel-title-icon"><i class="tio-receipt"></i></span>

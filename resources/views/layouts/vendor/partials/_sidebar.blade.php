@@ -57,6 +57,15 @@
         letter-spacing: -.3px;
         line-height: 1.1 !important;
     }
+    .navbar-brand h6::after {
+        content: 'لوحة التحكم';
+        display: block;
+        font-size: .7rem;
+        color: var(--bj-text-mute);
+        font-weight: 500;
+        margin-top: 3px;
+        letter-spacing: 0;
+    }
 
     /* ── Section subtitles (plain Arabic, NOT uppercase) ── */
     .navbar-vertical-content .nav-subtitle {
