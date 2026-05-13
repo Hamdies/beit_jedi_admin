@@ -123,7 +123,7 @@ $isNewCustomer = $order->customer && $customerOrdersCount <= 1;
     <div class="ov-topbar">
         <div class="ov-topbar-left">
             <div class="ov-breadcrumb">
-                <a href="{{ route('vendor.order.list') }}" class="ov-breadcrumb-link">الطلبات</a>
+                <a href="{{ route('vendor.order.list', ['status' => 'all']) }}" class="ov-breadcrumb-link">الطلبات</a>
                 <span class="ov-breadcrumb-sep"><i class="tio-chevron-left"></i></span>
                 <span class="ov-breadcrumb-cur">تفاصيل الطلب</span>
             </div>
