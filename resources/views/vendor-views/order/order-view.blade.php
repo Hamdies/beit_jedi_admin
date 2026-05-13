@@ -357,10 +357,7 @@ $isNewCustomer = $order->customer && $customerOrdersCount <= 1;
                     </div>
                     @else
                     <ul class="ov-dm-list">
-                        @if(count($deliveryMen) == 0)
-                        <li class="ov-dm-empty">لا يوجد مناديب متاحون الآن</li>
-                        @endif
-                        @foreach ($deliveryMen as $dm)
+                        @forelse ($deliveryMen as $dm)
                         @php
                             $eta = isset($dm['distance']) ? $dm['distance'] : '—';
                             $mins = isset($dm['distance']) ? round($dm['distance'] * 3) : '—';
@@ -390,7 +387,9 @@ $isNewCustomer = $order->customer && $customerOrdersCount <= 1;
                             <a class="ov-dm-assign add-delivery-man" data-id="{{ $dm['id'] }}" href="javascript:">تعيين</a>
                             @endif
                         </li>
-                        @endforeach
+                        @empty
+                        <li class="ov-dm-empty">لا يوجد مناديب متاحون الآن</li>
+                        @endforelse
                     </ul>
                     @endif
                 </div>
