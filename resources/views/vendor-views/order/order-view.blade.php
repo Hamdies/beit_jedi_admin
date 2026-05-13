@@ -113,7 +113,8 @@ $statusClass = [
     'failed'     => 'is-canceled',
 ][$status] ?? '';
 
-$isNewCustomer = $order->customer && $order->customer->orders_count <= 1;
+$customerOrdersCount = $order->customer ? \App\Models\Order::where('user_id', $order->customer->id)->count() : 0;
+$isNewCustomer = $order->customer && $customerOrdersCount <= 1;
 ?>
 
 <div class="content container-fluid ov-page" id="printableArea">
@@ -414,7 +415,7 @@ $isNewCustomer = $order->customer && $order->customer->orders_count <= 1;
                                 @if($isNewCustomer)
                                 <span class="ov-tag success">عميل جديد</span>
                                 @endif
-                                {{ $order->customer->orders_count == 1 ? 'أول طلب اليوم' : $order->customer->orders_count . ' طلب سابق' }}
+                                {{ $customerOrdersCount == 1 ? 'أول طلب اليوم' : $customerOrdersCount . ' طلب سابق' }}
                             </div>
                         </div>
                         <div class="ov-person-actions">
@@ -431,7 +432,7 @@ $isNewCustomer = $order->customer && $order->customer->orders_count <= 1;
                             <span class="ov-stat-label">إجمالي الإنفاق</span>
                         </div>
                         <div class="ov-stat-box">
-                            <span class="ov-stat-val">{{ $order->customer->orders_count ?? 0 }}</span>
+                            <span class="ov-stat-val">{{ $customerOrdersCount }}</span>
                             <span class="ov-stat-label">إجمالي الطلبات</span>
                         </div>
                         <div class="ov-stat-box">
