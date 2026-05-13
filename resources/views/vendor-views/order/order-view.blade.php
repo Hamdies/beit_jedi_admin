@@ -357,39 +357,38 @@ $isNewCustomer = $order->customer && $customerOrdersCount <= 1;
                     </div>
                     @else
                     <ul class="ov-dm-list">
-                        @forelse ($deliveryMen as $dm)
-                        @php
+                        <?php if(count($deliveryMen) == 0): ?>
+                        <li class="ov-dm-empty">لا يوجد مناديب متاحون الآن</li>
+                        <?php else: foreach($deliveryMen as $dm):
                             $eta = isset($dm['distance']) ? $dm['distance'] : '—';
                             $mins = isset($dm['distance']) ? round($dm['distance'] * 3) : '—';
                             $dmColors = ['#e8d5c4','#c4d5e8','#c4e8d5','#e8c4d5'];
-                            $dmColor = $dmColors[$loop->index % 4];
+                            $dmColor = $dmColors[array_search($dm, $deliveryMen) % 4];
                             $dmBusy = isset($dm['current_orders']) && $dm['current_orders'] > 0;
                             $dmCanAssign = !in_array($order['order_status'],['handover','delivered','canceled','refunded']);
-                        @endphp
+                        ?>
                         <li class="ov-dm-card">
-                            <div class="ov-dm-avatar" style="background:{{ $dmColor }}">{{ mb_substr($dm['name'] ?? 'م', 0, 1) }}</div>
+                            <div class="ov-dm-avatar" style="background:<?php echo $dmColor ?>">{{ mb_substr($dm['name'] ?? 'م', 0, 1) }}</div>
                             <div class="ov-dm-info">
                                 <span class="ov-dm-name">{{ $dm['name'] }}</span>
                                 <span class="ov-dm-meta">
-                                    @if($dmBusy)
+                                    <?php if($dmBusy): ?>
                                         <span class="ov-dm-badge warn">{{ $dm['current_orders'] }} طلبات</span>
-                                    @else
+                                    <?php else: ?>
                                         <span class="ov-dm-badge ok">متاح</span>
-                                    @endif
+                                    <?php endif ?>
                                     · {{ $eta }} كم
                                 </span>
                             </div>
                             <div class="ov-dm-eta">
-                                <span class="ov-dm-eta-val">{{ $mins }} د</span>
+                                <span class="ov-dm-eta-val"><?php echo $mins ?> د</span>
                                 <span class="ov-dm-eta-sub">وصول متوقع</span>
                             </div>
-                            @if($dmCanAssign)
+                            <?php if($dmCanAssign): ?>
                             <a class="ov-dm-assign add-delivery-man" data-id="{{ $dm['id'] }}" href="javascript:">تعيين</a>
-                            @endif
+                            <?php endif ?>
                         </li>
-                        @empty
-                        <li class="ov-dm-empty">لا يوجد مناديب متاحون الآن</li>
-                        @endforelse
+                        <?php endforeach; endif ?>
                     </ul>
                     @endif
                 </div>
