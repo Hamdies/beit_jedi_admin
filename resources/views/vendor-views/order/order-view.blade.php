@@ -361,7 +361,7 @@ $isNewCustomer = $order->customer && $customerOrdersCount <= 1;
                         <li class="ov-dm-empty">لا يوجد مناديب متاحون الآن</li>
                         <?php else: foreach($deliveryMen as $dm):
                             $eta = isset($dm['distance']) ? $dm['distance'] : '—';
-                            $mins = isset($dm['distance']) ? round($dm['distance'] * 3) : '—';
+                            $mins = isset($dm['distance']) && is_numeric($dm['distance']) ? round((float)$dm['distance'] * 3) : '—';
                             $dmColors = ['#e8d5c4','#c4d5e8','#c4e8d5','#e8c4d5'];
                             $dmColor = $dmColors[array_search($dm, $deliveryMen) % 4];
                             $dmBusy = isset($dm['current_orders']) && $dm['current_orders'] > 0;
