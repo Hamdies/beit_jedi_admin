@@ -26,13 +26,15 @@
     $orderTypeLabel = $orderTypeLabels[$order->order_type] ?? ucfirst(str_replace('_', ' ', $order->order_type));
 
     $isDeliveryOrder = !in_array($order->order_type, ['dine_in', 'take_away']);
-    $streetArea = $address['address'] ?? 'غير متوفر';
-    $buildingFloor = implode(' - ', array_filter([
-        !empty($address['house']) ? 'عمارة ' . $address['house'] : null,
-        !empty($address['floor']) ? 'الدور ' . $address['floor'] : null,
-    ]));
-    $buildingFloor = $buildingFloor ?: (!empty($address['road']) ? 'الشارع: ' . $address['road'] : 'لا توجد تفاصيل مبنى إضافية');
-    $landmark = $address['road'] ?? ($address['address_type'] ?? 'لا توجد علامة مميزة');
+
+    // Address fields
+    $addrStreet  = $address['address'] ?? '';
+    $addrRoad    = $address['road'] ?? '';
+    $addrHouse   = $address['house'] ?? '';
+    $addrFloor   = $address['floor'] ?? '';
+
+    // Restaurant logo
+    $restaurantLogo = $order->restaurant?->logo_full_url ?? null;
 
     $subTotal = 0;
     $addOnsCost = 0;
@@ -425,6 +427,47 @@
                         line-height: 1.1;
                     }
 
+                    .bj-invoice-address-grid {
+                        display: grid;
+                        gap: 0;
+                        border: 2px solid #1b1b1b;
+                        border-radius: 14px;
+                        overflow: hidden;
+                        margin-top: 8px;
+                    }
+
+                    .bj-addr-row {
+                        display: flex;
+                        align-items: stretch;
+                        border-bottom: 1px solid #d4cec7;
+                    }
+
+                    .bj-addr-row:last-child {
+                        border-bottom: 0;
+                    }
+
+                    .bj-addr-key {
+                        flex: 0 0 120px;
+                        padding: 10px 12px;
+                        background: #f5f0ea;
+                        color: #5a564f;
+                        font-size: 13px;
+                        font-weight: 900;
+                        border-left: 1px solid #d4cec7;
+                        display: flex;
+                        align-items: center;
+                    }
+
+                    .bj-addr-val {
+                        flex: 1;
+                        padding: 10px 14px;
+                        font-size: 17px;
+                        font-weight: 900;
+                        line-height: 1.4;
+                        display: flex;
+                        align-items: center;
+                    }
+
                     @media (max-width: 767px) {
                         .bj-invoice-sheet {
                             max-width: 100%;
@@ -478,7 +521,11 @@
 
                 <div class="initial-38-1 bj-invoice-sheet" dir="rtl">
                     <header class="bj-invoice-header">
-                        <img src="{{ dynamicAsset('public/assets/admin/css/images/beit_no_bg.png') }}" alt="Beit Jedi logo" class="bj-invoice-logo">
+                        @if($restaurantLogo)
+                            <img src="{{ $restaurantLogo }}" alt="{{ $branchName }}" class="bj-invoice-logo">
+                        @else
+                            <img src="{{ dynamicAsset('public/assets/admin/css/images/beit_no_bg.png') }}" alt="Beit Jedi logo" class="bj-invoice-logo">
+                        @endif
                         <div class="bj-invoice-branch">{{ $branchName }}</div>
                         <div class="bj-invoice-header-meta">
                             @if($branchPhone)
@@ -515,22 +562,50 @@
 
                     <section>
                         <span class="bj-invoice-label">عنوان التسليم</span>
-                        <div class="bj-invoice-address-main">{{ $isDeliveryOrder ? $streetArea : $branchName }}</div>
-                        <div class="bj-invoice-address-sub">
-                            @if($isDeliveryOrder)
-                                {{ $buildingFloor }}
-                            @elseif($order->order_type === 'dine_in' && $order?->OrderReference?->table_number)
-                                رقم الطاولة: {{ $order?->OrderReference?->table_number }}
-                            @elseif($order->order_type === 'dine_in' && $order?->OrderReference?->token_number)
-                                رقم التوكن: {{ $order?->OrderReference?->token_number }}
-                            @else
-                                {{ $branchPhone ?: 'استلام من الفرع' }}
-                            @endif
-                        </div>
-                        <div class="bj-invoice-note-box">
-                            <span class="bj-invoice-label">علامة مميزة</span>
-                            <div class="bj-invoice-note-box-text">{{ $isDeliveryOrder ? $landmark : 'استلام مباشر من الفرع' }}</div>
-                        </div>
+                        @if($isDeliveryOrder)
+                            <div class="bj-invoice-address-grid">
+                                @if($addrStreet)
+                                    <div class="bj-addr-row">
+                                        <span class="bj-addr-key">الشارع / المنطقة</span>
+                                        <span class="bj-addr-val">{{ $addrStreet }}</span>
+                                    </div>
+                                @endif
+                                @if($addrRoad)
+                                    <div class="bj-addr-row">
+                                        <span class="bj-addr-key">الشارع الفرعي</span>
+                                        <span class="bj-addr-val">{{ $addrRoad }}</span>
+                                    </div>
+                                @endif
+                                @if($addrHouse)
+                                    <div class="bj-addr-row">
+                                        <span class="bj-addr-key">المبنى / الشقة</span>
+                                        <span class="bj-addr-val">{{ $addrHouse }}</span>
+                                    </div>
+                                @endif
+                                @if($addrFloor)
+                                    <div class="bj-addr-row">
+                                        <span class="bj-addr-key">الطابق</span>
+                                        <span class="bj-addr-val">{{ $addrFloor }}</span>
+                                    </div>
+                                @endif
+                                @if(!$addrStreet && !$addrRoad && !$addrHouse && !$addrFloor)
+                                    <div class="bj-addr-row">
+                                        <span class="bj-addr-val">غير متوفر</span>
+                                    </div>
+                                @endif
+                            </div>
+                        @else
+                            <div class="bj-invoice-address-main">{{ $branchName }}</div>
+                            <div class="bj-invoice-address-sub">
+                                @if($order->order_type === 'dine_in' && $order?->OrderReference?->table_number)
+                                    رقم الطاولة: {{ $order?->OrderReference?->table_number }}
+                                @elseif($order->order_type === 'dine_in' && $order?->OrderReference?->token_number)
+                                    رقم التوكن: {{ $order?->OrderReference?->token_number }}
+                                @else
+                                    {{ $branchPhone ?: 'استلام من الفرع' }}
+                                @endif
+                            </div>
+                        @endif
                     </section>
 
                     <hr class="bj-invoice-divider">
