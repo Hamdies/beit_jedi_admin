@@ -20,9 +20,10 @@ class SystemController extends Controller
     public function restaurant_data()
     {
         $new_order = DB::table('orders')->where(['checked' => 0])->count();
+        $latest_order_id = DB::table('orders')->where(['checked' => 0])->orderByDesc('id')->value('id');
         return response()->json([
             'success' => 1,
-            'data' => ['new_order' => $new_order]
+            'data' => ['new_order' => $new_order, 'latest_order_id' => $latest_order_id]
         ]);
     }
 

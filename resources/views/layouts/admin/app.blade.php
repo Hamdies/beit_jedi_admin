@@ -667,6 +667,7 @@
                 new_order_type = payload.data.order_type
                 playAudio();
                 $('#popup-modal').appendTo("body").modal('show');
+                bjAutoPrintInvoice(payload.data.order_id);
                 @endif
 
             }else if(payload.data.type == 'message'){
@@ -707,6 +708,9 @@
                             if (data.new_order > 0) {
                                 playAudio();
                                 $('#popup-modal').appendTo("body").modal('show');
+                                if (data.latest_order_id) {
+                                    bjAutoPrintInvoice(data.latest_order_id);
+                                }
                             }
                         },
                     });
@@ -934,6 +938,32 @@
         $('#searchForm').submit(function (event) {
             event.preventDefault();
         });
+
+        // Auto-print invoice when a new order arrives
+        var bjPrintedOrders = JSON.parse(sessionStorage.getItem('bj_printed_orders') || '[]');
+
+        function bjAutoPrintInvoice(orderId) {
+            if (!orderId) return;
+            orderId = String(orderId);
+            if (bjPrintedOrders.indexOf(orderId) !== -1) return; // already printed this session
+            bjPrintedOrders.push(orderId);
+            sessionStorage.setItem('bj_printed_orders', JSON.stringify(bjPrintedOrders));
+
+            var invoiceUrl = '{{ route("admin.order.generate-invoice", ["id" => "__ID__"]) }}'.replace('__ID__', orderId);
+            $.get(invoiceUrl, function(html) {
+                var parser = new DOMParser();
+                var doc = parser.parseFromString(html, 'text/html');
+                var sheetHtml = doc.getElementById('printableArea') ? doc.getElementById('printableArea').innerHTML : '';
+                if (!sheetHtml) return;
+
+                var win = window.open('', '_blank', 'width=400,height=800');
+                if (!win) return; // popup blocked
+                win.document.write('<!DOCTYPE html><html dir="rtl"><head><meta charset="utf-8"><title>فاتورة #' + orderId + '</title><style>*{box-sizing:border-box;margin:0;padding:0;}html,body{width:76mm;max-width:76mm;background:#fff;overflow-x:hidden;}img{max-width:100%!important;}</style></head><body>' + sheetHtml + '</body></html>');
+                win.document.close();
+                win.focus();
+                setTimeout(function(){ win.print(); win.close(); }, 1000);
+            });
+        }
     </script>
 
 </body>

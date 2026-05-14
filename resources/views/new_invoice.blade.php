@@ -460,6 +460,24 @@
                         line-height: 1.1;
                     }
 
+                    .bj-invoice-powered {
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        gap: 5px;
+                        color: #999;
+                        font-size: 10px;
+                        font-weight: 500;
+                        letter-spacing: 0.03em;
+                        margin-top: 2px;
+                    }
+
+                    .bj-invoice-powered strong {
+                        color: #555;
+                        font-weight: 700;
+                        letter-spacing: 0.01em;
+                    }
+
                     .bj-invoice-address-grid {
                         display: grid;
                         gap: 0;
@@ -944,8 +962,10 @@
 
                     <footer class="bj-invoice-footer">
                         <div class="bj-invoice-thanks">شكراً لك</div>
-                        
-                        <div>©POWERED BY HAMDIES SOLUTIONS</div>
+                        <div class="bj-invoice-powered">
+                            <span>Powered by</span>
+                            <strong>Hamdies Solutions</strong>
+                        </div>
                     </footer>
                 </div>
             </div>
