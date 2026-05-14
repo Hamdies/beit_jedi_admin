@@ -64,6 +64,87 @@
 .ov-page section { display:block; }
 .ov-page img { max-width:100%; height:auto; }
 
+/* ─── Contextual top bar (greeting + restaurant status + quick actions) ── */
+.ov-ctx-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    padding: .75rem 1.1rem;
+    background: var(--surface);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    margin-bottom: 1rem;
+}
+.ov-ctx-bar-left  { display:flex; align-items:center; gap:.75rem; min-width:0; }
+.ov-ctx-bar-right { display:flex; align-items:center; gap:.5rem; flex-shrink:0; flex-wrap:wrap; }
+
+.ov-ctx-greeting { display:flex; flex-direction:column; gap:.1rem; }
+.ov-ctx-hi  { font-size:.78rem; color:var(--ink-mute); font-weight:400; }
+.ov-ctx-msg { font-size:.92rem; font-weight:700; color:var(--ink); line-height:1.2; }
+
+.ov-ctx-status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: .45rem;
+    padding: .3rem .85rem;
+    border-radius: var(--radius-pill);
+    font-size: .83rem;
+    font-weight: 600;
+    border: 1px solid transparent;
+}
+.ov-ctx-status-pill.open  { background:var(--green-soft); color:var(--green); border-color:rgba(46,125,79,.18); }
+.ov-ctx-status-pill.closed{ background:var(--red-soft);   color:var(--red);   border-color:rgba(200,49,43,.18); }
+.ov-ctx-pulse {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--green);
+    flex-shrink: 0;
+    animation: ctx-pulse 1.8s ease-in-out infinite;
+}
+.ov-ctx-status-pill.closed .ov-ctx-pulse { background:var(--red); animation:none; }
+@keyframes ctx-pulse {
+    0%,100% { opacity:1; transform:scale(1); }
+    50%      { opacity:.55; transform:scale(.85); }
+}
+
+.ov-ctx-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    height: 34px;
+    padding: 0 .9rem;
+    border-radius: var(--radius-pill);
+    font: inherit;
+    font-size: .82rem;
+    font-weight: 600;
+    cursor: pointer;
+    border: 1px solid var(--card-border);
+    transition: box-shadow .18s, transform .15s, background .15s;
+    text-decoration: none;
+    white-space: nowrap;
+}
+.ov-ctx-btn.ghost {
+    background: var(--surface-2);
+    color: var(--ink-soft);
+}
+.ov-ctx-btn.ghost:hover { background:var(--hairline); color:var(--ink); transform:translateY(-1px); }
+.ov-ctx-btn.primary {
+    background: var(--navy);
+    border-color: var(--navy);
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(27,46,94,.18);
+}
+.ov-ctx-btn.primary:hover {
+    background: var(--navy-2);
+    color: #fff;
+    text-decoration: none;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 14px rgba(27,46,94,.25);
+}
+
 /* ─── Topbar / Breadcrumb ─────────────────────────────────── */
 .ov-topbar {
     display: flex;
@@ -465,12 +546,33 @@
 }
 .ov-step.active .ov-step-label { color: var(--navy); font-weight: 700; }
 
+/* step timestamps */
+.ov-step-time {
+    font-size: .68rem;
+    color: var(--ink-mute);
+    text-align: center;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+}
+.ov-step-time.active-now {
+    color: var(--navy);
+    font-weight: 700;
+    font-size: .72rem;
+}
+
 /* ─── Progress/goal bar ──────────────────────────────────── */
 .ov-goal-bar-wrap {
     margin-top: 1.25rem;
     display: flex;
     flex-direction: column;
     gap: .35rem;
+}
+.ov-goal-bar-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: .5rem;
 }
 .ov-goal-bar {
     height: 6px;
@@ -487,6 +589,13 @@
 .ov-goal-label {
     font-size: .78rem;
     color: var(--ink-mute);
+}
+.ov-goal-times {
+    font-size: .75rem;
+    color: var(--ink-mute);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+    flex-shrink: 0;
 }
 
 /* ─── Terminal banner ────────────────────────────────────── */

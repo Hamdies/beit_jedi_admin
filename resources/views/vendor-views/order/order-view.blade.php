@@ -115,9 +115,66 @@ $statusClass = [
 
 $customerOrdersCount = $order->customer ? \App\Models\Order::where('user_id', $order->customer->id)->count() : 0;
 $isNewCustomer = $order->customer && $customerOrdersCount <= 1;
+
+/* status timestamps from logs */
+$statusLogs = \App\Models\Log::where('model','Order')->where('model_id', $order->id)
+    ->whereIn('action_type', ['status_change','order_status'])
+    ->orderBy('created_at')->get();
+$statusTimes = [];
+foreach ($statusLogs as $lg) {
+    $af = is_string($lg->after_state) ? json_decode($lg->after_state, true) : (array)$lg->after_state;
+    $st = $af['order_status'] ?? null;
+    if ($st && !isset($statusTimes[$st])) {
+        $statusTimes[$st] = $lg->created_at;
+    }
+}
+/* map step keys to status */
+$stepStatusMap = [
+    'accepted'   => ['accepted','confirmed'],
+    'confirmed'  => ['confirmed'],
+    'processing' => ['processing'],
+    'handover'   => ['handover'],
+    'delivered'  => ['delivered'],
+];
+
+/* pending orders count for top bar */
+$pendingOrdersCount = \App\Models\Order::where('restaurant_id', $restaurant->id)
+    ->whereIn('order_status', ['pending','accepted','confirmed','processing','handover'])
+    ->count();
+$hr = (int) date('H');
+$greeting = $hr < 12 ? 'صباح الخير ☀️' : ($hr < 17 ? 'مساء الخير 🌤️' : 'مساء الخير 🌙');
+$restaurantOpen = $restaurant->active ?? 1;
 ?>
 
 <div class="content container-fluid ov-page" id="printableArea">
+
+    {{-- ── Contextual top bar ───────────────────────────────── --}}
+    <div class="ov-ctx-bar">
+        <div class="ov-ctx-bar-left">
+            <div class="ov-ctx-greeting">
+                <span class="ov-ctx-hi">{{ $greeting }}</span>
+                <span class="ov-ctx-msg">
+                    @if($pendingOrdersCount > 0)
+                        لديك {{ $pendingOrdersCount }} طلب يحتاج اهتمامك
+                    @else
+                        لا توجد طلبات عاجلة الآن
+                    @endif
+                </span>
+            </div>
+        </div>
+        <div class="ov-ctx-bar-right">
+            <span class="ov-ctx-status-pill {{ $restaurantOpen ? 'open' : 'closed' }}">
+                <span class="ov-ctx-pulse"></span>
+                {{ $restaurantOpen ? 'المطعم مفتوح' : 'المطعم مغلق' }}
+            </span>
+            <button class="ov-ctx-btn ghost" onclick="location.reload()">
+                <i class="tio-refresh"></i> تحديث
+            </button>
+            <a href="{{ route('vendor.order.list', ['status' => 'all']) }}" class="ov-ctx-btn primary">
+                <i class="tio-receipt"></i> كل الطلبات
+            </a>
+        </div>
+    </div>
 
     {{-- ── Breadcrumb + topbar ──────────────────────────────── --}}
     <div class="ov-topbar">
@@ -163,7 +220,7 @@ $isNewCustomer = $order->customer && $customerOrdersCount <= 1;
         </div>
         <div class="ov-actions-right">
             <a class="ov-action-chip" href="{{ route('vendor.order.generate-invoice', [$order['id']]) }}">
-                <i class="tio-print"></i> اطبع الإيصال
+                <i class="tio-print"></i> اطبع الإيصال الآن قبل التسليم
             </a>
             <button class="ov-action-chip" onclick="void(0)">
                 <i class="tio-chat-outlined"></i> أرسل رسالة &ldquo;طلبك في الطريق&rdquo;
@@ -248,6 +305,15 @@ $isNewCustomer = $order->customer && $customerOrdersCount <= 1;
                         $isDone   = $currentStep > $s['n'];
                         $isActive = $currentStep === $s['n'];
                         $stepCls  = $isDone ? 'done' : ($isActive ? 'active' : '');
+                        /* find timestamp for this step */
+                        $stepTime = null;
+                        foreach (($stepStatusMap[$s['key']] ?? [$s['key']]) as $sk) {
+                            if (isset($statusTimes[$sk])) { $stepTime = $statusTimes[$sk]; break; }
+                        }
+                        /* fallback: use created_at for first accepted step */
+                        if (!$stepTime && $s['key'] === 'accepted' && $isDone) {
+                            $stepTime = $order->created_at;
+                        }
                     @endphp
                     <div class="ov-step {{ $stepCls }}" aria-current="{{ $isActive ? 'step' : 'false' }}">
                         <div class="ov-step-node">
@@ -258,6 +324,11 @@ $isNewCustomer = $order->customer && $customerOrdersCount <= 1;
                             @endif
                         </div>
                         <span class="ov-step-label">{{ $s['label'] }}</span>
+                        @if($isActive)
+                            <span class="ov-step-time active-now">الآن</span>
+                        @elseif($isDone && $stepTime)
+                            <span class="ov-step-time">{{ date(config('timeformat','h:i A'), strtotime($stepTime)) }}</span>
+                        @endif
                         @if (!$loop->last)
                             <div class="ov-step-line {{ ($isDone || $isActive) ? 'filled' : '' }}"></div>
                         @endif
@@ -268,11 +339,21 @@ $isNewCustomer = $order->customer && $customerOrdersCount <= 1;
 
         {{-- Processing time progress bar --}}
         @if(in_array($status,['processing','handover']))
+        @php
+            $elapsedSec  = time() - strtotime($order['created_at']);
+            $goalSec     = $max_processing_time * 60;
+            $fillPct     = $goalSec > 0 ? min(100, round($elapsedSec / $goalSec * 100)) : 0;
+            $goalTimeStr = $goalSec > 0 ? date(config('timeformat','h:i A'), strtotime($order['created_at']) + $goalSec) : '—';
+            $nowTimeStr  = date(config('timeformat','h:i A'));
+        @endphp
         <div class="ov-goal-bar-wrap">
-            <div class="ov-goal-bar">
-                <div class="ov-goal-bar-fill" style="width: {{ min(100, round((time()-strtotime($order['created_at']))/($max_processing_time*60)*100)) }}%"></div>
+            <div class="ov-goal-bar-row">
+                <span class="ov-goal-label">الهدف · {{ $max_processing_time }} دقائق في &ldquo;جاهز&rdquo;</span>
+                <span class="ov-goal-times">{{ $goalTimeStr }} / {{ $nowTimeStr }}</span>
             </div>
-            <span class="ov-goal-label">الهدف · {{ $max_processing_time }} دقائق في &ldquo;جاهز&rdquo;</span>
+            <div class="ov-goal-bar">
+                <div class="ov-goal-bar-fill" style="width: {{ $fillPct }}%"></div>
+            </div>
         </div>
         @endif
     </section>
