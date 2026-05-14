@@ -58,12 +58,23 @@
     <div class="row justify-content-center">
         <div class="col-12">
             <div class="bj-invoice-toolbar non-printable">
-                <input type="button" class="btn bj-invoice-toolbar__btn bj-invoice-toolbar__btn--primary print-Div"
+                <input type="button" id="bj-print-btn" class="btn bj-invoice-toolbar__btn bj-invoice-toolbar__btn--primary"
                     value="{{ translate('messages.Proceed_If_thermal_printer_is_ready.') }}" />
                 <a href="{{ url()->previous() }}" class="btn bj-invoice-toolbar__btn bj-invoice-toolbar__btn--ghost">
                     {{ translate('messages.back') }}
                 </a>
             </div>
+
+            <script>
+                document.getElementById('bj-print-btn').addEventListener('click', function () {
+                    var sheetHtml = document.getElementById('printableArea').innerHTML;
+                    var win = window.open('', '_blank', 'width=400,height=800');
+                    win.document.write('<!DOCTYPE html><html dir="rtl"><head><meta charset="utf-8"><title>فاتورة</title><style>*{box-sizing:border-box;margin:0;padding:0;}html,body{width:80mm;background:#fff;}</style></head><body>' + sheetHtml + '</body></html>');
+                    win.document.close();
+                    win.focus();
+                    setTimeout(function(){ win.print(); win.close(); }, 800);
+                });
+            </script>
 
             <div id="printableArea">
                 <style>
@@ -499,7 +510,7 @@
                     @media print {
                         @page {
                             size: 80mm auto;
-                            margin: 4mm 3mm;
+                            margin: 2mm 2mm;
                         }
 
                         * {
@@ -507,20 +518,11 @@
                             print-color-adjust: exact !important;
                         }
 
-                        body {
+                        html, body {
                             background: #fff !important;
                             margin: 0 !important;
                             padding: 0 !important;
-                        }
-
-                        .content,
-                        .container-fluid,
-                        .row,
-                        .col-12 {
-                            display: block !important;
-                            width: 100% !important;
-                            padding: 0 !important;
-                            margin: 0 !important;
+                            width: 80mm !important;
                         }
 
                         .non-printable {
@@ -528,33 +530,44 @@
                         }
 
                         .bj-invoice-sheet {
-                            max-width: 100%;
-                            width: 100%;
-                            margin: 0;
-                            border: 0;
-                            border-radius: 0;
-                            box-shadow: none;
-                            padding: 0;
-                            background: #fff;
+                            max-width: 100% !important;
+                            width: 100% !important;
+                            margin: 0 !important;
+                            border: 0 !important;
+                            border-radius: 0 !important;
+                            box-shadow: none !important;
+                            padding: 0 !important;
+                            background: #fff !important;
+                            overflow: visible !important;
+                        }
+
+                        .non-printable {
+                            display: none !important;
                         }
 
                         /* ── Logo ── */
                         .bj-invoice-logo {
-                            width: 56px !important;
-                            margin-bottom: 3px !important;
+                            width: 60px !important;
+                            height: auto !important;
+                            display: block !important;
+                            margin: 0 auto 4px !important;
                         }
 
                         /* ── Header ── */
                         .bj-invoice-header {
+                            display: grid !important;
+                            text-align: center !important;
                             gap: 3px !important;
                         }
 
                         .bj-invoice-branch {
                             font-size: 13pt !important;
+                            display: block !important;
                         }
 
                         .bj-invoice-header-meta {
                             font-size: 8pt !important;
+                            display: block !important;
                         }
 
                         /* ── Order / type ── */
@@ -564,6 +577,11 @@
 
                         .bj-invoice-value--type {
                             font-size: 14pt !important;
+                        }
+
+                        .bj-invoice-grid-two {
+                            display: grid !important;
+                            grid-template-columns: repeat(2, 1fr) !important;
                         }
 
                         .bj-invoice-panel {
