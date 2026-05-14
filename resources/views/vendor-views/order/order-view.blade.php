@@ -21,7 +21,8 @@ active
 @section('title', 'تفاصيل الطلب #' . $order['id'])
 
 @push('css_or_js')
-<link rel="stylesheet" href="{{ dynamicAsset('public/assets/admin/css/order-view.css') }}">
+@php($orderViewCssVersion = file_exists(public_path('assets/admin/css/order-view.css')) ? filemtime(public_path('assets/admin/css/order-view.css')) : time())
+<link rel="stylesheet" href="{{ dynamicAsset('public/assets/admin/css/order-view.css') }}?v={{ $orderViewCssVersion }}">
 @endpush
 
 @section('content')

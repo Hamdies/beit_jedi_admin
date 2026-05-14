@@ -51,6 +51,7 @@
     font-size: 15px;
     direction: rtl;
     padding: 2rem 0 6.5rem;
+    padding-inline: 1.5rem;
     -webkit-font-smoothing: antialiased;
 }
 
@@ -465,14 +466,34 @@
 /* ─── Main 2-col grid ────────────────────────────────────── */
 .ov-grid {
     display: grid;
-    grid-template-columns: minmax(0,1fr) 380px;
-    gap: 1.35rem;
+    grid-template-columns: minmax(0,1fr) minmax(300px, 340px);
+    gap: 1.6rem;
     align-items: start;
-    margin-top: 1.1rem;
+    margin-top: 1.35rem;
     direction: rtl;
 }
+@media (max-width: 1360px) {
+    .ov-grid { grid-template-columns: minmax(0,1fr) 320px; }
+    .ov-item {
+        grid-template-columns: 88px minmax(220px, 1fr) auto auto;
+        gap: 1.15rem;
+        padding: 1.4rem 1.45rem;
+    }
+    .ov-item-img-wrap {
+        width:84px;
+        height:84px;
+    }
+    .ov-item-img {
+        width:84px !important;
+        height:84px !important;
+        max-width:84px;
+    }
+    .ov-item-body {
+        width:100%;
+    }
+}
 @media (max-width: 1100px) {
-    .ov-grid { grid-template-columns: minmax(0,1fr) 336px; gap:1rem; }
+    .ov-grid { grid-template-columns: minmax(0,1fr) 300px; gap:1.1rem; }
 }
 @media (max-width: 991px) {
     /* sidebar stacks below items on tablet */
@@ -489,7 +510,13 @@
     .ov-col-sidebar .ov-card { margin-bottom: 0; }
 }
 
-.ov-col-sidebar { min-width:0; }
+.ov-col-sidebar {
+    min-width:0;
+    display:flex;
+    flex-direction:column;
+    gap:1.25rem;
+}
+.ov-col-sidebar .ov-card { margin-bottom:0; }
 .ov-col-items   { min-width:0; }
 
 /* ─── Cards ──────────────────────────────────────────────── */
@@ -497,12 +524,12 @@
     background: var(--surface);
     border: 1px solid var(--card-border);
     border-radius: var(--r-lg);
-    box-shadow: var(--sh);
+    box-shadow: var(--sh-lg);
     overflow: hidden;
     margin-bottom: 1.1rem;
 }
 .ov-card-head {
-    padding: 1.15rem 1.4rem;
+    padding: 1.25rem 1.5rem;
     display:flex; align-items:center; justify-content:space-between; gap:.5rem;
     border-bottom: 1px solid var(--hairline-2);
 }
@@ -535,7 +562,19 @@
     transition:color .15s; white-space:nowrap; padding:0;
 }
 .ov-card-action-link:hover { color:var(--navy); }
-.ov-card-body { padding: 1.15rem 1.4rem 1.4rem; }
+.ov-card-body { padding: 1.25rem 1.5rem 1.55rem; }
+
+.ov-col-items > .ov-card {
+    border-radius: var(--r-xl);
+}
+
+.ov-col-items > .ov-card .ov-card-head {
+    padding: 1.35rem 1.7rem;
+}
+
+.ov-col-sidebar > .ov-card {
+    border-radius: 22px;
+}
 
 /* ─── Delivery man list ──────────────────────────────────── */
 .ov-dm-count { font-size:.74rem; color:var(--ink-mute); }
@@ -545,7 +584,7 @@
 
 .ov-dm-card {
     display:flex; align-items:center; gap:.625rem;
-    padding:.95rem 1.05rem; border-radius:var(--r);
+    padding:1rem 1.1rem; border-radius:var(--r-lg);
     border:1px solid var(--hairline); background:var(--surface-3);
     transition:box-shadow .18s;
 }
@@ -584,8 +623,8 @@
 
 /* ─── Customer card ──────────────────────────────────────── */
 .ov-person {
-    display:flex; align-items:center; gap:.75rem;
-    padding:.2rem 0 1.15rem;
+    display:flex; align-items:flex-start; gap:1rem;
+    padding:.3rem 0 1.25rem;
     border-bottom:1px solid var(--hairline-2); margin-bottom:1rem;
 }
 .ov-person-avatar {
@@ -596,7 +635,7 @@
 }
 .ov-person-text  { flex:1; min-width:0; }
 .ov-person-name  { font-size:.88rem; font-weight:700; color:var(--ink); line-height:1.2; }
-.ov-person-sub   { font-size:.74rem; color:var(--ink-mute); margin-top:.2rem; display:flex; align-items:center; gap:.35rem; flex-wrap:wrap; }
+.ov-person-sub   { font-size:.76rem; color:var(--ink-mute); margin-top:.28rem; display:flex; align-items:center; gap:.35rem; flex-wrap:wrap; }
 .ov-person-actions { display:flex; align-items:center; gap:.35rem; flex-shrink:0; }
 .ov-icon-btn {
     width:36px; height:36px; border-radius:var(--r-sm);
@@ -608,10 +647,12 @@
 .ov-icon-btn:hover { background:var(--hairline); color:var(--ink); text-decoration:none; }
 
 /* stat boxes */
-.ov-customer-stats { display:flex; gap:.7rem; margin-bottom:1rem; }
+.ov-customer-stats { display:flex; gap:.8rem; margin-bottom:1.1rem; }
 .ov-stat-box {
     flex:1; display:flex; flex-direction:column; align-items:center;
-    padding:.9rem .45rem;
+    justify-content:center;
+    min-height:76px;
+    padding:1rem .55rem;
     background:var(--surface-3); border-radius:var(--r);
     border:1px solid var(--hairline); text-align:center; gap:.2rem;
 }
@@ -621,7 +662,7 @@
 /* detail rows */
 .ov-detail {
     display:flex; align-items:flex-start; justify-content:space-between;
-    gap:1rem; padding:.8rem 0; border-bottom:1px solid var(--hairline-2);
+    gap:1rem; padding:1rem 0; border-bottom:1px solid var(--hairline-2);
 }
 .ov-detail:last-child { border-bottom:none; }
 .ov-detail .k { font-size:.76rem; color:var(--ink-mute); font-weight:400; flex-shrink:0; }
@@ -656,11 +697,12 @@
 /* RTL item row: image (right) → body (flex:1) → stepper → price (left) */
 .ov-item {
     display:grid;
-    grid-template-columns: 92px 1fr auto auto;
+    grid-template-columns: 96px minmax(260px, 33rem) minmax(120px, auto) minmax(100px, auto);
     grid-template-areas: "img body stepper price";
     align-items: center;
-    gap: 1.25rem;
-    padding: 1.35rem 1.5rem;
+    justify-content: space-between;
+    gap: 1.5rem;
+    padding: 1.6rem 1.75rem;
     border-bottom: 1px solid var(--hairline-2);
     direction: rtl;
 }
@@ -668,21 +710,21 @@
 
 .ov-item-img-wrap {
     grid-area: img;
-    width:84px; height:84px; border-radius:var(--r);
+    width:92px; height:92px; border-radius:18px;
     background:var(--surface-3); overflow:hidden; flex-shrink:0;
     border:1px solid var(--hairline-2);
     justify-self: end;
 }
 .ov-item-img {
-    width:84px !important; height:84px !important; max-width:84px;
+    width:92px !important; height:92px !important; max-width:92px;
     object-fit:cover; display:block;
 }
-.ov-item-body     { grid-area: body; min-width:0; }
-.ov-item-name     { font-size:1rem; font-weight:700; color:var(--ink); line-height:1.4; }
-.ov-item-sub      { font-size:.78rem; color:var(--ink-mute); margin-top:.2rem; }
+.ov-item-body     { grid-area: body; min-width:0; width:min(100%, 33rem); justify-self:end; }
+.ov-item-name     { font-size:1.06rem; font-weight:700; color:var(--ink); line-height:1.45; }
+.ov-item-sub      { font-size:.8rem; color:var(--ink-mute); margin-top:.22rem; }
 .ov-item-unit-line { margin-top:.35rem; }
-.ov-item-unit-price { font-size:.76rem; color:var(--ink-mute); }
-.ov-item-addons   { margin-top:.45rem; display:flex; flex-wrap:wrap; gap:.3rem; }
+.ov-item-unit-price { font-size:.8rem; color:var(--ink-mute); }
+.ov-item-addons   { margin-top:.55rem; display:flex; flex-wrap:wrap; gap:.35rem; }
 .ov-addon {
     display:inline-flex; align-items:center;
     padding:.18rem .58rem; border-radius:var(--r-pill);
@@ -693,12 +735,14 @@
 
 .ov-item-qty-col {
     grid-area: stepper;
-    display:flex; flex-direction:column; align-items:center; gap:.3rem; flex-shrink:0;
+    display:flex; flex-direction:column; align-items:flex-start; gap:.35rem; flex-shrink:0;
+    justify-self:start;
 }
 .ov-qty-stepper {
     display:flex; align-items:center; gap:0;
     border:1.5px solid var(--hairline); border-radius:var(--r-pill);
-    overflow:hidden; background:var(--surface-3);
+    overflow:hidden; background:#f6efe2;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.75);
 }
 .ov-qty-btn {
     width:36px; height:36px; display:flex; align-items:center; justify-content:center;
@@ -713,23 +757,25 @@
 
 .ov-item-price {
     grid-area: price;
-    font-size:1rem; font-weight:700; color:var(--ink);
+    font-size:1.08rem; font-weight:800; color:var(--ink);
     flex-shrink:0; font-variant-numeric:tabular-nums;
-    min-width:88px; text-align:start;
+    min-width:104px; text-align:start;
+    justify-self:start;
     white-space: nowrap;
 }
 
 /* ─── Totals ─────────────────────────────────────────────── */
 .ov-totals {
-    padding: 1.2rem 1.5rem 1.45rem;
+    padding: 1.35rem 1.75rem 1.7rem;
     border-top:1px solid var(--hairline-2);
     display:flex; flex-direction:column; gap:.5rem;
-    background:var(--surface-3);
+    background:var(--surface);
     direction: rtl;
 }
 .ov-total-row {
     display:flex; justify-content:space-between; align-items:center;
-    font-size:.86rem; color:var(--ink-mute); font-variant-numeric:tabular-nums;
+    font-size:.9rem; color:var(--ink-mute); font-variant-numeric:tabular-nums;
+    padding:.08rem 0;
     direction: rtl;
 }
 /* label = right (start in RTL), value = left (end in RTL) */
@@ -739,11 +785,11 @@
 .ov-totals-divider { height:1px; background:var(--hairline-2); margin:.2rem 0; }
 .ov-grand {
     display:flex; justify-content:space-between; align-items:center;
-    margin-top:.6rem; padding-top:1rem; border-top:2px solid var(--hairline);
+    margin-top:.7rem; padding-top:1.1rem; border-top:2px solid var(--hairline);
     direction: rtl;
 }
 .ov-grand .k { font-size:.95rem; font-weight:700; color:var(--ink); }
-.ov-grand .v { font-size:1.4rem; font-weight:800; color:var(--ink); letter-spacing:-.02em; font-variant-numeric:tabular-nums; }
+.ov-grand .v { font-size:1.7rem; font-weight:800; color:var(--ink); letter-spacing:-.02em; font-variant-numeric:tabular-nums; }
 
 /* ─── Change alert ───────────────────────────────────────── */
 .ov-change-alert {
@@ -851,7 +897,7 @@
 @media (max-width: 768px) {
 
     /* page breathing on narrow screens */
-    .ov-page { padding: 1rem 0 5rem; }
+    .ov-page { padding: 1rem 1rem 5rem; }
 
     /* ctx bar: stack vertically */
     .ov-ctx-bar {
@@ -924,6 +970,7 @@
     .ov-item {
         grid-template-columns: 60px 1fr;
         grid-template-areas: "img body";
+        justify-content: initial;
         gap: .625rem;
         padding: .875rem 1rem;
         align-items: center;
