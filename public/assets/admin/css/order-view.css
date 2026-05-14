@@ -494,11 +494,13 @@
 }
 .ov-card-title.danger { color:var(--red); }
 .ov-card-action {
-    font-size:.75rem; color:var(--ink-mute); font-weight:500;
-    cursor:pointer; background:none; border:none;
-    transition:color .15s; white-space:nowrap;
+    display:inline-flex; align-items:center; justify-content:center;
+    width:28px; height:28px; border-radius:var(--r-sm);
+    font-size:.88rem; color:var(--ink-mute); font-weight:500;
+    cursor:pointer; background:var(--surface-2); border:1px solid var(--hairline);
+    transition:color .15s, background .15s; white-space:nowrap;
 }
-.ov-card-action:hover { color:var(--navy); text-decoration:none; }
+.ov-card-action:hover { color:var(--navy); background:var(--hairline); text-decoration:none; }
 .ov-card-action--profile {
     display:inline-flex; align-items:center; gap:.3rem;
     padding:.2rem .55rem; border-radius:var(--r-pill);
@@ -508,6 +510,13 @@
     transition:background .15s;
 }
 .ov-card-action--profile:hover { background:rgba(37,99,192,.15); color:var(--blue); text-decoration:none; }
+.ov-card-action-link {
+    display:inline-flex; align-items:center; gap:.25rem;
+    font-size:.75rem; color:var(--ink-mute); font-weight:500;
+    cursor:pointer; background:none; border:none;
+    transition:color .15s; white-space:nowrap; padding:0;
+}
+.ov-card-action-link:hover { color:var(--navy); }
 .ov-card-body { padding: .75rem 1rem 1rem; }
 
 /* ─── Delivery man list ──────────────────────────────────── */
@@ -594,60 +603,63 @@
 /* detail rows */
 .ov-detail {
     display:flex; align-items:flex-start; justify-content:space-between;
-    gap:.75rem; padding:.5rem 0; border-bottom:1px solid var(--hairline-2);
+    gap:.75rem; padding:.45rem 0; border-bottom:1px solid var(--hairline-2);
 }
 .ov-detail:last-child { border-bottom:none; }
-.ov-detail .k { font-size:.75rem; color:var(--ink-mute); font-weight:400; flex-shrink:0; }
-.ov-detail .v { font-size:.82rem; color:var(--ink); font-weight:500; text-align:start; overflow-wrap:anywhere; }
+.ov-detail .k { font-size:.73rem; color:var(--ink-mute); font-weight:400; flex-shrink:0; }
+.ov-detail .v { font-size:.8rem; color:var(--ink); font-weight:500; text-align:start; overflow-wrap:anywhere; }
 .ov-detail .v a { color:var(--navy); text-decoration:none; }
 .ov-detail .v a:hover { text-decoration:underline; }
 .ov-detail .v.paid { color:var(--green); }
 
 /* cutlery note */
 .ov-cutlery-note {
-    display:flex; align-items:center; gap:.45rem;
-    margin-top:.75rem; padding:.5rem .75rem;
+    display:flex; align-items:center; justify-content:space-between; gap:.5rem;
+    margin-top:.5rem; padding:.45rem .65rem;
     background:var(--surface-2); border-radius:var(--r-sm);
-    border:1px solid var(--hairline); font-size:.76rem; color:var(--ink-mute); font-weight:500;
+    border:1px solid var(--hairline); font-size:.76rem;
 }
-.ov-cutlery-note.need { background:var(--amber-soft); color:var(--amber); border-color:rgba(196,125,0,.18); }
-.ov-cutlery-note i    { font-size:.88rem; }
+.ov-cutlery-note i    { font-size:.85rem; color:var(--ink-mute); }
 .ov-cutlery-note span { flex:1; color:var(--ink-mute); font-weight:400; }
-.ov-cutlery-note strong { font-weight:700; }
+.ov-cutlery-note strong { font-size:.75rem; font-weight:600; color:var(--ink-soft); }
+.ov-cutlery-note.need { background:var(--amber-soft); border-color:rgba(196,125,0,.18); }
+.ov-cutlery-note.need i    { color:var(--amber); }
+.ov-cutlery-note.need strong { color:var(--amber); }
 
 /* ─── Items list ─────────────────────────────────────────── */
 .ov-items-count {
     display:inline-flex; align-items:center;
-    padding:.1rem .5rem; border-radius:var(--r-pill);
+    padding:.12rem .55rem; border-radius:var(--r-pill);
     background:var(--surface-2); border:1px solid var(--hairline);
-    font-size:.72rem; font-weight:500; color:var(--ink-mute);
-    margin-inline-start:.25rem;
+    font-size:.7rem; font-weight:500; color:var(--ink-mute);
 }
 .ov-items { list-style:none !important; margin:0 !important; padding:0 !important; }
 .ov-item {
     display:flex; align-items:center; gap:.75rem;
-    padding:.875rem 1rem; border-bottom:1px solid var(--hairline-2);
+    padding:.75rem 1rem; border-bottom:1px solid var(--hairline-2);
 }
 .ov-item:last-child { border-bottom:none; }
 
 .ov-item-img-wrap {
-    width:72px; height:72px; border-radius:var(--r);
+    width:68px; height:68px; border-radius:var(--r);
     background:var(--surface-2); overflow:hidden; flex-shrink:0;
     border:1px solid var(--hairline-2);
 }
 .ov-item-img {
-    width:72px !important; height:72px !important; max-width:72px;
+    width:68px !important; height:68px !important; max-width:68px;
     object-fit:cover; display:block;
 }
 .ov-item-body     { flex:1; min-width:0; }
 .ov-item-name     { font-size:.88rem; font-weight:600; color:var(--ink); line-height:1.3; }
 .ov-item-sub      { font-size:.73rem; color:var(--ink-mute); margin-top:.1rem; }
-.ov-item-addons   { margin-top:.2rem; display:flex; flex-wrap:wrap; gap:.18rem; }
+.ov-item-unit-line { margin-top:.18rem; }
+.ov-item-unit-price { font-size:.72rem; color:var(--ink-mute); }
+.ov-item-addons   { margin-top:.25rem; display:flex; flex-wrap:wrap; gap:.18rem; }
 .ov-addon {
     display:inline-flex; align-items:center;
     padding:.1rem .45rem; border-radius:var(--r-pill);
-    background:var(--surface-2); color:var(--ink-soft);
-    font-size:.68rem; font-weight:500; border:1px solid var(--hairline);
+    background:var(--accent-soft); color:var(--accent-dark);
+    font-size:.68rem; font-weight:500; border:1px solid rgba(184,144,80,.2);
 }
 .ov-item-price-mobile { display:none; font-size:.83rem; font-weight:700; color:var(--ink); margin-top:.2rem; }
 
@@ -658,16 +670,15 @@
     overflow:hidden; background:var(--surface-2);
 }
 .ov-qty-btn {
-    width:28px; height:28px; display:flex; align-items:center; justify-content:center;
-    font-size:1rem; font-weight:500; color:var(--ink-mute);
+    width:26px; height:26px; display:flex; align-items:center; justify-content:center;
+    font-size:.95rem; font-weight:500; color:var(--ink-mute);
     cursor:default; background:transparent; border:none; line-height:1;
 }
 .ov-qty-val {
-    min-width:28px; text-align:center;
-    font-size:.85rem; font-weight:700; color:var(--ink);
+    min-width:26px; text-align:center;
+    font-size:.83rem; font-weight:700; color:var(--ink);
     font-variant-numeric:tabular-nums; padding:0 .1rem;
 }
-.ov-item-unit-price { font-size:.67rem; color:var(--ink-mute); text-align:center; }
 
 .ov-item-price {
     font-size:.93rem; font-weight:700; color:var(--ink);
@@ -677,24 +688,24 @@
 
 /* ─── Totals ─────────────────────────────────────────────── */
 .ov-totals {
-    padding: .875rem 1rem;
-    border-top:1px solid var(--hairline);
-    display:flex; flex-direction:column; gap:.4rem;
-    background:var(--surface-2);
+    padding: .75rem 1rem;
+    border-top:1px solid var(--hairline-2);
+    display:flex; flex-direction:column; gap:.35rem;
+    background:var(--surface);
 }
 .ov-total-row {
     display:flex; justify-content:space-between; align-items:center;
-    font-size:.83rem; color:var(--ink-soft); font-variant-numeric:tabular-nums;
+    font-size:.82rem; color:var(--ink-mute); font-variant-numeric:tabular-nums;
 }
-.ov-total-row .v { font-weight:600; color:var(--ink); }
+.ov-total-row .v { font-weight:500; color:var(--ink-soft); }
 .ov-total-row.discount .v { color:var(--green); }
-.ov-totals-divider { height:1px; background:var(--hairline); margin:.1rem 0; }
+.ov-totals-divider { height:1px; background:var(--hairline-2); margin:.1rem 0; }
 .ov-grand {
-    display:flex; justify-content:space-between; align-items:baseline;
-    margin-top:.375rem; padding-top:.75rem; border-top:1.5px solid var(--hairline);
+    display:flex; justify-content:space-between; align-items:center;
+    margin-top:.25rem; padding-top:.625rem; border-top:1px solid var(--hairline);
 }
-.ov-grand .k { font-size:.9rem; font-weight:600; color:var(--ink); }
-.ov-grand .v { font-size:1.35rem; font-weight:800; color:var(--ink); letter-spacing:-.015em; font-variant-numeric:tabular-nums; }
+.ov-grand .k { font-size:.9rem; font-weight:700; color:var(--ink); }
+.ov-grand .v { font-size:1.25rem; font-weight:800; color:var(--ink); letter-spacing:-.015em; font-variant-numeric:tabular-nums; }
 
 /* ─── Change alert ───────────────────────────────────────── */
 .ov-change-alert {

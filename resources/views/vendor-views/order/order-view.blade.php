@@ -455,6 +455,9 @@ $restaurantOpen = $restaurant->active ?? 1;
                                         @endforeach
                                     @endif
                                 </div>
+                                <div class="ov-item-unit-line">
+                                    <span class="ov-item-unit-price">×{{ $detail['quantity'] }} · {{ \App\CentralLogics\Helpers::format_currency($detail['price']) }} للوحدة</span>
+                                </div>
                                 @php($addons = json_decode($detail['add_ons'], true))
                                 @if (count($addons))
                                 <div class="ov-item-addons">
@@ -471,7 +474,6 @@ $restaurantOpen = $restaurant->active ?? 1;
                                     <span class="ov-qty-val">{{ $detail['quantity'] }}</span>
                                     <button class="ov-qty-btn" disabled>+</button>
                                 </div>
-                                <span class="ov-item-unit-price">{{ \App\CentralLogics\Helpers::format_currency($detail['price']) }} للوحدة</span>
                             </div>
                             <div class="ov-item-price">{{ \App\CentralLogics\Helpers::format_currency($detail['price'] * $detail['quantity']) }}</div>
                         </li>
@@ -486,6 +488,9 @@ $restaurantOpen = $restaurant->active ?? 1;
                             </div>
                             <div class="ov-item-body">
                                 <div class="ov-item-name">{{ Str::limit($detail->campaign['name'], 36, '…') }}</div>
+                                <div class="ov-item-unit-line">
+                                    <span class="ov-item-unit-price">×{{ $detail['quantity'] }} · {{ \App\CentralLogics\Helpers::format_currency($detail['price']) }} للوحدة</span>
+                                </div>
                                 @php($addons = json_decode($detail['add_ons'], true))
                                 @if (count($addons))
                                 <div class="ov-item-addons">
@@ -501,7 +506,6 @@ $restaurantOpen = $restaurant->active ?? 1;
                                     <span class="ov-qty-val">{{ $detail['quantity'] }}</span>
                                     <button class="ov-qty-btn" disabled>+</button>
                                 </div>
-                                <span class="ov-item-unit-price">{{ \App\CentralLogics\Helpers::format_currency($detail['price']) }} للوحدة</span>
                             </div>
                             <div class="ov-item-price">{{ \App\CentralLogics\Helpers::format_currency($detail['price'] * $detail['quantity']) }}</div>
                         </li>
@@ -639,7 +643,13 @@ $restaurantOpen = $restaurant->active ?? 1;
                 <div class="ov-card-body">
                     @if ($order->customer && $order->is_guest == 0)
                     <div class="ov-person">
-                        <div class="ov-person-avatar">{{ mb_substr($order->customer['f_name'] ?? 'ع', 0, 1) }}</div>
+                        <div class="ov-person-actions">
+                            @if($order->customer['phone'])
+                            <a href="tel:{{ $order->customer['phone'] }}" class="ov-icon-btn" title="اتصال"><i class="tio-call"></i></a>
+                            @endif
+                            <button class="ov-icon-btn" title="إشعار"><i class="tio-notifications-outlined"></i></button>
+                            <button class="ov-icon-btn" title="تحديث"><i class="tio-refresh"></i></button>
+                        </div>
                         <div class="ov-person-text">
                             <div class="ov-person-name">{{ $order->customer['f_name'] . ' ' . $order->customer['l_name'] }}</div>
                             <div class="ov-person-sub">
@@ -649,13 +659,7 @@ $restaurantOpen = $restaurant->active ?? 1;
                                 {{ $customerOrdersCount == 1 ? 'أول طلب اليوم' : $customerOrdersCount . ' طلب سابق' }}
                             </div>
                         </div>
-                        <div class="ov-person-actions">
-                            @if($order->customer['phone'])
-                            <a href="tel:{{ $order->customer['phone'] }}" class="ov-icon-btn" title="اتصال"><i class="tio-call"></i></a>
-                            @endif
-                            <button class="ov-icon-btn" title="إشعار"><i class="tio-notifications-outlined"></i></button>
-                            <button class="ov-icon-btn" title="تحديث"><i class="tio-refresh"></i></button>
-                        </div>
+                        <div class="ov-person-avatar">{{ mb_substr($order->customer['f_name'] ?? 'ع', 0, 1) }}</div>
                     </div>
                     <div class="ov-customer-stats">
                         <div class="ov-stat-box">
@@ -697,7 +701,7 @@ $restaurantOpen = $restaurant->active ?? 1;
                 <div class="ov-card-head">
                     <h2 class="ov-card-title">{{ $order->order_type == 'dine_in' ? 'بيانات الطلب' : 'عنوان التوصيل' }}</h2>
                     @if($c_address)
-                    <button class="ov-card-action" data-toggle="modal" data-target="#locationModal"><i class="tio-poi-outlined"></i> الخريطة</button>
+                    <button class="ov-card-action-link" data-toggle="modal" data-target="#locationModal"><i class="tio-poi-outlined"></i> الخريطة</button>
                     @endif
                 </div>
                 <div class="ov-card-body">
@@ -747,7 +751,7 @@ $restaurantOpen = $restaurant->active ?? 1;
                 <div class="ov-card-head">
                     <h2 class="ov-card-title">إثبات التوصيل</h2>
                     @if (($restaurant->restaurant_model == 'commission' && $restaurant->self_delivery_system) || ($restaurant->restaurant_model == 'subscription' && $restaurant?->restaurant_sub?->self_delivery == 1))
-                    <button class="ov-card-action" data-toggle="modal" data-target=".order-proof-modal">+ إضافة</button>
+                    <button class="ov-card-action-link" data-toggle="modal" data-target=".order-proof-modal">+ إضافة</button>
                     @endif
                 </div>
                 <div class="ov-card-body">
