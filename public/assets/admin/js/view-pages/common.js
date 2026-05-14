@@ -716,9 +716,17 @@ document.querySelectorAll('[name="search"]').forEach(function (element) {
 });
 
 $(document).on("click", ".print-Div", function () {
+    const printableArea = document.getElementById("printableArea");
+    const printContents = printableArea
+        ? `<div class="content container-fluid">${printableArea.innerHTML}</div>`
+        : "";
+
+    if (!printContents) {
+        return;
+    }
+
     if ($("html").attr("dir") === "rtl") {
         $("html").attr("dir", "ltr");
-        let printContents = document.getElementById("printableArea").innerHTML;
         let originalContents = document.body.innerHTML;
         document.body.innerHTML = printContents;
         $(".initial-38-1").attr("dir", "rtl");
@@ -727,7 +735,6 @@ $(document).on("click", ".print-Div", function () {
         $("html").attr("dir", "rtl");
         location.reload();
     } else {
-        let printContents = document.getElementById("printableArea").innerHTML;
         let originalContents = document.body.innerHTML;
         document.body.innerHTML = printContents;
         window.print();
@@ -1037,4 +1044,3 @@ $(document).on("ready", function () {
     $(".multiple-select2").select2DynamicDisplay();
 
 });
-
