@@ -419,7 +419,149 @@ $restaurantOpen = $restaurant->active ?? 1;
     {{-- ── Main 2-col grid ────────────────────────────────── --}}
     <div class="ov-grid">
 
-        {{-- COL 1: Delivery man list + customer --}}
+        {{-- COL 1: Items + totals --}}
+        <div class="ov-col-items">
+            <section class="ov-card">
+                <div class="ov-card-head">
+                    <h2 class="ov-card-title">الأصناف المطلوبة</h2>
+                    <div style="display:flex;align-items:center;gap:.5rem;">
+                        <span class="ov-items-count">{{ $order->details->count() }} أصناف · {{ $order->details->sum('quantity') }} قطع</span>
+                        <a class="ov-card-action" href="{{ route('vendor.order.generate-invoice', [$order['id']]) }}" title="طباعة"><i class="tio-print"></i></a>
+                    </div>
+                </div>
+                <ul class="ov-items">
+                @foreach ($order->details as $key => $detail)
+                    @if (isset($detail->food_id))
+                        @php($detail->food = json_decode($detail->food_details, true))
+                        @php($food = \App\Models\Food::where(['id' => $detail->food['id']])->first())
+                        <li class="ov-item">
+                            <div class="ov-item-img-wrap">
+                                <img class="ov-item-img onerror-image"
+                                     src="{{ $food['image_full_url'] ?? dynamicAsset('public/assets/admin/img/100x100/food-default-image.png') }}"
+                                     data-onerror-image="{{ dynamicAsset('public/assets/admin/img/160x160/img2.jpg') }}"
+                                     alt="">
+                            </div>
+                            <div class="ov-item-body">
+                                <div class="ov-item-name">{{ Str::limit($detail->food['name'], 36, '…') }}</div>
+                                <div class="ov-item-sub">
+                                    @if (count(json_decode($detail['variation'], true)) > 0)
+                                        @foreach(json_decode($detail['variation'],true) as $variation)
+                                            @if (isset($variation['name']) && isset($variation['values']))
+                                                <span>{{ $variation['name'] }}:
+                                                    @foreach ($variation['values'] as $value){{ $value['label'] }}@if (!$loop->last), @endif @endforeach
+                                                </span>
+                                            @break
+                                            @endif
+                                        @endforeach
+                                    @endif
+                                </div>
+                                @php($addons = json_decode($detail['add_ons'], true))
+                                @if (count($addons))
+                                <div class="ov-item-addons">
+                                    @foreach ($addons as $addon)
+                                        <span class="ov-addon">+ {{ Str::limit($addon['name'],20,'…') }} ×{{ $addon['quantity'] }}</span>
+                                    @endforeach
+                                </div>
+                                @endif
+                                <div class="ov-item-price-mobile">{{ \App\CentralLogics\Helpers::format_currency($detail['price'] * $detail['quantity']) }}</div>
+                            </div>
+                            <div class="ov-item-qty-col">
+                                <div class="ov-qty-stepper">
+                                    <button class="ov-qty-btn" disabled>−</button>
+                                    <span class="ov-qty-val">{{ $detail['quantity'] }}</span>
+                                    <button class="ov-qty-btn" disabled>+</button>
+                                </div>
+                                <span class="ov-item-unit-price">{{ \App\CentralLogics\Helpers::format_currency($detail['price']) }} للوحدة</span>
+                            </div>
+                            <div class="ov-item-price">{{ \App\CentralLogics\Helpers::format_currency($detail['price'] * $detail['quantity']) }}</div>
+                        </li>
+                    @elseif(isset($detail->item_campaign_id))
+                        @php($detail->campaign = json_decode($detail->food_details, true))
+                        <li class="ov-item">
+                            <div class="ov-item-img-wrap">
+                                <img class="ov-item-img onerror-image"
+                                     src="{{ $detail->campaign['image_full_url'] ?? dynamicAsset('public/assets/admin/img/100x100/food-default-image.png') }}"
+                                     data-onerror-image="{{ dynamicAsset('public/assets/admin/img/160x160/img2.jpg') }}"
+                                     alt="">
+                            </div>
+                            <div class="ov-item-body">
+                                <div class="ov-item-name">{{ Str::limit($detail->campaign['name'], 36, '…') }}</div>
+                                @php($addons = json_decode($detail['add_ons'], true))
+                                @if (count($addons))
+                                <div class="ov-item-addons">
+                                    @foreach ($addons as $addon)
+                                        <span class="ov-addon">+ {{ Str::limit($addon['name'],20,'…') }} ×{{ $addon['quantity'] }}</span>
+                                    @endforeach
+                                </div>
+                                @endif
+                            </div>
+                            <div class="ov-item-qty-col">
+                                <div class="ov-qty-stepper">
+                                    <button class="ov-qty-btn" disabled>−</button>
+                                    <span class="ov-qty-val">{{ $detail['quantity'] }}</span>
+                                    <button class="ov-qty-btn" disabled>+</button>
+                                </div>
+                                <span class="ov-item-unit-price">{{ \App\CentralLogics\Helpers::format_currency($detail['price']) }} للوحدة</span>
+                            </div>
+                            <div class="ov-item-price">{{ \App\CentralLogics\Helpers::format_currency($detail['price'] * $detail['quantity']) }}</div>
+                        </li>
+                    @endif
+                @endforeach
+                </ul>
+
+                {{-- Totals --}}
+                <div class="ov-totals">
+                    <div class="ov-total-row"><span>سعر الأصناف</span><span class="v">{{ \App\CentralLogics\Helpers::format_currency($product_price) }}</span></div>
+                    @if ($total_addon_price > 0)
+                    <div class="ov-total-row"><span>الإضافات</span><span class="v">{{ \App\CentralLogics\Helpers::format_currency($total_addon_price) }}</span></div>
+                    @endif
+                    @if ($restaurant_discount_amount > 0)
+                    <div class="ov-total-row discount"><span>خصم المطعم</span><span class="v">− {{ \App\CentralLogics\Helpers::format_currency($restaurant_discount_amount) }}</span></div>
+                    @endif
+                    @if ($coupon_discount_amount > 0)
+                    <div class="ov-total-row discount"><span>خصم القسيمة</span><span class="v">− {{ \App\CentralLogics\Helpers::format_currency($coupon_discount_amount) }}</span></div>
+                    @endif
+                    @if ($order['ref_bonus_amount'] > 0)
+                    <div class="ov-total-row discount"><span>خصم الإحالة</span><span class="v">− {{ \App\CentralLogics\Helpers::format_currency($order['ref_bonus_amount']) }}</span></div>
+                    @endif
+                    @if ($order->tax_status == 'excluded' || $order->tax_status == null)
+                    <div class="ov-total-row"><span>ضريبة القيمة المضافة</span><span class="v">{{ \App\CentralLogics\Helpers::format_currency($total_tax_amount) }}</span></div>
+                    @endif
+                    @if ($order['dm_tips'] > 0)
+                    <div class="ov-total-row"><span>إكرامية المندوب</span><span class="v">{{ \App\CentralLogics\Helpers::format_currency($order['dm_tips']) }}</span></div>
+                    @endif
+                    <div class="ov-total-row"><span>رسوم التوصيل</span><span class="v">{{ \App\CentralLogics\Helpers::format_currency($order['delivery_charge']) }}</span></div>
+                    @if ($additional_charge_status)
+                    <div class="ov-total-row"><span>{{ \App\CentralLogics\Helpers::get_business_data('additional_charge_name') ?? translate('messages.additional_charge') }}</span><span class="v">{{ \App\CentralLogics\Helpers::format_currency($order['additional_charge']) }}</span></div>
+                    @endif
+                    @if ($order['extra_packaging_amount'] > 0)
+                    <div class="ov-total-row"><span>تغليف إضافي</span><span class="v">{{ \App\CentralLogics\Helpers::format_currency($order['extra_packaging_amount']) }}</span></div>
+                    @endif
+                    @if ($order?->payments && count($order->payments))
+                    <div class="ov-totals-divider"></div>
+                    @foreach ($order->payments as $payment)
+                    <div class="ov-total-row">
+                        <span>{{ $payment->payment_method == 'cash_on_delivery' ? 'دفع نقدي عند التوصيل' : 'دفع عبر ' . translate($payment->payment_method) }}</span>
+                        <span class="v">{{ \App\CentralLogics\Helpers::format_currency($payment->amount) }}</span>
+                    </div>
+                    @endforeach
+                    @endif
+                    <div class="ov-grand">
+                        <span class="k">الإجمالي</span>
+                        <span class="v">{{ \App\CentralLogics\Helpers::format_currency($order['order_amount']) }}</span>
+                    </div>
+                </div>
+
+                @if ($order->bring_change_amount > 0)
+                <div class="ov-change-alert">
+                    <i class="tio-money"></i>
+                    {{ translate('Please instruct the delivery man to collect ' . \App\CentralLogics\Helpers::format_currency($order->bring_change_amount) . ' in change upon delivery') }}
+                </div>
+                @endif
+            </section>
+        </div>
+
+        {{-- COL 2: Delivery man list + customer --}}
         <div class="ov-col-sidebar">
 
             {{-- Delivery man picker (visible for delivery orders when man not yet assigned) --}}
@@ -645,148 +787,6 @@ $restaurantOpen = $restaurant->active ?? 1;
             </section>
             @endif
 
-        </div>
-
-        {{-- COL 2: Items + totals --}}
-        <div class="ov-col-items">
-            <section class="ov-card">
-                <div class="ov-card-head">
-                    <h2 class="ov-card-title">
-                        الأصناف المطلوبة
-                        <span class="ov-items-count">{{ $order->details->count() }} أصناف · {{ $order->details->sum('quantity') }} قطع</span>
-                    </h2>
-                    <a class="ov-card-action" href="{{ route('vendor.order.generate-invoice', [$order['id']]) }}"><i class="tio-print"></i></a>
-                </div>
-                <ul class="ov-items">
-                @foreach ($order->details as $key => $detail)
-                    @if (isset($detail->food_id))
-                        @php($detail->food = json_decode($detail->food_details, true))
-                        @php($food = \App\Models\Food::where(['id' => $detail->food['id']])->first())
-                        <li class="ov-item">
-                            <div class="ov-item-img-wrap">
-                                <img class="ov-item-img onerror-image"
-                                     src="{{ $food['image_full_url'] ?? dynamicAsset('public/assets/admin/img/100x100/food-default-image.png') }}"
-                                     data-onerror-image="{{ dynamicAsset('public/assets/admin/img/160x160/img2.jpg') }}"
-                                     alt="">
-                            </div>
-                            <div class="ov-item-body">
-                                <div class="ov-item-name">{{ Str::limit($detail->food['name'], 36, '…') }}</div>
-                                <div class="ov-item-sub">
-                                    @if (count(json_decode($detail['variation'], true)) > 0)
-                                        @foreach(json_decode($detail['variation'],true) as $variation)
-                                            @if (isset($variation['name']) && isset($variation['values']))
-                                                <span>{{ $variation['name'] }}:
-                                                    @foreach ($variation['values'] as $value){{ $value['label'] }}@if (!$loop->last), @endif @endforeach
-                                                </span>
-                                            @break
-                                            @endif
-                                        @endforeach
-                                    @endif
-                                </div>
-                                @php($addons = json_decode($detail['add_ons'], true))
-                                @if (count($addons))
-                                <div class="ov-item-addons">
-                                    @foreach ($addons as $addon)
-                                        <span class="ov-addon">+ {{ Str::limit($addon['name'],20,'…') }} ×{{ $addon['quantity'] }}</span>
-                                    @endforeach
-                                </div>
-                                @endif
-                                <div class="ov-item-price-mobile">{{ \App\CentralLogics\Helpers::format_currency($detail['price'] * $detail['quantity']) }}</div>
-                            </div>
-                            <div class="ov-item-qty-col">
-                                <div class="ov-qty-stepper">
-                                    <button class="ov-qty-btn" disabled>−</button>
-                                    <span class="ov-qty-val">{{ $detail['quantity'] }}</span>
-                                    <button class="ov-qty-btn" disabled>+</button>
-                                </div>
-                                <span class="ov-item-unit-price">{{ \App\CentralLogics\Helpers::format_currency($detail['price']) }} للوحدة</span>
-                            </div>
-                            <div class="ov-item-price">{{ \App\CentralLogics\Helpers::format_currency($detail['price'] * $detail['quantity']) }}</div>
-                        </li>
-                    @elseif(isset($detail->item_campaign_id))
-                        @php($detail->campaign = json_decode($detail->food_details, true))
-                        <li class="ov-item">
-                            <div class="ov-item-img-wrap">
-                                <img class="ov-item-img onerror-image"
-                                     src="{{ $detail->campaign['image_full_url'] ?? dynamicAsset('public/assets/admin/img/100x100/food-default-image.png') }}"
-                                     data-onerror-image="{{ dynamicAsset('public/assets/admin/img/160x160/img2.jpg') }}"
-                                     alt="">
-                            </div>
-                            <div class="ov-item-body">
-                                <div class="ov-item-name">{{ Str::limit($detail->campaign['name'], 36, '…') }}</div>
-                                @php($addons = json_decode($detail['add_ons'], true))
-                                @if (count($addons))
-                                <div class="ov-item-addons">
-                                    @foreach ($addons as $addon)
-                                        <span class="ov-addon">+ {{ Str::limit($addon['name'],20,'…') }} ×{{ $addon['quantity'] }}</span>
-                                    @endforeach
-                                </div>
-                                @endif
-                            </div>
-                            <div class="ov-item-qty-col">
-                                <div class="ov-qty-stepper">
-                                    <button class="ov-qty-btn" disabled>−</button>
-                                    <span class="ov-qty-val">{{ $detail['quantity'] }}</span>
-                                    <button class="ov-qty-btn" disabled>+</button>
-                                </div>
-                                <span class="ov-item-unit-price">{{ \App\CentralLogics\Helpers::format_currency($detail['price']) }} للوحدة</span>
-                            </div>
-                            <div class="ov-item-price">{{ \App\CentralLogics\Helpers::format_currency($detail['price'] * $detail['quantity']) }}</div>
-                        </li>
-                    @endif
-                @endforeach
-                </ul>
-
-                {{-- Totals --}}
-                <div class="ov-totals">
-                    <div class="ov-total-row"><span>سعر الأصناف</span><span class="v">{{ \App\CentralLogics\Helpers::format_currency($product_price) }}</span></div>
-                    @if ($total_addon_price > 0)
-                    <div class="ov-total-row"><span>الإضافات</span><span class="v">{{ \App\CentralLogics\Helpers::format_currency($total_addon_price) }}</span></div>
-                    @endif
-                    @if ($restaurant_discount_amount > 0)
-                    <div class="ov-total-row discount"><span>خصم المطعم</span><span class="v">− {{ \App\CentralLogics\Helpers::format_currency($restaurant_discount_amount) }}</span></div>
-                    @endif
-                    @if ($coupon_discount_amount > 0)
-                    <div class="ov-total-row discount"><span>خصم القسيمة</span><span class="v">− {{ \App\CentralLogics\Helpers::format_currency($coupon_discount_amount) }}</span></div>
-                    @endif
-                    @if ($order['ref_bonus_amount'] > 0)
-                    <div class="ov-total-row discount"><span>خصم الإحالة</span><span class="v">− {{ \App\CentralLogics\Helpers::format_currency($order['ref_bonus_amount']) }}</span></div>
-                    @endif
-                    @if ($order->tax_status == 'excluded' || $order->tax_status == null)
-                    <div class="ov-total-row"><span>ضريبة القيمة المضافة</span><span class="v">{{ \App\CentralLogics\Helpers::format_currency($total_tax_amount) }}</span></div>
-                    @endif
-                    @if ($order['dm_tips'] > 0)
-                    <div class="ov-total-row"><span>إكرامية المندوب</span><span class="v">{{ \App\CentralLogics\Helpers::format_currency($order['dm_tips']) }}</span></div>
-                    @endif
-                    <div class="ov-total-row"><span>رسوم التوصيل</span><span class="v">{{ \App\CentralLogics\Helpers::format_currency($order['delivery_charge']) }}</span></div>
-                    @if ($additional_charge_status)
-                    <div class="ov-total-row"><span>{{ \App\CentralLogics\Helpers::get_business_data('additional_charge_name') ?? translate('messages.additional_charge') }}</span><span class="v">{{ \App\CentralLogics\Helpers::format_currency($order['additional_charge']) }}</span></div>
-                    @endif
-                    @if ($order['extra_packaging_amount'] > 0)
-                    <div class="ov-total-row"><span>تغليف إضافي</span><span class="v">{{ \App\CentralLogics\Helpers::format_currency($order['extra_packaging_amount']) }}</span></div>
-                    @endif
-                    @if ($order?->payments && count($order->payments))
-                    <div class="ov-totals-divider"></div>
-                    @foreach ($order->payments as $payment)
-                    <div class="ov-total-row">
-                        <span>{{ $payment->payment_method == 'cash_on_delivery' ? 'دفع نقدي عند التوصيل' : 'دفع عبر ' . translate($payment->payment_method) }}</span>
-                        <span class="v">{{ \App\CentralLogics\Helpers::format_currency($payment->amount) }}</span>
-                    </div>
-                    @endforeach
-                    @endif
-                    <div class="ov-grand">
-                        <span class="k">الإجمالي</span>
-                        <span class="v">{{ \App\CentralLogics\Helpers::format_currency($order['order_amount']) }}</span>
-                    </div>
-                </div>
-
-                @if ($order->bring_change_amount > 0)
-                <div class="ov-change-alert">
-                    <i class="tio-money"></i>
-                    {{ translate('Please instruct the delivery man to collect ' . \App\CentralLogics\Helpers::format_currency($order->bring_change_amount) . ' in change upon delivery') }}
-                </div>
-                @endif
-            </section>
         </div>
 
     </div>{{-- /ov-grid --}}
