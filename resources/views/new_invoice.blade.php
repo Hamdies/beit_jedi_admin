@@ -58,6 +58,9 @@
     // Restaurant logo
     $restaurantLogo = $order->restaurant?->logo_full_url ?? null;
 
+    // Currency helper — always display as ج.م
+    $fmt = fn($val) => 'ج.م ' . number_format((float)$val, 2);
+
     $subTotal = 0;
     $addOnsCost = 0;
 
@@ -743,6 +746,27 @@
                         .bj-invoice-divider {
                             margin: 6px 0 !important;
                         }
+
+                        /* ── Force all text to full black for thermal ── */
+                        .bj-invoice-sheet,
+                        .bj-invoice-sheet * {
+                            color: #000 !important;
+                        }
+
+                        /* ── Powered by — fix direction for thermal LTR rendering ── */
+                        .bj-invoice-powered {
+                            direction: ltr !important;
+                            unicode-bidi: embed !important;
+                            font-size: 7pt !important;
+                            letter-spacing: 0.02em !important;
+                            color: #000 !important;
+                            margin-top: 4px !important;
+                        }
+
+                        .bj-invoice-powered span,
+                        .bj-invoice-powered strong {
+                            color: #000 !important;
+                        }
                     }
                 </style>
 
@@ -864,12 +888,12 @@
                                                 <div class="bj-invoice-item-meta">
                                                     <strong>الإضافات:</strong>
                                                     @foreach($addons as $addon)
-                                                        <div>{{ $addon['name'] }} - {{ $addon['quantity'] }} x {{ Helpers::format_currency($addon['price']) }}</div>
+                                                        <div>{{ $addon['name'] }} - {{ $addon['quantity'] }} x {{ $fmt($addon['price']) }}</div>
                                                     @endforeach
                                                 </div>
                                             @endif
                                         </td>
-                                        <td class="bj-invoice-price">{{ Helpers::format_currency($amount) }}</td>
+                                        <td class="bj-invoice-price">{{ $fmt($amount) }}</td>
                                     </tr>
                                 @endforeach
                             </tbody>
@@ -881,76 +905,76 @@
                     <section class="bj-invoice-summary">
                         <div class="bj-invoice-summary-row">
                             <span>سعر الأصناف</span>
-                            <span>{{ Helpers::format_currency($subTotal) }}</span>
+                            <span>{{ $fmt($subTotal) }}</span>
                         </div>
 
                         <div class="bj-invoice-summary-row">
                             <span>الإضافات</span>
-                            <span>{{ Helpers::format_currency($addOnsCost) }}</span>
+                            <span>{{ $fmt($addOnsCost) }}</span>
                         </div>
 
                         <div class="bj-invoice-summary-row bj-invoice-summary-row--subdivider">
                             <span>المجموع الفرعي</span>
-                            <span>{{ Helpers::format_currency($summarySubTotal) }}</span>
+                            <span>{{ $fmt($summarySubTotal) }}</span>
                         </div>
 
                         @if ($order['restaurant_discount_amount'] > 0)
                             <div class="bj-invoice-summary-row bj-invoice-summary-row--muted">
                                 <span>التخفيض</span>
-                                <span>- {{ Helpers::format_currency($order['restaurant_discount_amount']) }}</span>
+                                <span>- {{ $fmt($order['restaurant_discount_amount']) }}</span>
                             </div>
                         @endif
 
                         @if ($order['coupon_discount_amount'] > 0)
                             <div class="bj-invoice-summary-row bj-invoice-summary-row--muted">
                                 <span>خصم القسيمة</span>
-                                <span>- {{ Helpers::format_currency($order['coupon_discount_amount']) }}</span>
+                                <span>- {{ $fmt($order['coupon_discount_amount']) }}</span>
                             </div>
                         @endif
 
                         @if ($order['ref_bonus_amount'] > 0)
                             <div class="bj-invoice-summary-row bj-invoice-summary-row--muted">
                                 <span>خصم الإحالة</span>
-                                <span>- {{ Helpers::format_currency($order['ref_bonus_amount']) }}</span>
+                                <span>- {{ $fmt($order['ref_bonus_amount']) }}</span>
                             </div>
                         @endif
 
                         @if ($order->tax_status == 'excluded' || $order->tax_status == null)
                             <div class="bj-invoice-summary-row bj-invoice-summary-row--muted">
                                 <span>ضريبة القيمة المضافة</span>
-                                <span>{{ Helpers::format_currency($order['total_tax_amount']) }}</span>
+                                <span>{{ $fmt($order['total_tax_amount']) }}</span>
                             </div>
                         @endif
 
                         <div class="bj-invoice-summary-row bj-invoice-summary-row--muted">
                             <span>رسوم التوصيل</span>
-                            <span>{{ Helpers::format_currency($order['delivery_charge']) }}</span>
+                            <span>{{ $fmt($order['delivery_charge']) }}</span>
                         </div>
 
                         @if ($order['dm_tips'] > 0)
                             <div class="bj-invoice-summary-row bj-invoice-summary-row--muted">
                                 <span>إكرامية المندوب</span>
-                                <span>{{ Helpers::format_currency($order['dm_tips']) }}</span>
+                                <span>{{ $fmt($order['dm_tips']) }}</span>
                             </div>
                         @endif
 
                         @if ($order['additional_charge'] > 0)
                             <div class="bj-invoice-summary-row bj-invoice-summary-row--muted">
                                 <span>{{ Helpers::get_business_data('additional_charge_name') ?? translate('messages.additional_charge') }}</span>
-                                <span>{{ Helpers::format_currency($order['additional_charge']) }}</span>
+                                <span>{{ $fmt($order['additional_charge']) }}</span>
                             </div>
                         @endif
 
                         @if ($order['extra_packaging_amount'] > 0)
                             <div class="bj-invoice-summary-row bj-invoice-summary-row--muted">
                                 <span>رسوم تغليف إضافية</span>
-                                <span>{{ Helpers::format_currency($order['extra_packaging_amount']) }}</span>
+                                <span>{{ $fmt($order['extra_packaging_amount']) }}</span>
                             </div>
                         @endif
 
                         <div class="bj-invoice-total-box">
                             <div class="bj-invoice-total-title">الإجمالي المستحق</div>
-                            <div class="bj-invoice-total-amount">{{ Helpers::format_currency($order['order_amount']) }}</div>
+                            <div class="bj-invoice-total-amount">{{ $fmt($order['order_amount']) }}</div>
                             <hr class="bj-invoice-divider">
                             <div class="bj-invoice-payment-note">
                                 {{ $order['payment_method'] === 'cash_on_delivery' ? 'دفع نقدي عند التسليم — يُستلم من العميل' : translate(str_replace('_', ' ', $order['payment_method'])) }}
@@ -962,9 +986,8 @@
 
                     <footer class="bj-invoice-footer">
                         <div class="bj-invoice-thanks">شكراً لك</div>
-                        <div class="bj-invoice-powered">
-                            <span>Powered by</span>
-                            <strong>Hamdies Solutions</strong>
+                        <div class="bj-invoice-powered" dir="ltr">
+                            <span>Powered by</span> <strong>Hamdies Solutions</strong>
                         </div>
                     </footer>
                 </div>
