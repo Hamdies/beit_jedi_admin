@@ -27,11 +27,33 @@
 
     $isDeliveryOrder = !in_array($order->order_type, ['dine_in', 'take_away']);
 
-    // Address fields
-    $addrStreet  = $address['address'] ?? '';
-    $addrRoad    = $address['road'] ?? '';
+    // Address fields — parse road like "مدينتي/ مجموعة 14/ عمارة 40/شقة 43"
+    $addrRaw     = $address['road'] ?? '';
     $addrHouse   = $address['house'] ?? '';
     $addrFloor   = $address['floor'] ?? '';
+
+    // Extract named parts from road string
+    $addrMadina  = '';
+    $addrGroup   = '';
+    $addrBuild   = '';
+    $addrApt     = '';
+
+    if ($addrRaw) {
+        // Split on / or ،
+        $parts = preg_split('/[\/،]+/', $addrRaw);
+        foreach ($parts as $part) {
+            $part = trim($part);
+            if (preg_match('/مجموعة\s*(.*)/u', $part, $m))      $addrGroup  = trim($m[1]) ?: $part;
+            elseif (preg_match('/عمارة\s*(.*)/u', $part, $m))   $addrBuild  = trim($m[1]) ?: $part;
+            elseif (preg_match('/شقة\s*(.*)/u', $part, $m))     $addrApt    = trim($m[1]) ?: $part;
+            elseif ($addrMadina === '')                          $addrMadina = $part;
+        }
+        // fallback: if nothing parsed, show raw
+        if (!$addrGroup && !$addrBuild && !$addrApt) $addrMadina = $addrRaw;
+    }
+
+    // Use house/floor fields as fallback for build/floor
+    if (!$addrBuild && $addrHouse) $addrBuild = $addrHouse;
 
     // Restaurant logo
     $restaurantLogo = $order->restaurant?->logo_full_url ?? null;
@@ -69,7 +91,7 @@
                 document.getElementById('bj-print-btn').addEventListener('click', function () {
                     var sheetHtml = document.getElementById('printableArea').innerHTML;
                     var win = window.open('', '_blank', 'width=400,height=800');
-                    win.document.write('<!DOCTYPE html><html dir="rtl"><head><meta charset="utf-8"><title>فاتورة</title><style>*{box-sizing:border-box;margin:0;padding:0;}html,body{width:80mm;background:#fff;}</style></head><body>' + sheetHtml + '</body></html>');
+                    win.document.write('<!DOCTYPE html><html dir="rtl"><head><meta charset="utf-8"><title>فاتورة</title><style>*{box-sizing:border-box;margin:0;padding:0;}html,body{width:76mm;max-width:76mm;background:#fff;overflow-x:hidden;}img{max-width:100%!important;}</style></head><body>' + sheetHtml + '</body></html>');
                     win.document.close();
                     win.focus();
                     setTimeout(function(){ win.print(); win.close(); }, 800);
@@ -458,25 +480,28 @@
                     }
 
                     .bj-addr-key {
-                        flex: 0 0 120px;
-                        padding: 10px 12px;
+                        flex: 0 0 68px;
+                        padding: 8px 8px;
                         background: #f5f0ea;
                         color: #5a564f;
-                        font-size: 13px;
+                        font-size: 11px;
                         font-weight: 900;
                         border-left: 1px solid #d4cec7;
                         display: flex;
                         align-items: center;
+                        justify-content: center;
+                        text-align: center;
                     }
 
                     .bj-addr-val {
                         flex: 1;
-                        padding: 10px 14px;
-                        font-size: 17px;
+                        padding: 8px 10px;
+                        font-size: 14px;
                         font-weight: 900;
                         line-height: 1.4;
                         display: flex;
                         align-items: center;
+                        word-break: break-word;
                     }
 
                     @media (max-width: 767px) {
@@ -547,41 +572,42 @@
 
                         /* ── Logo ── */
                         .bj-invoice-logo {
-                            width: 60px !important;
+                            width: 48px !important;
                             height: auto !important;
                             display: block !important;
-                            margin: 0 auto 4px !important;
+                            margin: 0 auto 3px !important;
                         }
 
                         /* ── Header ── */
                         .bj-invoice-header {
                             display: grid !important;
                             text-align: center !important;
-                            gap: 3px !important;
+                            gap: 2px !important;
                         }
 
                         .bj-invoice-branch {
-                            font-size: 13pt !important;
+                            font-size: 11pt !important;
                             display: block !important;
                         }
 
                         .bj-invoice-header-meta {
-                            font-size: 8pt !important;
+                            font-size: 7pt !important;
                             display: block !important;
                         }
 
                         /* ── Order / type ── */
                         .bj-invoice-value--order {
-                            font-size: 20pt !important;
+                            font-size: 16pt !important;
                         }
 
                         .bj-invoice-value--type {
-                            font-size: 14pt !important;
+                            font-size: 11pt !important;
                         }
 
                         .bj-invoice-grid-two {
                             display: grid !important;
                             grid-template-columns: repeat(2, 1fr) !important;
+                            gap: 6px !important;
                         }
 
                         .bj-invoice-panel {
@@ -589,113 +615,115 @@
                         }
 
                         .bj-invoice-label {
-                            font-size: 7pt !important;
-                            margin-bottom: 2px !important;
+                            font-size: 6.5pt !important;
+                            margin-bottom: 1px !important;
                         }
 
                         /* ── Customer ── */
                         .bj-invoice-customer-name {
-                            font-size: 13pt !important;
+                            font-size: 11pt !important;
                         }
 
                         .bj-invoice-phone {
-                            font-size: 12pt !important;
-                            margin-top: 2px !important;
+                            font-size: 10pt !important;
+                            margin-top: 1px !important;
                         }
 
                         /* ── Address grid ── */
                         .bj-invoice-address-grid {
                             border: 1.5px solid #1b1b1b !important;
                             border-radius: 0 !important;
-                            margin-top: 4px !important;
+                            margin-top: 3px !important;
                         }
 
                         .bj-addr-key {
-                            flex: 0 0 72px !important;
-                            font-size: 8pt !important;
-                            padding: 6px 7px !important;
+                            flex: 0 0 52px !important;
+                            font-size: 7pt !important;
+                            padding: 5px 4px !important;
                             background: #f0ece6 !important;
+                            text-align: center !important;
+                            justify-content: center !important;
                         }
 
                         .bj-addr-val {
-                            font-size: 11pt !important;
+                            font-size: 9pt !important;
                             font-weight: 900 !important;
-                            padding: 6px 8px !important;
+                            padding: 5px 6px !important;
                         }
 
                         /* ── Items table ── */
                         .bj-invoice-section-title {
-                            font-size: 8pt !important;
-                            margin-bottom: 4px !important;
+                            font-size: 7pt !important;
+                            margin-bottom: 3px !important;
                         }
 
                         .bj-invoice-items thead th {
-                            font-size: 8pt !important;
-                            padding: 0 4px 6px !important;
+                            font-size: 7pt !important;
+                            padding: 0 3px 5px !important;
                         }
 
                         .bj-invoice-items tbody td {
-                            font-size: 9pt !important;
-                            padding: 7px 4px !important;
+                            font-size: 8pt !important;
+                            padding: 5px 3px !important;
                         }
 
                         .bj-invoice-item-name {
-                            font-size: 10pt !important;
+                            font-size: 8.5pt !important;
                         }
 
                         .bj-invoice-item-meta {
-                            font-size: 7.5pt !important;
+                            font-size: 7pt !important;
                         }
 
                         .bj-invoice-qty,
                         .bj-invoice-price {
-                            font-size: 10pt !important;
+                            font-size: 8.5pt !important;
                         }
 
                         /* ── Summary ── */
                         .bj-invoice-summary {
-                            gap: 5px !important;
+                            gap: 4px !important;
                         }
 
                         .bj-invoice-summary-row {
-                            font-size: 9pt !important;
+                            font-size: 8pt !important;
                         }
 
                         .bj-invoice-summary-row--muted {
-                            font-size: 8.5pt !important;
+                            font-size: 7.5pt !important;
                         }
 
                         /* ── Total box ── */
                         .bj-invoice-total-box {
                             border-radius: 0 !important;
                             border: 2px solid #111 !important;
-                            padding: 8px 10px 10px !important;
+                            padding: 6px 8px 8px !important;
                         }
 
                         .bj-invoice-total-title {
-                            font-size: 9pt !important;
+                            font-size: 8pt !important;
                         }
 
                         .bj-invoice-total-amount {
-                            font-size: 26pt !important;
+                            font-size: 20pt !important;
                         }
 
                         .bj-invoice-payment-note {
-                            font-size: 9pt !important;
+                            font-size: 8pt !important;
                         }
 
                         /* ── Footer ── */
                         .bj-invoice-footer {
-                            gap: 4px !important;
+                            gap: 3px !important;
                         }
 
                         .bj-invoice-thanks {
-                            font-size: 14pt !important;
+                            font-size: 11pt !important;
                         }
 
                         /* ── Dividers ── */
                         .bj-invoice-divider {
-                            margin: 8px 0 !important;
+                            margin: 6px 0 !important;
                         }
                     }
                 </style>
@@ -741,16 +769,28 @@
                         <span class="bj-invoice-label">عنوان التسليم</span>
                         @if($isDeliveryOrder)
                             <div class="bj-invoice-address-grid">
-                                @if($addrRoad)
+                                @if($addrMadina)
                                     <div class="bj-addr-row">
-                                        <span class="bj-addr-key">الشارع</span>
-                                        <span class="bj-addr-val">{{ $addrRoad }}</span>
+                                        <span class="bj-addr-key">المدينة</span>
+                                        <span class="bj-addr-val">{{ $addrMadina }}</span>
                                     </div>
                                 @endif
-                                @if($addrHouse)
+                                @if($addrGroup)
                                     <div class="bj-addr-row">
-                                        <span class="bj-addr-key">المبنى / الشقة</span>
-                                        <span class="bj-addr-val">{{ $addrHouse }}</span>
+                                        <span class="bj-addr-key">المجموعة</span>
+                                        <span class="bj-addr-val">{{ $addrGroup }}</span>
+                                    </div>
+                                @endif
+                                @if($addrBuild)
+                                    <div class="bj-addr-row">
+                                        <span class="bj-addr-key">العمارة</span>
+                                        <span class="bj-addr-val">{{ $addrBuild }}</span>
+                                    </div>
+                                @endif
+                                @if($addrApt)
+                                    <div class="bj-addr-row">
+                                        <span class="bj-addr-key">الشقة</span>
+                                        <span class="bj-addr-val">{{ $addrApt }}</span>
                                     </div>
                                 @endif
                                 @if($addrFloor)
@@ -759,7 +799,7 @@
                                         <span class="bj-addr-val">{{ $addrFloor }}</span>
                                     </div>
                                 @endif
-                                @if(!$addrRoad && !$addrHouse && !$addrFloor)
+                                @if(!$addrMadina && !$addrGroup && !$addrBuild && !$addrApt && !$addrFloor)
                                     <div class="bj-addr-row">
                                         <span class="bj-addr-val">غير متوفر</span>
                                     </div>
