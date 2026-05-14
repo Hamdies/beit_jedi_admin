@@ -193,13 +193,11 @@ $restaurantOpen = $restaurant->active ?? 1;
             </div>
         </div>
         <div class="ov-topbar-right">
-            <a class="ov-nav-btn" id="ov-prev-btn" href="{{ route('vendor.order.details', [$order['id'] - 1]) }}" title="الطلب السابق (←)">
+            <a class="ov-nav-btn" id="ov-prev-btn" href="{{ route('vendor.order.details', [$order['id'] - 1]) }}" title="الطلب السابق">
                 <i class="tio-chevron-right"></i>
                 <span class="ov-nav-label">السابق</span>
-                <span class="ov-kbd-inline">←</span>
             </a>
-            <a class="ov-nav-btn" id="ov-next-btn" href="{{ route('vendor.order.details', [$order['id'] + 1]) }}" title="الطلب التالي (→)">
-                <span class="ov-kbd-inline">→</span>
+            <a class="ov-nav-btn" id="ov-next-btn" href="{{ route('vendor.order.details', [$order['id'] + 1]) }}" title="الطلب التالي">
                 <span class="ov-nav-label">التالي</span>
                 <i class="tio-chevron-left"></i>
             </a>
@@ -297,8 +295,10 @@ $restaurantOpen = $restaurant->active ?? 1;
                 @endif
             </div>
         </div>
+    </section>
 
-        {{-- 5-step stepper --}}
+    {{-- ── Stepper card (separate from hero) ─────────────────── --}}
+    <section class="ov-stepper-card">
         @if ($isTerminal)
             <div class="ov-banner {{ $status }}">
                 <i class="tio-{{ $status === 'canceled' ? 'clear-circle' : 'warning-outlined' }}"></i>
@@ -311,12 +311,10 @@ $restaurantOpen = $restaurant->active ?? 1;
                         $isDone   = $currentStep > $s['n'];
                         $isActive = $currentStep === $s['n'];
                         $stepCls  = $isDone ? 'done' : ($isActive ? 'active' : '');
-                        /* find timestamp for this step */
                         $stepTime = null;
                         foreach (($stepStatusMap[$s['key']] ?? [$s['key']]) as $sk) {
                             if (isset($statusTimes[$sk])) { $stepTime = $statusTimes[$sk]; break; }
                         }
-                        /* fallback: use created_at for first accepted step */
                         if (!$stepTime && $s['key'] === 'accepted' && $isDone) {
                             $stepTime = $order->created_at;
                         }
@@ -359,7 +357,7 @@ $restaurantOpen = $restaurant->active ?? 1;
                     وقت التحضير المستهدف: {{ $max_processing_time }} دقيقة
                     @if($fillPct >= 100)<span class="ov-goal-over">تجاوز الهدف!</span>@endif
                 </span>
-                <span class="ov-goal-times">الآن {{ $nowTimeStr }} · هدف {{ $goalTimeStr }}</span>
+                <span class="ov-goal-times">هدف {{ $goalTimeStr }} · الآن {{ $nowTimeStr }}</span>
             </div>
             <div class="ov-goal-bar">
                 <div class="ov-goal-bar-fill {{ $fillPct >= 100 ? 'over' : '' }}" style="width: {{ $fillPct }}%"></div>
