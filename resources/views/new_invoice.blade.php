@@ -497,35 +497,194 @@
                     }
 
                     @media print {
+                        @page {
+                            size: 80mm auto;
+                            margin: 4mm 3mm;
+                        }
+
+                        * {
+                            -webkit-print-color-adjust: exact !important;
+                            print-color-adjust: exact !important;
+                        }
+
                         body {
                             background: #fff !important;
                             margin: 0 !important;
                             padding: 0 !important;
                         }
 
-                        .bj-invoice-sheet {
-                            max-width: none;
-                            margin: 0;
-                            border: 0;
-                            border-radius: 0;
-                            box-shadow: none;
-                            padding: 12px 14px 10px;
-                            background: #fff;
+                        .content,
+                        .container-fluid,
+                        .row,
+                        .col-12 {
+                            display: block !important;
+                            width: 100% !important;
+                            padding: 0 !important;
+                            margin: 0 !important;
                         }
 
                         .non-printable {
                             display: none !important;
+                        }
+
+                        .bj-invoice-sheet {
+                            max-width: 100%;
+                            width: 100%;
+                            margin: 0;
+                            border: 0;
+                            border-radius: 0;
+                            box-shadow: none;
+                            padding: 0;
+                            background: #fff;
+                        }
+
+                        /* ── Logo ── */
+                        .bj-invoice-logo {
+                            width: 56px !important;
+                            margin-bottom: 3px !important;
+                        }
+
+                        /* ── Header ── */
+                        .bj-invoice-header {
+                            gap: 3px !important;
+                        }
+
+                        .bj-invoice-branch {
+                            font-size: 13pt !important;
+                        }
+
+                        .bj-invoice-header-meta {
+                            font-size: 8pt !important;
+                        }
+
+                        /* ── Order / type ── */
+                        .bj-invoice-value--order {
+                            font-size: 20pt !important;
+                        }
+
+                        .bj-invoice-value--type {
+                            font-size: 14pt !important;
+                        }
+
+                        .bj-invoice-panel {
+                            min-height: unset !important;
+                        }
+
+                        .bj-invoice-label {
+                            font-size: 7pt !important;
+                            margin-bottom: 2px !important;
+                        }
+
+                        /* ── Customer ── */
+                        .bj-invoice-customer-name {
+                            font-size: 13pt !important;
+                        }
+
+                        .bj-invoice-phone {
+                            font-size: 12pt !important;
+                            margin-top: 2px !important;
+                        }
+
+                        /* ── Address grid ── */
+                        .bj-invoice-address-grid {
+                            border: 1.5px solid #1b1b1b !important;
+                            border-radius: 0 !important;
+                            margin-top: 4px !important;
+                        }
+
+                        .bj-addr-key {
+                            flex: 0 0 72px !important;
+                            font-size: 8pt !important;
+                            padding: 6px 7px !important;
+                            background: #f0ece6 !important;
+                        }
+
+                        .bj-addr-val {
+                            font-size: 11pt !important;
+                            font-weight: 900 !important;
+                            padding: 6px 8px !important;
+                        }
+
+                        /* ── Items table ── */
+                        .bj-invoice-section-title {
+                            font-size: 8pt !important;
+                            margin-bottom: 4px !important;
+                        }
+
+                        .bj-invoice-items thead th {
+                            font-size: 8pt !important;
+                            padding: 0 4px 6px !important;
+                        }
+
+                        .bj-invoice-items tbody td {
+                            font-size: 9pt !important;
+                            padding: 7px 4px !important;
+                        }
+
+                        .bj-invoice-item-name {
+                            font-size: 10pt !important;
+                        }
+
+                        .bj-invoice-item-meta {
+                            font-size: 7.5pt !important;
+                        }
+
+                        .bj-invoice-qty,
+                        .bj-invoice-price {
+                            font-size: 10pt !important;
+                        }
+
+                        /* ── Summary ── */
+                        .bj-invoice-summary {
+                            gap: 5px !important;
+                        }
+
+                        .bj-invoice-summary-row {
+                            font-size: 9pt !important;
+                        }
+
+                        .bj-invoice-summary-row--muted {
+                            font-size: 8.5pt !important;
+                        }
+
+                        /* ── Total box ── */
+                        .bj-invoice-total-box {
+                            border-radius: 0 !important;
+                            border: 2px solid #111 !important;
+                            padding: 8px 10px 10px !important;
+                        }
+
+                        .bj-invoice-total-title {
+                            font-size: 9pt !important;
+                        }
+
+                        .bj-invoice-total-amount {
+                            font-size: 26pt !important;
+                        }
+
+                        .bj-invoice-payment-note {
+                            font-size: 9pt !important;
+                        }
+
+                        /* ── Footer ── */
+                        .bj-invoice-footer {
+                            gap: 4px !important;
+                        }
+
+                        .bj-invoice-thanks {
+                            font-size: 14pt !important;
+                        }
+
+                        /* ── Dividers ── */
+                        .bj-invoice-divider {
+                            margin: 8px 0 !important;
                         }
                     }
                 </style>
 
                 <div class="initial-38-1 bj-invoice-sheet" dir="rtl">
                     <header class="bj-invoice-header">
-                        @if($restaurantLogo)
-                            <img src="{{ $restaurantLogo }}" alt="{{ $branchName }}" class="bj-invoice-logo">
-                        @else
-                            <img src="{{ dynamicAsset('public/assets/admin/css/images/beit_no_bg.png') }}" alt="Beit Jedi logo" class="bj-invoice-logo">
-                        @endif
+                        <img src="{{ dynamicAsset('public/assets/admin/css/images/beit_no_bg.png') }}" alt="Beit Jedi logo" class="bj-invoice-logo">
                         <div class="bj-invoice-branch">{{ $branchName }}</div>
                         <div class="bj-invoice-header-meta">
                             @if($branchPhone)
@@ -564,15 +723,9 @@
                         <span class="bj-invoice-label">عنوان التسليم</span>
                         @if($isDeliveryOrder)
                             <div class="bj-invoice-address-grid">
-                                @if($addrStreet)
-                                    <div class="bj-addr-row">
-                                        <span class="bj-addr-key">الشارع / المنطقة</span>
-                                        <span class="bj-addr-val">{{ $addrStreet }}</span>
-                                    </div>
-                                @endif
                                 @if($addrRoad)
                                     <div class="bj-addr-row">
-                                        <span class="bj-addr-key">الشارع الفرعي</span>
+                                        <span class="bj-addr-key">الشارع</span>
                                         <span class="bj-addr-val">{{ $addrRoad }}</span>
                                     </div>
                                 @endif
@@ -588,7 +741,7 @@
                                         <span class="bj-addr-val">{{ $addrFloor }}</span>
                                     </div>
                                 @endif
-                                @if(!$addrStreet && !$addrRoad && !$addrHouse && !$addrFloor)
+                                @if(!$addrRoad && !$addrHouse && !$addrFloor)
                                     <div class="bj-addr-row">
                                         <span class="bj-addr-val">غير متوفر</span>
                                     </div>
