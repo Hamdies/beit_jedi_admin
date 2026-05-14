@@ -337,12 +337,8 @@
                     .bj-invoice-items thead th:first-child,
                     .bj-invoice-items tbody td:first-child {
                         padding-right: 0;
-                    }
-
-                    .bj-invoice-items thead th:last-child,
-                    .bj-invoice-items tbody td:last-child {
-                        padding-left: 0;
-                        text-align: left;
+                        white-space: nowrap;
+                        vertical-align: top;
                     }
 
                     .bj-invoice-items tbody td {
@@ -381,9 +377,13 @@
                     }
 
                     .bj-invoice-price {
-                        white-space: nowrap;
-                        font-size: 16px;
+                        display: block;
+                        margin-top: 3px;
+                        font-size: 13px;
                         font-weight: 900;
+                        color: #1a1a1a;
+                        direction: ltr;
+                        text-align: right;
                     }
 
                     .bj-invoice-summary {
@@ -696,9 +696,13 @@
                             font-size: 7pt !important;
                         }
 
-                        .bj-invoice-qty,
-                        .bj-invoice-price {
+                        .bj-invoice-qty {
                             font-size: 8.5pt !important;
+                        }
+
+                        .bj-invoice-price {
+                            font-size: 8pt !important;
+                            margin-top: 2px !important;
                         }
 
                         /* ── Summary ── */
@@ -868,9 +872,8 @@
                         <table class="bj-invoice-items">
                             <thead>
                                 <tr>
-                                    <th>الكمية</th>
-                                    <th>الصنف</th>
-                                    <th>السعر</th>
+                                    <th style="width:30px">الكمية</th>
+                                    <th>الصنف / السعر</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -888,12 +891,12 @@
                                                 <div class="bj-invoice-item-meta">
                                                     <strong>الإضافات:</strong>
                                                     @foreach($addons as $addon)
-                                                        <div>{{ $addon['name'] }} - {{ $addon['quantity'] }} x {{ $fmt($addon['price']) }}</div>
+                                                        <div>{{ $addon['name'] }} {{ $addon['quantity'] }}x — {{ $fmt($addon['price']) }}</div>
                                                     @endforeach
                                                 </div>
                                             @endif
+                                            <div class="bj-invoice-price">{{ $fmt($amount) }}</div>
                                         </td>
-                                        <td class="bj-invoice-price">{{ $fmt($amount) }}</td>
                                     </tr>
                                 @endforeach
                             </tbody>
