@@ -193,14 +193,20 @@ $restaurantOpen = $restaurant->active ?? 1;
             </div>
         </div>
         <div class="ov-topbar-right">
-            <a class="ov-nav-btn" href="{{ route('vendor.order.details', [$order['id'] - 1]) }}" title="الطلب السابق">
-                <i class="tio-chevron-right"></i> <span class="ov-nav-label">السابق</span>
+            <a class="ov-nav-btn" id="ov-prev-btn" href="{{ route('vendor.order.details', [$order['id'] - 1]) }}" title="الطلب السابق (←)">
+                <i class="tio-chevron-right"></i>
+                <span class="ov-nav-label">السابق</span>
+                <span class="ov-kbd-inline">←</span>
             </a>
-            <a class="ov-nav-btn" href="{{ route('vendor.order.details', [$order['id'] + 1]) }}" title="الطلب التالي">
-                <span class="ov-nav-label">التالي</span> <i class="tio-chevron-left"></i>
+            <a class="ov-nav-btn" id="ov-next-btn" href="{{ route('vendor.order.details', [$order['id'] + 1]) }}" title="الطلب التالي (→)">
+                <span class="ov-kbd-inline">→</span>
+                <span class="ov-nav-label">التالي</span>
+                <i class="tio-chevron-left"></i>
             </a>
-            <a class="ov-print-btn d-none d-sm-inline-flex" href="{{ route('vendor.order.generate-invoice', [$order['id']]) }}">
-                <i class="tio-print"></i> طباعة <span class="ov-kbd-inline">P</span>
+            <a class="ov-print-btn" href="{{ route('vendor.order.generate-invoice', [$order['id']]) }}" title="طباعة الإيصال (P)">
+                <i class="tio-print"></i>
+                <span class="ov-nav-label">طباعة</span>
+                <span class="ov-kbd-inline">P</span>
             </a>
         </div>
     </div>
@@ -348,11 +354,15 @@ $restaurantOpen = $restaurant->active ?? 1;
         @endphp
         <div class="ov-goal-bar-wrap">
             <div class="ov-goal-bar-row">
-                <span class="ov-goal-label">الهدف · {{ $max_processing_time }} دقائق في &ldquo;جاهز&rdquo;</span>
-                <span class="ov-goal-times">{{ $goalTimeStr }} / {{ $nowTimeStr }}</span>
+                <span class="ov-goal-label">
+                    <i class="tio-time"></i>
+                    وقت التحضير المستهدف: {{ $max_processing_time }} دقيقة
+                    @if($fillPct >= 100)<span class="ov-goal-over">تجاوز الهدف!</span>@endif
+                </span>
+                <span class="ov-goal-times">الآن {{ $nowTimeStr }} · هدف {{ $goalTimeStr }}</span>
             </div>
             <div class="ov-goal-bar">
-                <div class="ov-goal-bar-fill" style="width: {{ $fillPct }}%"></div>
+                <div class="ov-goal-bar-fill {{ $fillPct >= 100 ? 'over' : '' }}" style="width: {{ $fillPct }}%"></div>
             </div>
         </div>
         @endif
@@ -481,7 +491,9 @@ $restaurantOpen = $restaurant->active ?? 1;
                 <div class="ov-card-head">
                     <h2 class="ov-card-title">العميل</h2>
                     @if($order->customer)
-                    <a class="ov-card-action" href="javascript:">عرض الملف</a>
+                    <a class="ov-card-action ov-card-action--profile" href="javascript:">
+                        <i class="tio-user-outlined"></i> عرض الملف
+                    </a>
                     @endif
                 </div>
                 <div class="ov-card-body">
@@ -529,11 +541,11 @@ $restaurantOpen = $restaurant->active ?? 1;
                     <p class="ov-empty">لم يُعثر على العميل</p>
                     @endif
 
-                    {{-- Cutlery note --}}
+                    {{-- Cutlery note: neutral when not needed, amber when required --}}
                     <div class="ov-cutlery-note {{ $order->cutlery ? 'need' : '' }}">
                         <i class="tio-cutlery"></i>
-                        <span>ملاحظة العميل: أدوات المائدة</span>
-                        <strong>{{ $order->cutlery ? 'مطلوبة' : 'غير مطلوبة' }}</strong>
+                        <span>أدوات المائدة</span>
+                        <strong>{{ $order->cutlery ? 'مطلوبة ⚠️' : 'غير مطلوبة' }}</strong>
                     </div>
                 </div>
             </section>
@@ -621,7 +633,15 @@ $restaurantOpen = $restaurant->active ?? 1;
                         @endforeach
                     </div>
                     @else
-                    <p class="ov-empty">لا توجد صور بعد</p>
+                    <div class="ov-proof-empty">
+                        <i class="tio-camera-outlined"></i>
+                        <p>لا توجد صور إثبات بعد</p>
+                        @if (($restaurant->restaurant_model == 'commission' && $restaurant->self_delivery_system) || ($restaurant->restaurant_model == 'subscription' && $restaurant?->restaurant_sub?->self_delivery == 1))
+                        <button class="ov-proof-empty-btn" data-toggle="modal" data-target=".order-proof-modal">+ أضف صورة الآن</button>
+                        @elseif(!in_array($order['order_status'], ['delivered','canceled','failed']))
+                        <span class="ov-proof-empty-hint">سيضيفها المندوب عند التسليم</span>
+                        @endif
+                    </div>
                     @endif
                 </div>
             </section>
@@ -992,9 +1012,9 @@ $('.add-delivery-man').on('click', function() {
     });
 });
 
-/* ── Live timer ──────────────────────────────────── */
+/* ── Live timer with urgency coloring ────────────── */
 (function() {
-    var el = document.getElementById('ov-timer-val');
+    var el   = document.getElementById('ov-timer-val');
     var wrap = document.getElementById('ov-timer');
     if (!el || !wrap) return;
     var created = new Date(wrap.dataset.created.replace(' ', 'T'));
@@ -1003,7 +1023,12 @@ $('.add-delivery-man').on('click', function() {
         var h = Math.floor(diff / 3600);
         var m = Math.floor((diff % 3600) / 60);
         var s = diff % 60;
-        el.textContent = (h > 0 ? h + ':' : '') + (h>0 ? String(m).padStart(2,'0') : m) + ':' + String(s).padStart(2,'0');
+        el.textContent = (h > 0 ? h + ':' : '') + (h > 0 ? String(m).padStart(2,'0') : m) + ':' + String(s).padStart(2,'0');
+        /* <30 min = ok (green), 30-60 min = warn (amber), >60 min = urgent (red) */
+        wrap.classList.remove('timer-ok', 'timer-warn', 'timer-urgent');
+        if (diff < 1800)      wrap.classList.add('timer-ok');
+        else if (diff < 3600) wrap.classList.add('timer-warn');
+        else                  wrap.classList.add('timer-urgent');
     }
     tick();
     setInterval(tick, 1000);
@@ -1106,6 +1131,22 @@ $(document).ready(function() {
             onSizeErr: function() { toastr.error('{{ translate('messages.file_size_too_big') }}'); }
         });
     });
+});
+
+/* ── Keyboard shortcuts ──────────────────────── */
+document.addEventListener('keydown', function(e) {
+    /* Skip when typing in inputs or modals are open */
+    if (e.target.matches('input,textarea,select') || document.querySelector('.modal.show')) return;
+    if (e.key === 'ArrowLeft'  || e.key === 'ArrowRight') {
+        var btn = e.key === 'ArrowRight'
+            ? document.getElementById('ov-prev-btn')
+            : document.getElementById('ov-next-btn');
+        if (btn) btn.click();
+    }
+    if (e.key === 'p' || e.key === 'P') {
+        var printBtn = document.querySelector('.ov-print-btn');
+        if (printBtn) { e.preventDefault(); printBtn.click(); }
+    }
 });
 </script>
 @endpush
