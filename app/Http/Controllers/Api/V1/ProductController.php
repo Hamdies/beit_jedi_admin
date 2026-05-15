@@ -432,12 +432,16 @@ class ProductController extends Controller
         if ($validator->fails()) {
             return response()->json(['errors' => Helpers::error_processor($validator)], 403);
         }
-        $type = $request->query('type', 'all');
-        $key = explode(' ', $request['name']);
-        $zone_id= json_decode($request->header('zoneId'), true);
-        $products = ProductLogic::recommended_products(zone_id:$zone_id, restaurant_id:$request->restaurant_id,limit:$request['limit'],offset: $request['offset'],type: $type ,name:$key );
-        $products['products'] = Helpers::product_data_formatting(data:$products['products'],multi_data: true, trans:false, local:app()->getLocale());
-        return response()->json($products, 200);
+        try {
+            $type = $request->query('type', 'all');
+            $key = explode(' ', $request['name']);
+            $zone_id= json_decode($request->header('zoneId'), true);
+            $products = ProductLogic::recommended_products(zone_id:$zone_id, restaurant_id:$request->restaurant_id,limit:$request['limit'],offset: $request['offset'],type: $type ,name:$key );
+            $products['products'] = Helpers::product_data_formatting(data:$products['products'],multi_data: true, trans:false, local:app()->getLocale());
+            return response()->json($products, 200);
+        } catch (\Exception $e) {
+            return response()->json(['errors' => [['code' => 'recommended', 'message' => $e->getMessage()]]], 500);
+        }
     }
 
 
@@ -581,15 +585,18 @@ class ProductController extends Controller
             return response()->json(['errors' => Helpers::error_processor($validator)], 403);
         }
 
-        $type = $request->query('type', 'all');
-        $key = explode(' ', $request['name']);
+        try {
+            $type = $request->query('type', 'all');
+            $key = explode(' ', $request['name']);
 
-        $zone_id= json_decode($request->header('zoneId'), true);
-        $products = ProductLogic::recommended_most_reviewed(zone_id:$zone_id,restaurant_id: $request->restaurant_id, type: $type,name:$key);
+            $zone_id= json_decode($request->header('zoneId'), true);
+            $products = ProductLogic::recommended_most_reviewed(zone_id:$zone_id,restaurant_id: $request->restaurant_id, type: $type,name:$key);
 
-
-        $products = Helpers::product_data_formatting(data:$products,multi_data: true, trans:false, local:app()->getLocale());
-        return response()->json($products, 200);
+            $products = Helpers::product_data_formatting(data:$products,multi_data: true, trans:false, local:app()->getLocale());
+            return response()->json($products, 200);
+        } catch (\Exception $e) {
+            return response()->json(['errors' => [['code' => 'recommended-most-reviewed', 'message' => $e->getMessage()]]], 500);
+        }
     }
 
     public function getAllergyNameList(){
