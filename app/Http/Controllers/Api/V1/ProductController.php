@@ -245,13 +245,17 @@ class ProductController extends Controller
             ], 403);
         }
 
-        $type = $request->query('type', 'all');
-        $longitude= $request->header('longitude');
-        $latitude= $request->header('latitude');
-        $zone_id= json_decode($request->header('zoneId'), true);
-        $products = ProductLogic::popular_products(zone_id:$zone_id, limit:$request['limit'],offset: $request['offset'],type: $type,longitude:$longitude,latitude:$latitude);
-        $products['products'] = Helpers::product_data_formatting(data:$products['products'], multi_data:true, trans:false, local:app()->getLocale());
-        return response()->json($products, 200);
+        try {
+            $type = $request->query('type', 'all');
+            $longitude= $request->header('longitude');
+            $latitude= $request->header('latitude');
+            $zone_id= json_decode($request->header('zoneId'), true);
+            $products = ProductLogic::popular_products(zone_id:$zone_id, limit:$request['limit'],offset: $request['offset'],type: $type,longitude:$longitude,latitude:$latitude);
+            $products['products'] = Helpers::product_data_formatting(data:$products['products'], multi_data:true, trans:false, local:app()->getLocale());
+            return response()->json($products, 200);
+        } catch (\Exception $e) {
+            return response()->json(['errors' => [['code' => 'popular', 'message' => $e->getMessage()]]], 500);
+        }
     }
 
     public function get_most_reviewed_products(Request $request)
