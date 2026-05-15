@@ -127,33 +127,37 @@ class CategoryController extends Controller
             return response()->json(['errors' => Helpers::error_processor($validator)], 403);
         }
 
-        $additional_data=[
-            'category_id' =>  $id,
-            'zone_id' => json_decode($request->header('zoneId'), true),
-            'limit' =>  $request['limit'] ?? 25,
-            'offset' =>  $request['offset'] ?? 1,
-            'type' =>  $request->query('type', 'all') ?? 'all',
-            'veg' =>  $request->veg ?? 0,
-            'non_veg' =>  $request->non_veg ?? 0,
-            'new' =>  $request->new ?? 0,
-            'avg_rating' => $request->avg_rating ?? 0,
-            'top_rated' =>  $request->top_rated ?? 0,
-            'start_price' => json_decode($request->price)[0] ?? 0,
-            'end_price' => json_decode($request->price)[1] ?? 0,
-            'longitude' =>$request->header('longitude') ?? 0,
-            'latitude' => $request->header('latitude') ?? 0,
-        ];
+        try {
+            $price = json_decode($request->price ?? 'null');
+            $additional_data=[
+                'category_id' =>  $id,
+                'zone_id' => json_decode($request->header('zoneId'), true),
+                'limit' =>  $request['limit'] ?? 25,
+                'offset' =>  $request['offset'] ?? 1,
+                'type' =>  $request->query('type', 'all') ?? 'all',
+                'veg' =>  $request->veg ?? 0,
+                'non_veg' =>  $request->non_veg ?? 0,
+                'new' =>  $request->new ?? 0,
+                'avg_rating' => $request->avg_rating ?? 0,
+                'top_rated' =>  $request->top_rated ?? 0,
+                'start_price' => $price[0] ?? 0,
+                'end_price' => $price[1] ?? 0,
+                'longitude' =>$request->header('longitude') ?? 0,
+                'latitude' => $request->header('latitude') ?? 0,
+            ];
 
+            $data = CategoryLogic::products($additional_data);
+            $data['products'] = Helpers::product_data_formatting($data['products'] , true, false, app()->getLocale());
 
-        $data = CategoryLogic::products($additional_data);
-        $data['products'] = Helpers::product_data_formatting($data['products'] , true, false, app()->getLocale());
+            if(auth('api')->user() !== null){
+                $customer_id =auth('api')->user()->id;
+                Helpers::visitor_log('category',$customer_id,$id,false);
+            }
 
-        if(auth('api')->user() !== null){
-            $customer_id =auth('api')->user()->id;
-            Helpers::visitor_log('category',$customer_id,$id,false);
+            return response()->json($data, 200);
+        } catch (\Exception $e) {
+            return response()->json(['errors' => [['code' => 'category-products', 'message' => $e->getMessage()]]], 500);
         }
-
-        return response()->json($data, 200);
     }
 
 
