@@ -392,16 +392,17 @@
                     }
 
                     .bj-invoice-summary-row {
-                        display: flex;
-                        align-items: flex-start;
-                        justify-content: space-between;
-                        gap: 16px;
+                        display: grid;
+                        grid-template-columns: 1fr auto;
+                        align-items: baseline;
+                        gap: 6px;
                         font-size: 16px;
                         font-weight: 800;
                     }
 
                     .bj-invoice-summary-row span:last-child {
                         white-space: nowrap;
+                        direction: ltr;
                         text-align: left;
                     }
 
@@ -711,7 +712,15 @@
                         }
 
                         .bj-invoice-summary-row {
+                            display: grid !important;
+                            grid-template-columns: 1fr auto !important;
+                            gap: 4px !important;
                             font-size: 8pt !important;
+                        }
+
+                        .bj-invoice-summary-row span:last-child {
+                            white-space: nowrap !important;
+                            direction: ltr !important;
                         }
 
                         .bj-invoice-summary-row--muted {
