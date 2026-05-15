@@ -234,7 +234,11 @@ class Helpers
                 $item['recommended'] =(int) $item->recommended;
                 $categories = [];
                 foreach (json_decode($item?->category_ids) as $value) {
-                    $categories[] = ['id' => (string)$value->id, 'position' => $value->position];
+                    if (is_object($value)) {
+                        $categories[] = ['id' => (string)$value->id, 'position' => $value->position];
+                    } else {
+                        $categories[] = ['id' => (string)$value, 'position' => 0];
+                    }
                 }
                 $item['category_ids'] = $categories;
                 // $item['attributes'] = json_decode($item['attributes']);
@@ -293,7 +297,11 @@ class Helpers
             $variations = [];
             $categories = [];
             foreach (json_decode($data?->category_ids) as $value) {
-                $categories[] = ['id' => (string)$value->id, 'position' => $value->position];
+                if (is_object($value)) {
+                    $categories[] = ['id' => (string)$value->id, 'position' => $value->position];
+                } else {
+                    $categories[] = ['id' => (string)$value, 'position' => 0];
+                }
             }
             $data['category_ids'] = $categories;
 
@@ -397,7 +405,11 @@ class Helpers
                 $item['recommended'] =(int) $item->recommended;
                 $categories = [];
                 foreach (json_decode($item['category_ids']) as $value) {
-                    $categories[] = ['id' => (string)$value->id, 'position' => $value->position];
+                    if (is_object($value)) {
+                        $categories[] = ['id' => (string)$value->id, 'position' => $value->position];
+                    } else {
+                        $categories[] = ['id' => (string)$value, 'position' => 0];
+                    }
                 }
                 $item['category_ids'] = $categories;
                 $item['attributes'] = json_decode($item['attributes']);
@@ -469,7 +481,11 @@ class Helpers
             $variations = [];
             $categories = [];
             foreach (json_decode($data['category_ids']) as $value) {
-                $categories[] = ['id' => (string)$value->id, 'position' => $value->position];
+                if (is_object($value)) {
+                    $categories[] = ['id' => (string)$value->id, 'position' => $value->position];
+                } else {
+                    $categories[] = ['id' => (string)$value, 'position' => 0];
+                }
             }
             $data['category_ids'] = $categories;
 
