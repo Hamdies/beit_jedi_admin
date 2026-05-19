@@ -126,7 +126,31 @@ class OrderController extends Controller
 
         $st=$status;
         $status = translate('messages.'.$status);
-        return view('vendor-views.order.list', compact('orders', 'status','st'));
+
+        $restaurantId = \App\CentralLogics\Helpers::get_restaurant_id();
+        $base = Order::Notpos()->NotDigitalOrder()->hasSubscriptionToday()->where('restaurant_id', $restaurantId);
+        $statusCounts = [
+            'all'        => (clone $base)->count(),
+            'pending'    => (clone $base)->where('order_status', 'pending')->count(),
+            'confirmed'  => (clone $base)->where('order_status', 'confirmed')->count(),
+            'cooking'    => (clone $base)->where('order_status', 'processing')->count(),
+            'ready'      => (clone $base)->where('order_status', 'handover')->count(),
+            'on_the_way' => (clone $base)->where('order_status', 'picked_up')->count(),
+            'delivered'  => (clone $base)->where('order_status', 'delivered')->count(),
+            'canceled'   => (clone $base)->where('order_status', 'canceled')->count(),
+        ];
+
+        $weeklyTotal     = (clone $base)->where('created_at', '>=', now()->subDays(7))->count();
+        $prevWeeklyTotal = (clone $base)->whereBetween('created_at', [now()->subDays(14), now()->subDays(7)])->count();
+        $weeklyGrowth    = $prevWeeklyTotal > 0
+            ? round((($weeklyTotal - $prevWeeklyTotal) / $prevWeeklyTotal) * 100)
+            : ($weeklyTotal > 0 ? 100 : 0);
+
+        $needsAttention = $statusCounts['pending'] + $statusCounts['confirmed'];
+
+        return view('vendor-views.order.list', compact(
+            'orders', 'status', 'st', 'statusCounts', 'weeklyTotal', 'weeklyGrowth', 'needsAttention'
+        ));
     }
 
     public function search(Request $request){
