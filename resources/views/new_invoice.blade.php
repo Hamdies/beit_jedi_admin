@@ -91,21 +91,14 @@
             </div>
 
             <script>
-                // Mark <body> so the print stylesheet can isolate the invoice from
-                // the admin shell, then call window.print() on this page directly.
-                function bjPrintInvoice(){
-                    document.body.classList.add('bj-printing');
-                    setTimeout(function(){
-                        window.print();
-                        // Clear the class after the dialog closes so the UI is normal again.
-                        setTimeout(function(){
-                            document.body.classList.remove('bj-printing');
-                        }, 500);
-                    }, 100);
-                }
-
-                var bjPrintBtn = document.getElementById('bj-print-btn');
-                if (bjPrintBtn) bjPrintBtn.addEventListener('click', bjPrintInvoice);
+                document.getElementById('bj-print-btn').addEventListener('click', function () {
+                    var sheetHtml = document.getElementById('printableArea').innerHTML;
+                    var win = window.open('', '_blank', 'width=400,height=800');
+                    win.document.write('<!DOCTYPE html><html dir="rtl"><head><meta charset="utf-8"><title>فاتورة</title><style>*{box-sizing:border-box;margin:0;padding:0;}html,body{width:76mm;max-width:76mm;background:#fff;overflow-x:hidden;}img{max-width:100%!important;}</style></head><body>' + sheetHtml + '</body></html>');
+                    win.document.close();
+                    win.focus();
+                    setTimeout(function(){ win.print(); win.close(); }, 800);
+                });
             </script>
 
             <div id="printableArea">
@@ -585,26 +578,6 @@
                             display: none !important;
                         }
 
-                        /* ── When printing, hide everything via visibility, then lift
-                              #printableArea above the page via position:fixed. ── */
-                        body.bj-printing,
-                        body.bj-printing * {
-                            visibility: hidden !important;
-                        }
-                        body.bj-printing #printableArea,
-                        body.bj-printing #printableArea * {
-                            visibility: visible !important;
-                        }
-                        body.bj-printing #printableArea {
-                            position: fixed !important;
-                            top: 0 !important;
-                            left: 0 !important;
-                            right: 0 !important;
-                            width: 80mm !important;
-                            margin: 0 !important;
-                            padding: 3mm 4mm !important;
-                            background: #fff !important;
-                        }
 
                         .bj-invoice-sheet {
                             max-width: 100% !important;
