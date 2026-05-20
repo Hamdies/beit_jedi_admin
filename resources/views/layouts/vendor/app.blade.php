@@ -860,19 +860,36 @@
         $('#popup-modal').appendTo('body').modal('show');
     }
 
-    // Hidden iframe used to silently print the invoice from anywhere in the panel.
+    // Print an invoice from anywhere in the panel by fetching its HTML, extracting
+    // #printableArea, and using the same popup-window approach that the invoice
+    // toolbar's Print button uses (proven to work).
     function bjPrintOrderInvoice(orderId){
         if (!orderId) return;
-        var prev = document.getElementById('bj-silent-print-frame');
-        if (prev) prev.remove();
-        var frame = document.createElement('iframe');
-        frame.id = 'bj-silent-print-frame';
-        frame.setAttribute('aria-hidden', 'true');
-        frame.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0;visibility:hidden;';
-        // Invoice route returns a chrome-free document when ?print=1 and auto-calls
-        // window.print() on load. With Chrome --kiosk-printing, prints silently.
-        frame.src = bjInvoiceTpl.replace('__X__', orderId) + '?print=1';
-        document.body.appendChild(frame);
+        var url = bjInvoiceTpl.replace('__X__', orderId);
+        $.get(url, function(html){
+            // Parse the returned HTML into a detached document to grab #printableArea.
+            var doc = new DOMParser().parseFromString(html, 'text/html');
+            var area = doc.getElementById('printableArea');
+            if (!area) {
+                console.warn('printableArea not found in invoice response');
+                return;
+            }
+            var win = window.open('', '_blank', 'width=400,height=800');
+            if (!win) return;
+            win.document.write(
+                '<!DOCTYPE html><html dir="rtl"><head><meta charset="utf-8">' +
+                '<title>فاتورة</title>' +
+                '<style>*{box-sizing:border-box;margin:0;padding:0;}' +
+                'html,body{width:76mm;max-width:76mm;background:#fff;overflow-x:hidden;}' +
+                'img{max-width:100%!important;}</style>' +
+                '</head><body>' + area.innerHTML + '</body></html>'
+            );
+            win.document.close();
+            win.focus();
+            setTimeout(function(){ try{ win.print(); win.close(); }catch(e){} }, 800);
+        }).fail(function(){
+            console.warn('Failed to fetch invoice for order', orderId);
+        });
     }
 
     $(document).on('click', '#bj-no-print', function(){
