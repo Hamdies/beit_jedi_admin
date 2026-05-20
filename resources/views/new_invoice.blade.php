@@ -91,49 +91,61 @@
             </div>
 
             <script>
-                // Clone the invoice into a clean popup so the admin shell's CSS doesn't
-                // interfere with the thermal-printer print stylesheet.
+                // Print via a hidden iframe on the SAME page. Avoids popup races and
+                // about:blank navigation timing issues.
                 function bjPrintInvoice(){
                     var src = document.getElementById('printableArea');
                     if (!src) return;
-                    // Pull every <style> tag from this page so the @media print rules and
-                    // font @font-face declarations apply inside the popup too.
+
+                    // Gather all styles from this page so the iframe inherits @font-face
+                    // and @media print rules.
                     var styles = '';
                     document.querySelectorAll('style, link[rel="stylesheet"]').forEach(function(el){
                         styles += el.outerHTML;
                     });
-                    var win = window.open('', '_blank', 'width=420,height=820');
-                    if (!win) return;
-                    win.document.open();
-                    win.document.write(
+
+                    // Remove any leftover frame from a previous print.
+                    var prev = document.getElementById('bj-print-iframe');
+                    if (prev) prev.remove();
+
+                    var iframe = document.createElement('iframe');
+                    iframe.id = 'bj-print-iframe';
+                    iframe.setAttribute('aria-hidden', 'true');
+                    iframe.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0;visibility:hidden;';
+                    document.body.appendChild(iframe);
+
+                    var html =
                         '<!DOCTYPE html><html dir="rtl" lang="ar"><head><meta charset="utf-8">' +
                         '<title>فاتورة</title>' + styles +
-                        '<style>html,body{margin:0;padding:0;background:#fff;}@media screen{body{padding:12px;}}</style>' +
-                        '</head><body>' + src.innerHTML + '</body></html>'
-                    );
-                    win.document.close();
-                    win.focus();
-                    // Wait for images/fonts in the popup, then print.
-                    var doPrint = function(){
-                        try { win.focus(); win.print(); } catch(e){}
-                    };
-                    if (win.document.readyState === 'complete') {
-                        setTimeout(doPrint, 500);
-                    } else {
-                        win.addEventListener('load', function(){ setTimeout(doPrint, 500); });
+                        '<style>html,body{margin:0;padding:0;background:#fff;}</style>' +
+                        '</head><body>' + src.outerHTML + '</body></html>';
+
+                    var doc = iframe.contentDocument || iframe.contentWindow.document;
+                    doc.open();
+                    doc.write(html);
+                    doc.close();
+
+                    var fired = false;
+                    function fire(){
+                        if (fired) return;
+                        fired = true;
+                        try {
+                            iframe.contentWindow.focus();
+                            iframe.contentWindow.print();
+                        } catch (e) {
+                            console.warn('print failed', e);
+                        }
                     }
+                    iframe.onload = function(){ setTimeout(fire, 300); };
+                    // Fallback in case onload doesn't fire (already-loaded about:blank).
+                    setTimeout(fire, 1200);
                 }
 
-                document.getElementById('bj-print-btn').addEventListener('click', bjPrintInvoice);
-
-                // Auto-print when opened with ?print=1 (e.g. from the new-order modal).
-                (function(){
-                    var params = new URLSearchParams(window.location.search);
-                    if (params.get('print') !== '1') return;
-                    function go(){ setTimeout(bjPrintInvoice, 300); }
-                    if (document.readyState === 'complete') go();
-                    else window.addEventListener('load', go);
-                })();
+                var bjPrintBtn = document.getElementById('bj-print-btn');
+                if (bjPrintBtn) bjPrintBtn.addEventListener('click', bjPrintInvoice);
+                // ?print=1 mode is handled by the bare wrapper in invoice.blade.php —
+                // it calls window.print() directly on a chrome-free page, so we don't
+                // need the iframe-clone path here.
             </script>
 
             <div id="printableArea">

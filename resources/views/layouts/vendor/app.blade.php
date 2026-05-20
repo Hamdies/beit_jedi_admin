@@ -860,12 +860,24 @@
         $('#popup-modal').appendTo('body').modal('show');
     }
 
+    // Hidden iframe used to silently print the invoice from anywhere in the panel.
+    function bjPrintOrderInvoice(orderId){
+        if (!orderId) return;
+        var prev = document.getElementById('bj-silent-print-frame');
+        if (prev) prev.remove();
+        var frame = document.createElement('iframe');
+        frame.id = 'bj-silent-print-frame';
+        frame.setAttribute('aria-hidden', 'true');
+        frame.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0;visibility:hidden;';
+        // Invoice route returns a chrome-free document when ?print=1 and auto-calls
+        // window.print() on load. With Chrome --kiosk-printing, prints silently.
+        frame.src = bjInvoiceTpl.replace('__X__', orderId) + '?print=1';
+        document.body.appendChild(frame);
+    }
+
     $(document).on('click', '#bj-no-print', function(){
         if (!bjLatestOrderId) return;
-        // Append ?print=1 so the invoice page auto-prints itself on load
-        // (the popup's onload listener was racing with navigation and often missed).
-        var url = bjInvoiceTpl.replace('__X__', bjLatestOrderId) + '?print=1';
-        window.open(url, '_blank');
+        bjPrintOrderInvoice(bjLatestOrderId);
     });
 
     @if (isset($fcm_credentials['apiKey']) && is_string($fcm_credentials['apiKey']) && strlen($fcm_credentials['apiKey'])  > 3 )
