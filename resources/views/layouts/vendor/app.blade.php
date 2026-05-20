@@ -162,42 +162,58 @@
             padding: 16px 20px 18px;
         }
         .bj-no-actions .bj-no-btn { width: 100%; }
-        .bj-no-btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            min-height: 46px;
-            padding: 0 16px;
-            border-radius: 12px;
-            font-family: 'Cairo', sans-serif;
-            font-size: 14px;
-            font-weight: 800;
-            border: 0;
-            cursor: pointer;
+        .bj-new-order-modal .bj-no-btn {
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            gap: 8px !important;
+            min-height: 46px !important;
+            padding: 0 16px !important;
+            border-radius: 12px !important;
+            font-family: 'Cairo', sans-serif !important;
+            font-size: 14px !important;
+            font-weight: 800 !important;
+            border: 0 !important;
+            cursor: pointer !important;
+            text-decoration: none !important;
+            outline: none !important;
+            box-shadow: none;
             transition: transform .1s, background .15s, box-shadow .15s;
         }
-        .bj-no-btn:active { transform: translateY(1px); }
-        .bj-no-btn--primary {
-            background: #171717;
-            color: #fff;
-            box-shadow: 0 6px 18px rgba(23,23,23,.25);
+        .bj-new-order-modal .bj-no-btn:active { transform: translateY(1px); }
+        .bj-new-order-modal .bj-no-btn--primary,
+        .bj-new-order-modal .bj-no-btn--primary:focus {
+            background: #171717 !important;
+            color: #fff !important;
+            box-shadow: 0 6px 18px rgba(23,23,23,.25) !important;
         }
-        .bj-no-btn--primary:hover { background: #000; color: #fff; }
-        .bj-no-btn--ghost {
-            background: #fff;
-            color: #171717;
-            border: 1.5px solid #171717;
+        .bj-new-order-modal .bj-no-btn--primary:hover {
+            background: #000 !important;
+            color: #fff !important;
         }
-        .bj-no-btn--ghost:hover { background: #f6f0e6; }
-        .bj-no-btn--text {
-            background: transparent;
-            color: #6b6258;
-            min-height: 36px;
-            font-weight: 700;
-            font-size: 13px;
+        .bj-new-order-modal .bj-no-btn--ghost,
+        .bj-new-order-modal .bj-no-btn--ghost:focus {
+            background: #fff !important;
+            color: #171717 !important;
+            border: 1.5px solid #171717 !important;
         }
-        .bj-no-btn--text:hover { color: #171717; }
+        .bj-new-order-modal .bj-no-btn--ghost:hover {
+            background: #f6f0e6 !important;
+            color: #171717 !important;
+        }
+        .bj-new-order-modal .bj-no-btn--text,
+        .bj-new-order-modal .bj-no-btn--text:focus {
+            background: transparent !important;
+            color: #6b6258 !important;
+            min-height: 36px !important;
+            font-weight: 700 !important;
+            font-size: 13px !important;
+            border: 0 !important;
+        }
+        .bj-new-order-modal .bj-no-btn--text:hover {
+            color: #171717 !important;
+            background: transparent !important;
+        }
     </style>
     <!-- CSS Implementing Plugins -->
     <link rel="stylesheet" href="{{dynamicAsset('public/assets/admin/css/vendor.min.css')}}">
@@ -654,12 +670,38 @@
         "use strict";
     let audio = document.getElementById("myAudio");
 
+    // Unlock audio on first user interaction so autoplay policy lets us play later.
+    var bjAudioUnlocked = false;
+    function bjUnlockAudio(){
+        if (bjAudioUnlocked || !audio) return;
+        var p = audio.play();
+        if (p && p.then) {
+            p.then(function(){
+                audio.pause();
+                audio.currentTime = 0;
+                bjAudioUnlocked = true;
+            }).catch(function(){});
+        } else {
+            try { audio.pause(); audio.currentTime = 0; } catch(e){}
+            bjAudioUnlocked = true;
+        }
+    }
+    document.addEventListener('click', bjUnlockAudio, { once: false });
+    document.addEventListener('keydown', bjUnlockAudio, { once: false });
+
     function playAudio() {
-        audio.play();
+        if (!audio) return;
+        try { audio.currentTime = 0; } catch(e){}
+        var p = audio.play();
+        if (p && p.catch) {
+            p.catch(function(err){
+                console.warn('Audio blocked by browser autoplay policy. Click anywhere to unlock.', err);
+            });
+        }
     }
 
     function pauseAudio() {
-        audio.pause();
+        if (audio) audio.pause();
     }
 
 
@@ -820,12 +862,10 @@
 
     $(document).on('click', '#bj-no-print', function(){
         if (!bjLatestOrderId) return;
-        var w = window.open(bjInvoiceTpl.replace('__X__', bjLatestOrderId), '_blank');
-        if (w) {
-            w.addEventListener('load', function(){
-                try { w.focus(); w.print(); } catch(e){}
-            });
-        }
+        // Append ?print=1 so the invoice page auto-prints itself on load
+        // (the popup's onload listener was racing with navigation and often missed).
+        var url = bjInvoiceTpl.replace('__X__', bjLatestOrderId) + '?print=1';
+        window.open(url, '_blank');
     });
 
     @if (isset($fcm_credentials['apiKey']) && is_string($fcm_credentials['apiKey']) && strlen($fcm_credentials['apiKey'])  > 3 )

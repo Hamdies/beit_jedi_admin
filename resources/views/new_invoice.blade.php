@@ -92,13 +92,24 @@
 
             <script>
                 document.getElementById('bj-print-btn').addEventListener('click', function () {
-                    var sheetHtml = document.getElementById('printableArea').innerHTML;
-                    var win = window.open('', '_blank', 'width=400,height=800');
-                    win.document.write('<!DOCTYPE html><html dir="rtl"><head><meta charset="utf-8"><title>فاتورة</title><style>*{box-sizing:border-box;margin:0;padding:0;}html,body{width:76mm;max-width:76mm;background:#fff;overflow-x:hidden;}img{max-width:100%!important;}</style></head><body>' + sheetHtml + '</body></html>');
-                    win.document.close();
-                    win.focus();
-                    setTimeout(function(){ win.print(); win.close(); }, 800);
+                    window.print();
                 });
+
+                // Auto-print when opened with ?print=1 (e.g. from the new-order modal).
+                (function(){
+                    var params = new URLSearchParams(window.location.search);
+                    if (params.get('print') !== '1') return;
+                    function doPrint(){
+                        try { window.focus(); } catch(e){}
+                        // Small delay so fonts/images settle before the print dialog.
+                        setTimeout(function(){ window.print(); }, 400);
+                    }
+                    if (document.readyState === 'complete') {
+                        doPrint();
+                    } else {
+                        window.addEventListener('load', doPrint);
+                    }
+                })();
             </script>
 
             <div id="printableArea">
