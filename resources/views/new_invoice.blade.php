@@ -91,61 +91,21 @@
             </div>
 
             <script>
-                // Print via a hidden iframe on the SAME page. Avoids popup races and
-                // about:blank navigation timing issues.
+                // Mark <body> so the print stylesheet can isolate the invoice from
+                // the admin shell, then call window.print() on this page directly.
                 function bjPrintInvoice(){
-                    var src = document.getElementById('printableArea');
-                    if (!src) return;
-
-                    // Gather all styles from this page so the iframe inherits @font-face
-                    // and @media print rules.
-                    var styles = '';
-                    document.querySelectorAll('style, link[rel="stylesheet"]').forEach(function(el){
-                        styles += el.outerHTML;
-                    });
-
-                    // Remove any leftover frame from a previous print.
-                    var prev = document.getElementById('bj-print-iframe');
-                    if (prev) prev.remove();
-
-                    var iframe = document.createElement('iframe');
-                    iframe.id = 'bj-print-iframe';
-                    iframe.setAttribute('aria-hidden', 'true');
-                    iframe.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0;visibility:hidden;';
-                    document.body.appendChild(iframe);
-
-                    var html =
-                        '<!DOCTYPE html><html dir="rtl" lang="ar"><head><meta charset="utf-8">' +
-                        '<title>فاتورة</title>' + styles +
-                        '<style>html,body{margin:0;padding:0;background:#fff;}</style>' +
-                        '</head><body>' + src.outerHTML + '</body></html>';
-
-                    var doc = iframe.contentDocument || iframe.contentWindow.document;
-                    doc.open();
-                    doc.write(html);
-                    doc.close();
-
-                    var fired = false;
-                    function fire(){
-                        if (fired) return;
-                        fired = true;
-                        try {
-                            iframe.contentWindow.focus();
-                            iframe.contentWindow.print();
-                        } catch (e) {
-                            console.warn('print failed', e);
-                        }
-                    }
-                    iframe.onload = function(){ setTimeout(fire, 300); };
-                    // Fallback in case onload doesn't fire (already-loaded about:blank).
-                    setTimeout(fire, 1200);
+                    document.body.classList.add('bj-printing');
+                    setTimeout(function(){
+                        window.print();
+                        // Clear the class after the dialog closes so the UI is normal again.
+                        setTimeout(function(){
+                            document.body.classList.remove('bj-printing');
+                        }, 500);
+                    }, 100);
                 }
 
                 var bjPrintBtn = document.getElementById('bj-print-btn');
                 if (bjPrintBtn) bjPrintBtn.addEventListener('click', bjPrintInvoice);
-                // ?print=1 mode is handled by the bare wrapper in invoice.blade.php —
-                // it calls window.print() directly on a chrome-free page, so we don't
-                // need the iframe-clone path here.
             </script>
 
             <div id="printableArea">
@@ -623,6 +583,27 @@
 
                         .non-printable {
                             display: none !important;
+                        }
+
+                        /* ── When printing, hide everything via visibility, then lift
+                              #printableArea above the page via position:fixed. ── */
+                        body.bj-printing,
+                        body.bj-printing * {
+                            visibility: hidden !important;
+                        }
+                        body.bj-printing #printableArea,
+                        body.bj-printing #printableArea * {
+                            visibility: visible !important;
+                        }
+                        body.bj-printing #printableArea {
+                            position: fixed !important;
+                            top: 0 !important;
+                            left: 0 !important;
+                            right: 0 !important;
+                            width: 80mm !important;
+                            margin: 0 !important;
+                            padding: 3mm 4mm !important;
+                            background: #fff !important;
                         }
 
                         .bj-invoice-sheet {
