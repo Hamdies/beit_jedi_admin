@@ -33,6 +33,14 @@
 @endpush
 
 @section('content')
+@php
+    // category_ids can be stored as [{id:5, position:0}, ...] OR as a flat array of ints [5,12,...]
+    $catId = function ($i) use ($product_category) {
+        if (!isset($product_category[$i])) return null;
+        $v = $product_category[$i];
+        return is_object($v) ? ($v->id ?? null) : $v;
+    };
+@endphp
 
     <div class="content container-fluid food-edit-page-modern">
         <!-- Page Header -->
@@ -176,7 +184,7 @@
                                                 data-url="{{url('/')}}/restaurant-panel/food/get-categories?parent_id=" data-id="sub-categories">
                                             @foreach($categories as $category)
                                                 <option
-                                                    value="{{$category['id']}}" {{ $category->id==$product_category[0]->id ? 'selected' : ''}} >{{$category['name']}}</option>
+                                                    value="{{$category['id']}}" {{ $category->id==$catId(0) ? 'selected' : ''}} >{{$category['name']}}</option>
                                             @endforeach
                                         </select>
                                     </div>
@@ -191,7 +199,7 @@
                                                     src="{{ dynamicAsset('/public/assets/admin/img/info-circle.svg') }}"
                                                     alt="{{ translate('messages.category_required_warning') }}"></span></label>
                                                     <select name="sub_category_id" id="sub-categories"
-                                                    data-id="{{count($product_category)>=2?$product_category[1]->id:''}}"
+                                                    data-id="{{ $catId(1) ?? '' }}"
                                                     class="form-control h--45px js-select2-custom">
 
                                             </select>
@@ -677,8 +685,8 @@
         $(document).ready(function () {
             setTimeout(function () {
                 let category = $("#category-id").val();
-                let sub_category = '{{count($product_category)>=2?$product_category[1]->id:''}}';
-                let sub_sub_category ='{{count($product_category)>=3?$product_category[2]->id:''}}';
+                let sub_category = '{{ $catId(1) ?? '' }}';
+                let sub_sub_category ='{{ $catId(2) ?? '' }}';
                 getRequest('{{url('/')}}/restaurant-panel/food/get-categories?parent_id=' + category + '&&sub_category=' + sub_category, 'sub-categories');
                 getRequest('{{url('/')}}/restaurant-panel/food/get-categories?parent_id=' + sub_category + '&&sub_category=' + sub_sub_category, 'sub-sub-categories');
             }, 1000)
