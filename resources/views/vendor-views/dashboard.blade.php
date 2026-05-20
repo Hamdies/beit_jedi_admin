@@ -958,14 +958,23 @@
         }).render();
     }
 
-    // New order detection
-    var lastConfirmed = {{ ($data['confirmed'] ?? 0) }};
+    // New order detection — tracks the newest order id, not just counts,
+    // so newly-placed (pending) orders trigger too, not only confirmed ones.
+    var lastSeenOrderId = null; // initialized on first poll
     var latestOrderId = null;
     var audioCtx = null;
+    var userGestured = false;
 
-    document.addEventListener('click', function unlock(){
+    // Browsers block window.print() and AudioContext without a prior user gesture.
+    // We unlock both on the first interaction so subsequent auto-prints work.
+    function unlockGesture(){
+        userGestured = true;
         try { audioCtx = new (window.AudioContext||window.webkitAudioContext)(); } catch(e){}
-    }, { once: true });
+        document.removeEventListener('click', unlockGesture);
+        document.removeEventListener('keydown', unlockGesture);
+    }
+    document.addEventListener('click', unlockGesture);
+    document.addEventListener('keydown', unlockGesture);
 
     function beep(f, s, d){
         if (!audioCtx) return;
@@ -983,7 +992,14 @@
         var frame = document.getElementById('bj-print-frame');
         if (!frame) return;
         var url = '{{ route("vendor.order.generate-invoice", ["id" => "__X__"]) }}'.replace('__X__', id);
-        frame.onload = function(){ try{ frame.contentWindow.focus(); frame.contentWindow.print(); }catch(e){} };
+        frame.onload = function(){
+            try {
+                frame.contentWindow.focus();
+                frame.contentWindow.print();
+            } catch(e){
+                console.warn('auto-print blocked:', e);
+            }
+        };
         frame.src = url;
     }
 
@@ -995,7 +1011,14 @@
         var t = document.getElementById('bj-toast');
         var b = document.getElementById('bj-toast-body');
         if (b) b.textContent = 'طلب #' + toAr(id) + ' — ' + (customer||'عميل جديد');
-        if (t){ t.classList.add('show'); playAlert(); autoPrint(id); }
+        if (t){
+            t.classList.add('show');
+            playAlert();
+            // Only attempt auto-print after a user gesture has unlocked it,
+            // otherwise the browser silently blocks window.print() and the
+            // user must click the "طباعة" button on the toast instead.
+            if (userGestured) autoPrint(id);
+        }
         setTimeout(bjDismissToast, 14000);
     }
 
@@ -1010,16 +1033,20 @@
         $.post('{{ route("vendor.dashboard.order-stats") }}', { statistics_type: type }, function(data){
             if (!data || !data.data) return;
             var d = data.data;
-            // Update tiles
             setTile('pending', d.confirmed       ?? 0);
             setTile('prep',    d.cooking          ?? 0);
             setTile('ready',   d.ready_for_delivery ?? 0);
             setTile('out',     d.food_on_the_way  ?? 0);
-            // New order alert
-            var newC = parseInt(d.confirmed ?? 0);
-            if (newC > lastConfirmed) {
-                showToast(d.latest_order_id||null, d.latest_customer||'');
-                lastConfirmed = newC;
+
+            var newestId = parseInt(d.latest_order_id || 0) || null;
+            if (newestId) {
+                if (lastSeenOrderId === null) {
+                    // First poll after page load — establish baseline, don't alert.
+                    lastSeenOrderId = newestId;
+                } else if (newestId > lastSeenOrderId) {
+                    showToast(newestId, d.latest_customer || '');
+                    lastSeenOrderId = newestId;
+                }
             }
         });
     }
@@ -1045,7 +1072,9 @@
         });
     });
 
-    var timer = setInterval(refreshStats, 40000);
+    // Kick off an immediate poll so lastSeenOrderId is established without delay.
+    refreshStats();
+    var timer = setInterval(refreshStats, 15000);
     window.addEventListener('beforeunload', function(){ clearInterval(timer); });
 })();
 </script>

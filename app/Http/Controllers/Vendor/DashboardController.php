@@ -111,8 +111,22 @@ class DashboardController extends Controller
         session()->put('dash_params', $params);
 
         $data = self::dashboard_order_stats_data();
+
+        $restaurant = Helpers::get_restaurant_data();
+        $latest = Order::where('restaurant_id', $restaurant?->id)
+            ->whereIn('order_status', ['confirmed', 'accepted', 'pending'])
+            ->whereDate('created_at', Carbon::today())
+            ->Notpos()
+            ->orderByDesc('id')
+            ->with('customer:id,f_name,l_name')
+            ->first(['id', 'user_id', 'order_status', 'created_at']);
+
+        $data['latest_order_id']  = $latest?->id;
+        $data['latest_customer']  = $latest ? trim(($latest->customer->f_name ?? '') . ' ' . ($latest->customer->l_name ?? '')) : null;
+
         return response()->json([
-            'view' => view('vendor-views.partials._dashboard-order-stats', compact('data'))->render()
+            'data' => $data,
+            'view' => view('vendor-views.partials._dashboard-order-stats', compact('data'))->render(),
         ], 200);
     }
 
