@@ -115,8 +115,11 @@ class Helpers
         $categories = [];
         $category_ids = gettype($data['category_ids']) == 'array' ? $data['category_ids'] : json_decode($data['category_ids'],true);
         foreach ($category_ids as $value) {
-            $category_name = Category::where('id',$value['id'])->pluck('name');
-            $categories[] = ['id' => (string)$value['id'], 'position' => $value['position'], 'name'=>data_get($category_name,'0','NA')];
+            if (!is_array($value)) {
+                $value = ['id' => $value, 'position' => 0];
+            }
+            $category_name = Category::where('id', $value['id'])->pluck('name');
+            $categories[] = ['id' => (string)$value['id'], 'position' => $value['position'] ?? 0, 'name' => data_get($category_name, '0', 'NA')];
         }
         $data['category_ids'] = $categories;
 
