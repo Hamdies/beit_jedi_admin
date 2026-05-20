@@ -51,6 +51,153 @@
             background-color: #e5e7eb !important;
             color: #111827 !important;
         }
+
+        /* ───── New-order modal ───── */
+        .bj-new-order-modal { direction: rtl; }
+        .bj-new-order-modal .modal-dialog { max-width: 460px; }
+        .bj-new-order-modal .bj-no-card {
+            border: 0;
+            border-radius: 22px;
+            overflow: hidden;
+            box-shadow: 0 30px 80px rgba(20, 20, 30, .35);
+            background: #fffdfa;
+            font-family: 'Cairo', sans-serif;
+        }
+        .bj-no-head {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 18px 20px 16px;
+            background: linear-gradient(135deg, #171717 0%, #2a2520 100%);
+            color: #fff;
+        }
+        .bj-no-pulse {
+            flex: 0 0 48px;
+            width: 48px; height: 48px;
+            border-radius: 14px;
+            background: rgba(201, 169, 107, .18);
+            color: #f5d99e;
+            display: grid; place-items: center;
+            font-size: 22px;
+            position: relative;
+        }
+        .bj-no-pulse::after {
+            content: '';
+            position: absolute; inset: -4px;
+            border-radius: 18px;
+            border: 2px solid rgba(201, 169, 107, .5);
+            animation: bjNoPulse 1.6s ease-out infinite;
+        }
+        @keyframes bjNoPulse {
+            0% { transform: scale(1); opacity: .8; }
+            100% { transform: scale(1.35); opacity: 0; }
+        }
+        .bj-no-head-text { flex: 1; min-width: 0; }
+        .bj-no-eyebrow {
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: .12em;
+            color: #c9a96b;
+            text-transform: uppercase;
+            margin-bottom: 2px;
+        }
+        .bj-no-title {
+            font-size: 17px;
+            font-weight: 800;
+            line-height: 1.3;
+            color: #fff;
+        }
+        .bj-no-close {
+            position: absolute;
+            top: 14px; inset-inline-start: 14px;
+            background: rgba(255,255,255,.08);
+            border: 0;
+            color: #fff;
+            width: 32px; height: 32px;
+            border-radius: 50%;
+            display: grid; place-items: center;
+            cursor: pointer;
+            transition: background .15s;
+        }
+        .bj-no-close:hover { background: rgba(255,255,255,.18); }
+
+        .bj-no-body { padding: 18px 20px 8px; }
+        .bj-no-meta {
+            display: grid;
+            gap: 10px;
+            background: #f6f0e6;
+            border-radius: 14px;
+            padding: 14px 16px;
+        }
+        .bj-no-meta-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            gap: 10px;
+            font-size: 14px;
+        }
+        .bj-no-meta-label {
+            color: #6b6258;
+            font-weight: 700;
+        }
+        .bj-no-meta-value {
+            color: #171717;
+            font-weight: 900;
+            font-size: 16px;
+        }
+        .bj-no-meta-row--total {
+            padding-top: 10px;
+            border-top: 1px solid rgba(23,23,23,.1);
+        }
+        .bj-no-meta-row--total .bj-no-meta-value {
+            font-size: 22px;
+            color: #171717;
+        }
+
+        .bj-no-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            padding: 16px 20px 18px;
+        }
+        .bj-no-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            min-height: 46px;
+            padding: 0 16px;
+            border-radius: 12px;
+            font-family: 'Cairo', sans-serif;
+            font-size: 14px;
+            font-weight: 800;
+            border: 0;
+            cursor: pointer;
+            transition: transform .1s, background .15s, box-shadow .15s;
+        }
+        .bj-no-btn:active { transform: translateY(1px); }
+        .bj-no-btn--primary {
+            background: #171717;
+            color: #fff;
+            box-shadow: 0 6px 18px rgba(23,23,23,.25);
+        }
+        .bj-no-btn--primary:hover { background: #000; color: #fff; }
+        .bj-no-btn--ghost {
+            background: #fff;
+            color: #171717;
+            border: 1.5px solid #171717;
+        }
+        .bj-no-btn--ghost:hover { background: #f6f0e6; }
+        .bj-no-btn--text {
+            grid-column: 1 / -1;
+            background: transparent;
+            color: #6b6258;
+            min-height: 36px;
+            font-weight: 700;
+            font-size: 13px;
+        }
+        .bj-no-btn--text:hover { color: #171717; }
     </style>
     <!-- CSS Implementing Plugins -->
     <link rel="stylesheet" href="{{dynamicAsset('public/assets/admin/css/vendor.min.css')}}">
@@ -114,20 +261,48 @@
 @include('layouts.vendor.partials._footer')
 <!-- End Footer -->
 
-    <div class="modal fade" id="popup-modal">
+    <div class="modal fade bj-new-order-modal" id="popup-modal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <div class="modal-body">
-                    <div class="row">
-                        <div class="col-12">
-                            <div class="text-center">
-                                <h2 class="color-8a8a8a">
-                                    <i class="tio-shopping-cart-outlined"></i> {{translate('messages.You have new order, Check Please.')}}
-                                </h2>
-                                <hr>
-                                <button  class="btn btn-primary check-order">{{translate('messages.Ok, let me check')}}</button>
+            <div class="modal-content bj-no-card">
+                <div class="modal-body p-0">
+                    <div class="bj-no-head">
+                        <div class="bj-no-pulse"><i class="tio-shopping-cart-outlined"></i></div>
+                        <div class="bj-no-head-text">
+                            <div class="bj-no-eyebrow">طلب جديد</div>
+                            <div class="bj-no-title">لديك طلب جديد بانتظار التحضير</div>
+                        </div>
+                        <button type="button" class="bj-no-close" data-dismiss="modal" aria-label="إغلاق">
+                            <i class="tio-clear"></i>
+                        </button>
+                    </div>
+
+                    <div class="bj-no-body">
+                        <div class="bj-no-meta">
+                            <div class="bj-no-meta-row">
+                                <span class="bj-no-meta-label">رقم الطلب</span>
+                                <span class="bj-no-meta-value" id="bj-no-order-id">—</span>
+                            </div>
+                            <div class="bj-no-meta-row">
+                                <span class="bj-no-meta-label">العميل</span>
+                                <span class="bj-no-meta-value" id="bj-no-customer">—</span>
+                            </div>
+                            <div class="bj-no-meta-row bj-no-meta-row--total">
+                                <span class="bj-no-meta-label">المجموع</span>
+                                <span class="bj-no-meta-value" id="bj-no-amount">—</span>
                             </div>
                         </div>
+                    </div>
+
+                    <div class="bj-no-actions">
+                        <button type="button" class="bj-no-btn bj-no-btn--primary" id="bj-no-print">
+                            <i class="tio-print"></i> طباعة الآن
+                        </button>
+                        <button type="button" class="bj-no-btn bj-no-btn--ghost check-order">
+                            <i class="tio-visible"></i> عرض الطلب
+                        </button>
+                        <button type="button" class="bj-no-btn bj-no-btn--text" data-dismiss="modal">
+                            تجاهل
+                        </button>
                     </div>
                 </div>
             </div>
@@ -623,6 +798,36 @@
     var order_type = 'all';
 
 
+    // ── New-order modal state ──
+    var bjLatestOrderId = null;
+    var bjInvoiceTpl = '{{ url('/restaurant-panel/order/generate-invoice') }}/__X__';
+
+    function bjFmtAmount(n){
+        if (n == null || isNaN(parseFloat(n))) return '—';
+        return 'ج.م ' + parseFloat(n).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+    }
+    function bjFillNewOrderModal(d){
+        d = d || {};
+        bjLatestOrderId = d.latest_order_id || d.order_id || null;
+        $('#bj-no-order-id').text(bjLatestOrderId ? '#' + bjLatestOrderId : '—');
+        $('#bj-no-customer').text(d.latest_customer || d.customer || 'عميل جديد');
+        $('#bj-no-amount').text(bjFmtAmount(d.latest_amount || d.amount));
+    }
+    function bjShowNewOrderModal(d){
+        bjFillNewOrderModal(d);
+        $('#popup-modal').appendTo('body').modal('show');
+    }
+
+    $(document).on('click', '#bj-no-print', function(){
+        if (!bjLatestOrderId) return;
+        var w = window.open(bjInvoiceTpl.replace('__X__', bjLatestOrderId), '_blank');
+        if (w) {
+            w.addEventListener('load', function(){
+                try { w.focus(); w.print(); } catch(e){}
+            });
+        }
+    });
+
     @if (isset($fcm_credentials['apiKey']) && is_string($fcm_credentials['apiKey']) && strlen($fcm_credentials['apiKey'])  > 3 )
 
     messaging.onMessage(function (payload) {
@@ -632,7 +837,11 @@
             @if(\App\CentralLogics\Helpers::employee_module_permission_check('order') && $order_notification_type == 'firebase')
             order_type = payload.data.order_type
             playAudio();
-            $('#popup-modal').appendTo("body").modal('show');
+            bjShowNewOrderModal({
+                latest_order_id: payload.data.order_id,
+                latest_customer: payload.data.customer_name,
+                latest_amount: payload.data.order_amount
+            });
             @endif
         }else if(payload.data.type === 'message'){
             var conversation_id = getUrlParameter('conversation');
@@ -658,23 +867,21 @@
     @endif
 
     @if(\App\CentralLogics\Helpers::employee_module_permission_check('order') && $order_notification_type == 'manual')
+        var bjLastShownOrderId = null;
         setInterval(function () {
             $.get({
                 url: '{{route('vendor.get-restaurant-data')}}',
                 dataType: 'json',
                 success: function (response) {
-                    let data = response.data;
-                    if (data.new_pending_order > 0) {
-                        order_type = 'pending';
-                        playAudio();
-                        $('#popup-modal').appendTo("body").modal('show');
-                    }
-                    else if(data.new_confirmed_order > 0)
-                    {
-                        order_type = 'confirmed';
-                        playAudio();
-                        $('#popup-modal').appendTo("body").modal('show');
-                    }
+                    let data = response.data || {};
+                    var hasNew = (data.new_pending_order > 0) || (data.new_confirmed_order > 0);
+                    if (!hasNew) return;
+                    // Don't re-spam the same order on every poll
+                    if (data.latest_order_id && data.latest_order_id === bjLastShownOrderId) return;
+                    order_type = data.new_pending_order > 0 ? 'pending' : 'confirmed';
+                    bjLastShownOrderId = data.latest_order_id || null;
+                    playAudio();
+                    bjShowNewOrderModal(data);
                 },
             });
         }, 10000);

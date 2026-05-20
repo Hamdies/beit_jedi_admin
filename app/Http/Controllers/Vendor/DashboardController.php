@@ -94,9 +94,24 @@ class DashboardController extends Controller
         $new_pending_order = $new_pending_order->count();
         $new_confirmed_order = DB::table('orders')->where(['checked' => 0])->where('restaurant_id', $restaurant?->id)->whereIn('order_status',['confirmed', 'accepted'])->whereNotNull('confirmed')->count();
 
+        $latest = Order::where('restaurant_id', $restaurant?->id)
+            ->whereIn('order_status', ['pending', 'confirmed', 'accepted'])
+            ->where('checked', 0)
+            ->Notpos()
+            ->orderByDesc('id')
+            ->with('customer:id,f_name,l_name')
+            ->first(['id', 'user_id', 'order_amount', 'order_type']);
+
         return response()->json([
             'success' => 1,
-            'data' => ['new_pending_order' => $new_pending_order, 'new_confirmed_order' => $new_confirmed_order]
+            'data' => [
+                'new_pending_order'   => $new_pending_order,
+                'new_confirmed_order' => $new_confirmed_order,
+                'latest_order_id'     => $latest?->id,
+                'latest_customer'     => $latest ? trim(($latest->customer->f_name ?? '') . ' ' . ($latest->customer->l_name ?? '')) : null,
+                'latest_amount'       => $latest?->order_amount,
+                'latest_type'         => $latest?->order_type,
+            ],
         ]);
     }
 
