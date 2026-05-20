@@ -38,7 +38,19 @@ class DeliveryManController extends Controller
         })
 
         ->latest()->paginate(config('default_pagination'));
-        return view('vendor-views.delivery-man.list', compact('delivery_men'));
+
+        $restaurantId = Helpers::get_restaurant_id();
+        $base = DeliveryMan::where('restaurant_id', $restaurantId);
+        $dmStats = [
+            'total'    => (clone $base)->count(),
+            'online'   => (clone $base)->where('application_status', 'approved')->where('active', 1)->count(),
+            'offline'  => (clone $base)->where('application_status', 'approved')->where('active', 0)->count(),
+            'busy'     => (clone $base)->where('application_status', 'approved')->where('current_orders', '>', 0)->count(),
+            'pending'  => (clone $base)->where('application_status', 'pending')->count(),
+            'denied'   => (clone $base)->where('application_status', 'denied')->count(),
+        ];
+
+        return view('vendor-views.delivery-man.list', compact('delivery_men', 'dmStats'));
     }
 
 

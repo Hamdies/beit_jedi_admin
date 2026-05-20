@@ -537,6 +537,8 @@ class FoodController extends Controller
     {
         $category_id = $request->query('category_id', 'all');
         $type = $request->query('type', 'all');
+        $restaurant_id = Helpers::get_restaurant_id();
+
         $foods = Food::
         when(is_numeric($category_id), function($query)use($category_id){
             return $query->whereHas('category',function($q)use($category_id){
@@ -544,8 +546,31 @@ class FoodController extends Controller
             });
         })
         ->type($type)->latest()->paginate(config('default_pagination'));
-        $category =$category_id !='all'? Category::findOrFail($category_id):null;
-        return view('vendor-views.product.list', compact('foods', 'category', 'type'));
+        $category = $category_id != 'all' ? Category::findOrFail($category_id) : null;
+
+        $top_categories = Category::where(['position' => 0])
+            ->withCount(['products' => function ($q) use ($restaurant_id) {
+                $q->where('restaurant_id', $restaurant_id);
+            }])
+            ->orderByDesc('products_count')
+            ->limit(8)
+            ->get();
+
+        $stats = [
+            'total'       => Food::where('restaurant_id', $restaurant_id)->count(),
+            'active'      => Food::where('restaurant_id', $restaurant_id)->where('status', 1)->count(),
+            'out_of_stock'=> Food::where('restaurant_id', $restaurant_id)
+                                ->where('stock_type', '!=', 'unlimited')
+                                ->where('item_stock', '<=', 0)
+                                ->count(),
+            'recommended' => Food::where('restaurant_id', $restaurant_id)->where('recommended', 1)->count(),
+            'categories_count' => Category::where(['position' => 0])
+                                    ->whereHas('products', function ($q) use ($restaurant_id) {
+                                        $q->where('restaurant_id', $restaurant_id);
+                                    })->count(),
+        ];
+
+        return view('vendor-views.product.list', compact('foods', 'category', 'type', 'top_categories', 'stats'));
     }
 
     public function search(Request $request){
