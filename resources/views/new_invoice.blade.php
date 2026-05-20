@@ -383,7 +383,8 @@
                         font-weight: 900;
                         color: #1a1a1a;
                         direction: ltr;
-                        text-align: right;
+                        unicode-bidi: isolate;
+                        text-align: left;
                     }
 
                     .bj-invoice-summary {
@@ -557,7 +558,7 @@
                     @media print {
                         @page {
                             size: 80mm auto;
-                            margin: 2mm 2mm;
+                            margin: 0;
                         }
 
                         * {
@@ -570,6 +571,10 @@
                             margin: 0 !important;
                             padding: 0 !important;
                             width: 80mm !important;
+                        }
+
+                        body {
+                            padding: 3mm 4mm !important;
                         }
 
                         .non-printable {
@@ -679,14 +684,21 @@
                             margin-bottom: 3px !important;
                         }
 
+                        .bj-invoice-items {
+                            width: 100% !important;
+                            table-layout: fixed !important;
+                        }
+
                         .bj-invoice-items thead th {
                             font-size: 7pt !important;
-                            padding: 0 3px 5px !important;
+                            padding: 0 2px 5px !important;
                         }
 
                         .bj-invoice-items tbody td {
                             font-size: 8pt !important;
-                            padding: 5px 3px !important;
+                            padding: 5px 2px !important;
+                            word-wrap: break-word !important;
+                            overflow-wrap: break-word !important;
                         }
 
                         .bj-invoice-item-name {
@@ -709,22 +721,44 @@
                         /* ── Summary ── */
                         .bj-invoice-summary {
                             gap: 4px !important;
+                            width: 100% !important;
                         }
 
                         .bj-invoice-summary-row {
-                            display: grid !important;
-                            grid-template-columns: 1fr auto !important;
-                            gap: 4px !important;
-                            font-size: 8pt !important;
+                            display: flex !important;
+                            flex-direction: row !important;
+                            justify-content: space-between !important;
+                            align-items: baseline !important;
+                            gap: 6px !important;
+                            font-size: 9pt !important;
+                            width: 100% !important;
+                        }
+
+                        .bj-invoice-summary-row span:first-child {
+                            flex: 1 1 auto !important;
+                            text-align: right !important;
+                            min-width: 0 !important;
+                            overflow: hidden !important;
+                            text-overflow: ellipsis !important;
                         }
 
                         .bj-invoice-summary-row span:last-child {
+                            flex: 0 0 auto !important;
                             white-space: nowrap !important;
                             direction: ltr !important;
+                            unicode-bidi: isolate !important;
+                            text-align: left !important;
+                            font-weight: 900 !important;
                         }
 
                         .bj-invoice-summary-row--muted {
-                            font-size: 7.5pt !important;
+                            font-size: 8.5pt !important;
+                        }
+
+                        .bj-invoice-summary-row--subdivider {
+                            padding-top: 5px !important;
+                            margin-top: 2px !important;
+                            border-top: 1.5px dashed #1b1b1b !important;
                         }
 
                         /* ── Total box ── */

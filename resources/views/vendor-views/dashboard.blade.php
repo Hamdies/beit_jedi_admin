@@ -636,11 +636,11 @@
     <div class="bj-toast-title">طلب جديد</div>
     <div class="bj-toast-body" id="bj-toast-body">جاري التحديث...</div>
     <div class="bj-toast-actions">
-        <button class="bj-btn primary" onclick="bjPrintLatest()"><i class="tio-print"></i> طباعة</button>
+        <button class="bj-btn primary" onclick="bjPrintLatest()"><i class="tio-print"></i> طباعة الآن</button>
+        <button class="bj-btn ghost" onclick="bjViewLatest()"><i class="tio-visible"></i> عرض</button>
         <button class="bj-btn ghost" onclick="bjDismissToast()">تجاهل</button>
     </div>
 </div>
-<iframe id="bj-print-frame" style="display:none"></iframe>
 
 {{-- ── MAIN ── --}}
 <div class="bj-main">
@@ -958,23 +958,16 @@
         }).render();
     }
 
-    // New order detection — tracks the newest order id, not just counts,
-    // so newly-placed (pending) orders trigger too, not only confirmed ones.
+    // New order detection — tracks the newest order id so newly-placed
+    // (pending) orders trigger too, not only confirmed ones.
     var lastSeenOrderId = null; // initialized on first poll
     var latestOrderId = null;
     var audioCtx = null;
-    var userGestured = false;
 
-    // Browsers block window.print() and AudioContext without a prior user gesture.
-    // We unlock both on the first interaction so subsequent auto-prints work.
-    function unlockGesture(){
-        userGestured = true;
+    // AudioContext needs a user gesture before it can play.
+    document.addEventListener('click', function unlock(){
         try { audioCtx = new (window.AudioContext||window.webkitAudioContext)(); } catch(e){}
-        document.removeEventListener('click', unlockGesture);
-        document.removeEventListener('keydown', unlockGesture);
-    }
-    document.addEventListener('click', unlockGesture);
-    document.addEventListener('keydown', unlockGesture);
+    }, { once: true });
 
     function beep(f, s, d){
         if (!audioCtx) return;
@@ -987,23 +980,25 @@
     }
     function playAlert(){ beep(880,0,.35); beep(660,.45,.35); beep(880,.9,.35); }
 
-    function autoPrint(id){
-        if (!id) return;
-        var frame = document.getElementById('bj-print-frame');
-        if (!frame) return;
-        var url = '{{ route("vendor.order.generate-invoice", ["id" => "__X__"]) }}'.replace('__X__', id);
-        frame.onload = function(){
-            try {
-                frame.contentWindow.focus();
-                frame.contentWindow.print();
-            } catch(e){
-                console.warn('auto-print blocked:', e);
-            }
-        };
-        frame.src = url;
-    }
+    var invoiceUrlTpl = '{{ route("vendor.order.generate-invoice", ["id" => "__X__"]) }}';
+    var orderDetailsUrlTpl = '{{ route("vendor.order.details", ["id" => "__X__"]) }}';
 
-    window.bjPrintLatest  = function(){ if (latestOrderId) autoPrint(latestOrderId); bjDismissToast(); };
+    window.bjPrintLatest = function(){
+        if (!latestOrderId) return;
+        // Open the invoice in a new tab and trigger print there. The user gesture
+        // (button click) lets the browser open both the tab and the print dialog.
+        var w = window.open(invoiceUrlTpl.replace('__X__', latestOrderId), '_blank');
+        if (w) {
+            w.addEventListener('load', function(){
+                try { w.focus(); w.print(); } catch(e){}
+            });
+        }
+        bjDismissToast();
+    };
+    window.bjViewLatest = function(){
+        if (!latestOrderId) return;
+        window.location.href = orderDetailsUrlTpl.replace('__X__', latestOrderId);
+    };
     window.bjDismissToast = function(){ var t=document.getElementById('bj-toast'); if(t) t.classList.remove('show'); };
 
     function showToast(id, customer){
@@ -1014,12 +1009,8 @@
         if (t){
             t.classList.add('show');
             playAlert();
-            // Only attempt auto-print after a user gesture has unlocked it,
-            // otherwise the browser silently blocks window.print() and the
-            // user must click the "طباعة" button on the toast instead.
-            if (userGestured) autoPrint(id);
         }
-        setTimeout(bjDismissToast, 14000);
+        // No auto-dismiss — vendor must explicitly acknowledge (print / view / dismiss).
     }
 
     function setTile(sel, val){
