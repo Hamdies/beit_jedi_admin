@@ -156,11 +156,12 @@
         }
 
         .bj-no-actions {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
+            display: flex;
+            flex-direction: column;
             gap: 10px;
             padding: 16px 20px 18px;
         }
+        .bj-no-actions .bj-no-btn { width: 100%; }
         .bj-no-btn {
             display: inline-flex;
             align-items: center;
@@ -190,7 +191,6 @@
         }
         .bj-no-btn--ghost:hover { background: #f6f0e6; }
         .bj-no-btn--text {
-            grid-column: 1 / -1;
             background: transparent;
             color: #6b6258;
             min-height: 36px;
