@@ -91,24 +91,48 @@
             </div>
 
             <script>
-                document.getElementById('bj-print-btn').addEventListener('click', function () {
-                    window.print();
-                });
+                // Clone the invoice into a clean popup so the admin shell's CSS doesn't
+                // interfere with the thermal-printer print stylesheet.
+                function bjPrintInvoice(){
+                    var src = document.getElementById('printableArea');
+                    if (!src) return;
+                    // Pull every <style> tag from this page so the @media print rules and
+                    // font @font-face declarations apply inside the popup too.
+                    var styles = '';
+                    document.querySelectorAll('style, link[rel="stylesheet"]').forEach(function(el){
+                        styles += el.outerHTML;
+                    });
+                    var win = window.open('', '_blank', 'width=420,height=820');
+                    if (!win) return;
+                    win.document.open();
+                    win.document.write(
+                        '<!DOCTYPE html><html dir="rtl" lang="ar"><head><meta charset="utf-8">' +
+                        '<title>فاتورة</title>' + styles +
+                        '<style>html,body{margin:0;padding:0;background:#fff;}@media screen{body{padding:12px;}}</style>' +
+                        '</head><body>' + src.innerHTML + '</body></html>'
+                    );
+                    win.document.close();
+                    win.focus();
+                    // Wait for images/fonts in the popup, then print.
+                    var doPrint = function(){
+                        try { win.focus(); win.print(); } catch(e){}
+                    };
+                    if (win.document.readyState === 'complete') {
+                        setTimeout(doPrint, 500);
+                    } else {
+                        win.addEventListener('load', function(){ setTimeout(doPrint, 500); });
+                    }
+                }
+
+                document.getElementById('bj-print-btn').addEventListener('click', bjPrintInvoice);
 
                 // Auto-print when opened with ?print=1 (e.g. from the new-order modal).
                 (function(){
                     var params = new URLSearchParams(window.location.search);
                     if (params.get('print') !== '1') return;
-                    function doPrint(){
-                        try { window.focus(); } catch(e){}
-                        // Small delay so fonts/images settle before the print dialog.
-                        setTimeout(function(){ window.print(); }, 400);
-                    }
-                    if (document.readyState === 'complete') {
-                        doPrint();
-                    } else {
-                        window.addEventListener('load', doPrint);
-                    }
+                    function go(){ setTimeout(bjPrintInvoice, 300); }
+                    if (document.readyState === 'complete') go();
+                    else window.addEventListener('load', go);
                 })();
             </script>
 
@@ -574,52 +598,15 @@
                             print-color-adjust: exact !important;
                         }
 
-                        /* ── Hide all admin chrome when printing ── */
-                        body > *:not(script):not(#printableArea):not(.bj-print-host) {
-                            display: none !important;
-                        }
-                        .bj-app-shell, .main, #content, aside, nav, header, footer,
-                        .js-navbar-vertical-aside, .navbar, .footer, .modal, .toast,
-                        #pre--loader, #loading {
-                            display: none !important;
-                            visibility: hidden !important;
-                        }
-
                         html, body {
                             background: #fff !important;
                             margin: 0 !important;
                             padding: 0 !important;
                             width: 80mm !important;
-                            min-height: 0 !important;
-                            height: auto !important;
-                            overflow: visible !important;
                         }
 
-                        /* The invoice's outer wrappers from the layout need to collapse */
-                        .content, .container-fluid, .row, .col-12,
-                        .bj-invoice-page, .new-invoice {
-                            display: block !important;
-                            width: 80mm !important;
-                            max-width: 80mm !important;
-                            margin: 0 !important;
-                            padding: 0 !important;
-                            background: #fff !important;
-                            overflow: visible !important;
-                            float: none !important;
-                            position: static !important;
-                        }
-
-                        /* Force the invoice to be the only thing on the page */
-                        #printableArea {
-                            display: block !important;
-                            width: 80mm !important;
-                            margin: 0 !important;
+                        body {
                             padding: 3mm 4mm !important;
-                            background: #fff !important;
-                            position: absolute !important;
-                            top: 0 !important;
-                            left: 0 !important;
-                            right: auto !important;
                         }
 
                         .non-printable {
