@@ -552,8 +552,8 @@ class FoodController extends Controller
             ->withCount(['products' => function ($q) use ($restaurant_id) {
                 $q->where('restaurant_id', $restaurant_id);
             }])
+            ->having('products_count', '>', 0)
             ->orderByDesc('products_count')
-            ->limit(8)
             ->get();
 
         $stats = [
