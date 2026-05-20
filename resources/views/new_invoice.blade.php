@@ -574,15 +574,52 @@
                             print-color-adjust: exact !important;
                         }
 
+                        /* ── Hide all admin chrome when printing ── */
+                        body > *:not(script):not(#printableArea):not(.bj-print-host) {
+                            display: none !important;
+                        }
+                        .bj-app-shell, .main, #content, aside, nav, header, footer,
+                        .js-navbar-vertical-aside, .navbar, .footer, .modal, .toast,
+                        #pre--loader, #loading {
+                            display: none !important;
+                            visibility: hidden !important;
+                        }
+
                         html, body {
                             background: #fff !important;
                             margin: 0 !important;
                             padding: 0 !important;
                             width: 80mm !important;
+                            min-height: 0 !important;
+                            height: auto !important;
+                            overflow: visible !important;
                         }
 
-                        body {
+                        /* The invoice's outer wrappers from the layout need to collapse */
+                        .content, .container-fluid, .row, .col-12,
+                        .bj-invoice-page, .new-invoice {
+                            display: block !important;
+                            width: 80mm !important;
+                            max-width: 80mm !important;
+                            margin: 0 !important;
+                            padding: 0 !important;
+                            background: #fff !important;
+                            overflow: visible !important;
+                            float: none !important;
+                            position: static !important;
+                        }
+
+                        /* Force the invoice to be the only thing on the page */
+                        #printableArea {
+                            display: block !important;
+                            width: 80mm !important;
+                            margin: 0 !important;
                             padding: 3mm 4mm !important;
+                            background: #fff !important;
+                            position: absolute !important;
+                            top: 0 !important;
+                            left: 0 !important;
+                            right: auto !important;
                         }
 
                         .non-printable {
