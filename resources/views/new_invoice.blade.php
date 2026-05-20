@@ -203,7 +203,6 @@
 
                     .bj-invoice-divider {
                         border: 0;
-                        border-top: 2px dashed #1d1d1d;
                         margin: 16px 0;
                     }
 
@@ -344,7 +343,6 @@
                     .bj-invoice-items tbody td {
                         padding: 13px 8px;
                         vertical-align: top;
-                        border-bottom: 1px dashed #2a2722;
                         font-size: 13px;
                     }
 
@@ -410,7 +408,6 @@
                     .bj-invoice-summary-row--subdivider {
                         padding-top: 11px;
                         margin-top: 4px;
-                        border-top: 2px dashed #1b1b1b;
                     }
 
                     .bj-invoice-summary-row--muted {
@@ -758,7 +755,7 @@
                         .bj-invoice-summary-row--subdivider {
                             padding-top: 5px !important;
                             margin-top: 2px !important;
-                            border-top: 1.5px dashed #1b1b1b !important;
+                            border-top: 0 !important;
                         }
 
                         /* ── Total box ── */
@@ -1031,7 +1028,7 @@
                     <hr class="bj-invoice-divider">
 
                     <footer class="bj-invoice-footer">
-                        <div class="bj-invoice-thanks">شكراً لك</div>
+                        <div class="bj-invoice-thanks">حمّل التطبيق · خصومات حصرية</div>
                         <div class="bj-invoice-powered" dir="ltr">
                             <span>Powered by</span> <strong>Hamdies Solutions</strong>
                         </div>
