@@ -135,10 +135,13 @@ class PaymobController extends Controller
             $lastName  = $parts[1] ?? $parts[0];
         }
 
+        $integrationId = $this->config_values->integration_id ?? null;
+        $paymentMethods = $integrationId ? [(int) $integrationId] : ['card'];
+
         $payload = [
             'amount'             => $amountCents,
             'currency'           => $payment_data->currency_code ?? 'EGP',
-            'payment_methods'    => ['card'],
+            'payment_methods'    => $paymentMethods,
             'items'              => [[
                 'name'   => 'Order ' . $payment_data->id,
                 'amount' => $amountCents,
