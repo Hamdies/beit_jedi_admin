@@ -247,6 +247,28 @@
                                     @endif
                                 @endforeach
 
+                                @if($payment['key_name'] == 'paymob_accept')
+                                    @php($pm_values = $data_values->where('key_name',$payment->key_name)->first()->live_values)
+                                    @if(!array_key_exists('public_key', (array)$pm_values))
+                                        <div class="form-floating mb-2" >
+                                            <label for="{{$payment_key}}-public_key" class="form-label">{{translate('Public Key')}} *</label>
+                                            <input id="{{$payment_key}}-public_key" type="text" class="form-control"
+                                                   name="public_key"
+                                                   placeholder="{{translate('Public Key')}} *"
+                                                   value="">
+                                        </div>
+                                    @endif
+                                    @if(!array_key_exists('secret_key', (array)$pm_values))
+                                        <div class="form-floating mb-2" >
+                                            <label for="{{$payment_key}}-secret_key" class="form-label">{{translate('Secret Key')}} *</label>
+                                            <input id="{{$payment_key}}-secret_key" type="text" class="form-control"
+                                                   name="secret_key"
+                                                   placeholder="{{translate('Secret Key')}} *"
+                                                   value="">
+                                        </div>
+                                    @endif
+                                @endif
+
                                 @if($payment['key_name'] == 'paystack')
                                     <div class="form-floating mb-2" >
                                         <label for="Callback_Url" class="form-label">{{translate('Callback Url')}}</label>

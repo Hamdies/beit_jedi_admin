@@ -935,7 +935,9 @@ class BusinessSettingsController extends Controller
                 'api_key' => 'required_if:status,1',
                 'iframe_id' => 'required_if:status,1',
                 'integration_id' => 'required_if:status,1',
-                'hmac' => 'required_if:status,1'
+                'hmac' => 'required_if:status,1',
+                'public_key' => 'required_if:status,1',
+                'secret_key' => 'required_if:status,1',
             ];
         } elseif ($request['gateway'] == 'mercadopago') {
             $additional_data = [
