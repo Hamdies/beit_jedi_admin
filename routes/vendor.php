@@ -129,6 +129,7 @@ Route::group(['namespace' => 'Vendor', 'as' => 'vendor.'], function () {
             Route::get('get-categories', 'FoodController@get_categories')->name('get-categories');
             Route::get('out-of-stock-list', 'FoodController@stockOutList')->name('stockOutList');
             Route::post('update-stock', 'FoodController@updateStock')->name('updateStock');
+            Route::post('update-price', 'FoodController@updatePrice')->name('updatePrice');
             Route::post('/add-to-session', 'FoodController@addToSession')->name('addToSession');
 
 

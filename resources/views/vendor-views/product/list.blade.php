@@ -201,6 +201,30 @@
         .bj-empty { padding: 3.5rem 1rem; text-align: center; }
         .bj-empty h5 { margin-top: 1rem; color: var(--bj-muted); font-weight: 600; }
 
+        /* Inline price editor */
+        .bj-price-cell { min-width: 110px; }
+        .bj-price-edit { display: flex; align-items: center; gap: .3rem; }
+        .bj-price-input {
+            width: 90px; padding: .35rem .5rem;
+            border: 1px solid var(--bj-line); border-radius: 8px;
+            background: #FFF; color: var(--bj-ink);
+            font-size: .88rem; font-weight: 700; font-feature-settings: "tnum";
+            text-align: right; outline: none;
+        }
+        .bj-price-input:focus { border-color: var(--bj-ink); box-shadow: 0 0 0 3px rgba(21,35,63,0.08); }
+        .bj-price-btn {
+            width: 28px; height: 28px; border-radius: 8px;
+            border: 1px solid var(--bj-line); background: #FFF;
+            display: inline-flex; align-items: center; justify-content: center;
+            font-size: .85rem; cursor: pointer; padding: 0;
+        }
+        .bj-price-btn.save { color: var(--bj-green); border-color: var(--bj-green-soft); background: #F1FAF4; }
+        .bj-price-btn.save:hover { background: var(--bj-green); color: #FFF; }
+        .bj-price-btn.cancel { color: var(--bj-muted); }
+        .bj-price-btn:disabled { opacity: .5; cursor: wait; }
+        .js-edit-price { cursor: pointer; }
+        .js-edit-price.editing { background: var(--bj-ink); color: #FFF; border-color: var(--bj-ink); }
+
         .bj-pagination { padding: 1rem; }
         .bj-pagination .page-area ul { justify-content: center; margin: 0; }
 
@@ -379,7 +403,20 @@
                                 </span>
                             </td>
                             <td>
-                                <div class="bj-price">{{ \App\CentralLogics\Helpers::format_currency($food->price) }}</div>
+                                <div class="bj-price-cell" data-food-id="{{ $food->id }}">
+                                    <div class="bj-price js-price-view">{{ \App\CentralLogics\Helpers::format_currency($food->price) }}</div>
+                                    <div class="bj-price-edit js-price-edit" style="display:none;">
+                                        <input type="number" step="0.01" min="0"
+                                               class="bj-price-input js-price-input"
+                                               value="{{ $food->price }}">
+                                        <button type="button" class="bj-price-btn save js-price-save" title="حفظ">
+                                            <i class="tio-checkmark"></i>
+                                        </button>
+                                        <button type="button" class="bj-price-btn cancel js-price-cancel" title="إلغاء">
+                                            <i class="tio-clear"></i>
+                                        </button>
+                                    </div>
+                                </div>
                             </td>
                             <td>
                                 @if($stock_out)
@@ -411,6 +448,9 @@
                                         <i class="tio-autorenew"></i>
                                     </a>
                                     @endif
+                                    <button type="button" class="bj-row-icon js-edit-price" data-food-id="{{ $food->id }}" title="تعديل السعر">
+                                        <i class="tio-dollar"></i>
+                                    </button>
                                     <a class="bj-row-icon" href="{{ route('vendor.food.edit', [$food->id]) }}" title="تعديل">
                                         <i class="tio-edit"></i>
                                     </a>
@@ -516,6 +556,79 @@
 @push('script_2')
     <script>
         "use strict";
+
+        // ===== Inline price edit =====
+        const updatePriceUrl = '{{ route("vendor.food.updatePrice") }}';
+        const csrfToken = $('meta[name="csrf-token"]').attr('content');
+
+        function togglePriceEditor($row, on) {
+            const $cell = $row.find('.bj-price-cell');
+            const $view = $cell.find('.js-price-view');
+            const $edit = $cell.find('.js-price-edit');
+            const $btn  = $row.find('.js-edit-price');
+            if (on) {
+                $view.hide(); $edit.css('display', 'flex');
+                $btn.addClass('editing');
+                $cell.find('.js-price-input').focus().select();
+            } else {
+                $edit.hide(); $view.show();
+                $btn.removeClass('editing');
+            }
+        }
+
+        $(document).on('click', '.js-edit-price', function () {
+            const $row = $(this).closest('tr');
+            const isOpen = $(this).hasClass('editing');
+            togglePriceEditor($row, !isOpen);
+        });
+
+        $(document).on('click', '.js-price-cancel', function () {
+            const $row = $(this).closest('tr');
+            const $cell = $row.find('.bj-price-cell');
+            // Reset input to displayed value if it was previously saved
+            const original = $cell.data('original-price');
+            if (typeof original !== 'undefined') {
+                $cell.find('.js-price-input').val(original);
+            }
+            togglePriceEditor($row, false);
+        });
+
+        $(document).on('keydown', '.js-price-input', function (e) {
+            if (e.key === 'Enter') { e.preventDefault(); $(this).closest('.bj-price-edit').find('.js-price-save').click(); }
+            if (e.key === 'Escape') { $(this).closest('tr').find('.js-price-cancel').click(); }
+        });
+
+        $(document).on('click', '.js-price-save', function () {
+            const $btn = $(this);
+            const $row = $btn.closest('tr');
+            const $cell = $row.find('.bj-price-cell');
+            const foodId = $cell.data('food-id');
+            const price = parseFloat($cell.find('.js-price-input').val());
+            if (!(price >= 0) || isNaN(price)) {
+                toastr ? toastr.error('سعر غير صحيح') : alert('سعر غير صحيح');
+                return;
+            }
+            $btn.prop('disabled', true);
+            $.ajax({
+                url: updatePriceUrl,
+                method: 'POST',
+                data: { _token: csrfToken, food_id: foodId, price: price },
+                success: function (res) {
+                    if (res && res.success) {
+                        $cell.find('.js-price-view').text(res.price_formatted);
+                        $cell.data('original-price', res.price);
+                        $cell.find('.js-price-input').val(res.price);
+                        togglePriceEditor($row, false);
+                        if (window.toastr) toastr.success('تم تحديث السعر');
+                    }
+                },
+                error: function (xhr) {
+                    const msg = xhr.responseJSON?.message || 'تعذر تحديث السعر';
+                    if (window.toastr) toastr.error(msg); else alert(msg);
+                },
+                complete: function () { $btn.prop('disabled', false); }
+            });
+        });
 
         // Live-filter the category pills as the user types
         $(document).on('input', '#bj-cat-filter', function () {

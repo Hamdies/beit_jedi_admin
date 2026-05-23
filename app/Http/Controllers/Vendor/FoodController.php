@@ -947,6 +947,25 @@ class FoodController extends Controller
         return back();
     }
 
+    public function updatePrice(Request $request)
+    {
+        $request->validate([
+            'food_id' => 'required|integer',
+            'price'   => 'required|numeric|min:0',
+        ]);
+
+        $restaurant_id = Helpers::get_restaurant_id();
+        $product = Food::where('restaurant_id', $restaurant_id)->findOrFail($request->food_id);
+        $product->price = (float) $request->price;
+        $product->save();
+
+        return response()->json([
+            'success'         => true,
+            'price'           => (float) $product->price,
+            'price_formatted' => \App\CentralLogics\Helpers::format_currency($product->price),
+        ]);
+    }
+
     public function addToSession(Request $request)
     {
         Session::put($request->value, true);

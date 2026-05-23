@@ -22,6 +22,9 @@ class PaymobController extends Controller
     private PaymentRequest $payment;
     private $user;
 
+    // Credentials are loaded from admin config (business-settings → payment-method → Paymob).
+    private const PAYMOB_BASE_URL    = 'https://accept.paymob.com';
+
     public function __construct(PaymentRequest $payment, User $user)
     {
         $config = $this->payment_config('paymob_accept', 'payment_config');
@@ -32,6 +35,16 @@ class PaymobController extends Controller
         }
         $this->payment = $payment;
         $this->user = $user;
+    }
+
+    private function publicKey(): string
+    {
+        return $this->config_values->public_key ?? '';
+    }
+
+    private function secretKey(): string
+    {
+        return $this->config_values->secret_key ?? '';
     }
 
     protected function cURL($url, $json)
@@ -95,102 +108,88 @@ class PaymobController extends Controller
 
         session()->put('payment_id', $data->id);
 
-        if ($data['additional_data'] != null) {
-            $business = json_decode($data['additional_data']);
-            $business_name = $business->business_name ?? "my_business";
-        } else {
-            $business_name = "my_business";
-        }
-
         $payer = json_decode($data['payer_information']);
 
         try {
-            $token = $this->getToken();
-            $order = $this->createOrder($token, $data, $business_name);
-            $paymentToken = $this->getPaymentToken($order, $token, $data, $payer);
+            $clientSecret = $this->createIntention($data, $payer);
         } catch (\Exception $exception) {
+            \Log::error('Paymob Unified Checkout intention error: ' . $exception->getMessage());
             return response()->json($this->response_formatter(GATEWAYS_DEFAULT_404), 200);
         }
-        return Redirect::away('https://accept.paymobsolutions.com/api/acceptance/iframes/' . $this->config_values->iframe_id . '?payment_token=' . $paymentToken);
+
+        return Redirect::away(
+            self::PAYMOB_BASE_URL . '/unifiedcheckout/?publicKey=' . $this->publicKey()
+            . '&clientSecret=' . $clientSecret
+        );
     }
 
-    public function getToken()
+    private function createIntention($payment_data, $payer)
     {
-        $response = $this->cURL(
-            'https://accept.paymob.com/api/auth/tokens',
-            ['api_key' => $this->config_values->api_key]
-        );
+        $amountCents = (int) round($payment_data->payment_amount * 100);
 
-        return $response->token;
-    }
+        $firstName = $payer->name ?? 'Customer';
+        $lastName  = $payer->name ?? 'Customer';
+        if (!empty($payer->name) && str_contains($payer->name, ' ')) {
+            $parts = explode(' ', trim($payer->name), 2);
+            $firstName = $parts[0];
+            $lastName  = $parts[1] ?? $parts[0];
+        }
 
-    public function createOrder($token, $payment_data, $business_name)
-    {
-        $items[] = [
-            'name' => $business_name,
-            'amount_cents' => round($payment_data->payment_amount * 100),
-            'description' => 'payment ID :' . $payment_data->id,
-            'quantity' => 1
+        $payload = [
+            'amount'             => $amountCents,
+            'currency'           => $payment_data->currency_code ?? 'EGP',
+            'payment_methods'    => ['card'],
+            'items'              => [[
+                'name'   => 'Order ' . $payment_data->id,
+                'amount' => $amountCents,
+                'description' => 'Payment ID: ' . $payment_data->id,
+                'quantity' => 1,
+            ]],
+            'billing_data' => [
+                'first_name'   => $firstName,
+                'last_name'    => $lastName,
+                'phone_number' => $payer->phone ?? 'NA',
+                'email'        => $payer->email ?? 'no-email@example.com',
+                'country'      => 'EG',
+            ],
+            'customer' => [
+                'first_name'   => $firstName,
+                'last_name'    => $lastName,
+                'email'        => $payer->email ?? 'no-email@example.com',
+            ],
+            'extras' => [
+                'payment_id' => (string) $payment_data->id,
+            ],
+            'special_reference' => (string) $payment_data->id,
         ];
 
-        $data = [
-            "auth_token" => $token,
-            "delivery_needed" => "false",
-            "amount_cents" => round($payment_data->payment_amount * 100),
-            "currency" => $payment_data->currency_code,
-            "items" => $items,
+        $ch = curl_init(self::PAYMOB_BASE_URL . '/v1/intention/');
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Content-Type: application/json',
+            'Authorization: Token ' . $this->secretKey(),
+        ]);
+        $output = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
 
-        ];
-        $response = $this->cURL(
-            'https://accept.paymob.com/api/ecommerce/orders',
-            $data
-        );
+        $response = json_decode($output);
 
-        return $response;
-    }
+        if ($httpCode >= 200 && $httpCode < 300 && isset($response->client_secret)) {
+            return $response->client_secret;
+        }
 
-    public function getPaymentToken($order, $token, $payment_data, $payer)
-    {
-        $value = $payment_data->payment_amount;
-        $billingData = [
-            "apartment" => "N/A",
-            "email" => $payer->email,
-            "floor" => "N/A",
-            "first_name" => $payer->name,
-            "street" => "N/A",
-            "building" => "N/A",
-            "phone_number" => $payer->phone ?? "N/A",
-            "shipping_method" => "PKG",
-            "postal_code" => "N/A",
-            "city" => "N/A",
-            "country" => "N/A",
-            "last_name" => $payer->name,
-            "state" => "N/A",
-        ];
-
-        $data = [
-            "auth_token" => $token,
-            "amount_cents" => round($value * 100),
-            "expiration" => 3600,
-            "order_id" => $order->id,
-            "billing_data" => $billingData,
-            "currency" => $payment_data->currency_code,
-            "integration_id" => $this->config_values->integration_id
-        ];
-
-        $response = $this->cURL(
-            'https://accept.paymob.com/api/acceptance/payment_keys',
-            $data
-        );
-
-        return $response->token;
+        \Log::error('Paymob intention failed', ['http' => $httpCode, 'response' => $output]);
+        throw new \Exception('Failed to create Paymob intention: ' . $output);
     }
 
     public function callback(Request $request)
     {
         $data = $request->all();
         ksort($data);
-        $hmac = $data['hmac'];
+        $hmac = $data['hmac'] ?? '';
         $array = [
             'amount_cents',
             'created_at',
@@ -219,10 +218,20 @@ class PaymobController extends Controller
                 $connectedString .= $element;
             }
         }
-        $secret = $this->config_values->hmac;
+        $secret = $this->config_values->hmac ?? '';
         $hased = hash_hmac('sha512', $connectedString, $secret);
 
-        if ($hased == $hmac && $data['success'] === "true") {
+        $success = ($data['success'] ?? '') === 'true' || ($data['success'] ?? '') === true;
+
+        if ($hased !== $hmac) {
+            \Log::warning('Paymob callback HMAC mismatch', [
+                'expected' => $hased,
+                'received' => $hmac,
+                'payment_id' => session('payment_id'),
+            ]);
+        }
+
+        if ($hased == $hmac && $success) {
 
             $this->payment::where(['id' => session('payment_id')])->update([
                 'payment_method' => 'paymob_accept',
