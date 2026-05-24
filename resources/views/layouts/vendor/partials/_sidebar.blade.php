@@ -154,14 +154,65 @@ body.bj-shell .footer { display: none !important; }
 .bj-sb-item .bdg.orders { background: var(--bj-sb-badge-pending); }
 .bj-sb-item .bdg.msgs   { background: var(--bj-sb-badge-msg); }
 
-/* Responsive */
-@media (max-width: 1024px) {
-    .bj-app-shell { grid-template-columns: 1fr; }
-    .bj-sidebar { display: none; }
+/* ── Mobile drawer backdrop ── */
+.bj-sb-backdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 26, 58, .55);
+    backdrop-filter: blur(2px);
+    z-index: 1099;
+    opacity: 0;
+    transition: opacity .25s ease;
 }
-@media (max-width: 1280px) {
+.bj-sb-backdrop.show { opacity: 1; }
+
+/* ── Responsive: ≤1280px narrow sidebar ── */
+@media (max-width: 1280px) and (min-width: 1025px) {
     .bj-app-shell { grid-template-columns: 220px 1fr; }
     .bj-sidebar { width: 220px; padding: 24px 16px; }
+}
+
+/* ── Responsive: ≤1024px sidebar becomes off-canvas drawer ── */
+@media (max-width: 1024px) {
+    .bj-app-shell {
+        grid-template-columns: 1fr;
+        display: block;
+    }
+    .bj-sidebar {
+        position: fixed;
+        top: 0;
+        right: 0;                    /* RTL: slides from right */
+        left: auto;
+        height: 100vh;
+        width: 280px;
+        max-width: 86vw;
+        padding: 20px 16px;
+        z-index: 1100;
+        transform: translateX(100%);  /* hidden off-screen to the right */
+        transition: transform .28s cubic-bezier(.22,1,.36,1);
+        box-shadow: -12px 0 32px rgba(15,26,58,.25);
+        display: flex !important;     /* override the earlier `display: none` for chrome suppression */
+    }
+    /* Suppress framework chrome ONLY — not our drawer */
+    .js-navbar-vertical-aside,
+    .navbar-vertical-aside,
+    #sidebarCompact,
+    .navbar-vertical-aside-mobile-overlay { display: none !important; }
+
+    .bj-sidebar.open { transform: translateX(0); }
+    .bj-sb-backdrop.show { display: block; }
+
+    /* LTR fallback: slide from left */
+    html[dir="ltr"] .bj-sidebar {
+        right: auto;
+        left: 0;
+        transform: translateX(-100%);
+        box-shadow: 12px 0 32px rgba(15,26,58,.25);
+    }
+    html[dir="ltr"] .bj-sidebar.open { transform: translateX(0); }
+
+    body.bj-drawer-open { overflow: hidden; }
 }
 </style>
 
@@ -298,3 +349,62 @@ body.bj-shell .footer { display: none !important; }
         @endif
     </nav>
 </aside>
+
+{{-- Mobile drawer backdrop --}}
+<div class="bj-sb-backdrop" id="bjSidebarBackdrop" aria-hidden="true"></div>
+
+<script>
+(function(){
+    var sidebar = document.querySelector('.bj-sidebar');
+    var backdrop = document.getElementById('bjSidebarBackdrop');
+    if (!sidebar || !backdrop) return;
+
+    function open(){
+        sidebar.classList.add('open');
+        backdrop.classList.add('show');
+        document.body.classList.add('bj-drawer-open');
+    }
+    function close(){
+        sidebar.classList.remove('open');
+        backdrop.classList.remove('show');
+        document.body.classList.remove('bj-drawer-open');
+    }
+    function toggle(){
+        sidebar.classList.contains('open') ? close() : open();
+    }
+
+    // Hamburger in #bj-header
+    document.addEventListener('click', function(e){
+        var btn = e.target.closest('.bj-sidebar-toggle, .js-navbar-vertical-aside-toggle-invoker, [data-bj-sidebar-toggle]');
+        if (btn) {
+            e.preventDefault();
+            toggle();
+        }
+    });
+
+    // Backdrop tap closes
+    backdrop.addEventListener('click', close);
+
+    // Close on nav link tap (mobile)
+    sidebar.addEventListener('click', function(e){
+        if (window.innerWidth > 1024) return;
+        var link = e.target.closest('a.bj-sb-item');
+        if (link) setTimeout(close, 80);  // brief delay so the visual press registers
+    });
+
+    // ESC closes
+    document.addEventListener('keydown', function(e){
+        if (e.key === 'Escape') close();
+    });
+
+    // Resize → reset
+    window.addEventListener('resize', function(){
+        if (window.innerWidth > 1024) close();
+    });
+
+    // Expose for any other caller
+    window.bjSidebarToggle = toggle;
+    window.bjSidebarOpen = open;
+    window.bjSidebarClose = close;
+})();
+</script>

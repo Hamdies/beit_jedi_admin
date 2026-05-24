@@ -194,6 +194,17 @@
     .bj-user-pill { padding: .35rem; }
     .bj-logo-text, .bj-logo-sub { display: none; }
 }
+
+/* ── Mobile: reveal header (hidden on desktop because sidebar is always visible) ── */
+@media (max-width: 1024px) {
+    #headerMain.d-none { display: block !important; }
+    #bj-header { height: 56px; }
+    /* Push content below sticky header so first card isn't covered */
+    body.bj-shell main#content > * { scroll-margin-top: 64px; }
+}
+@media (min-width: 1025px) {
+    .bj-sidebar-toggle { display: none !important; }
+}
 </style>
 
 <div id="headerMain" class="d-none">

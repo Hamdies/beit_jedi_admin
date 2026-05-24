@@ -227,6 +227,8 @@
     <!-- Provider Panel Update CSS -->
     <link rel="stylesheet" href="{{dynamicAsset('public/assets/admin/css/vendor.css')}}">
     <link rel="stylesheet" href="{{dynamicAsset('public/assets/admin/intltelinput/css/intlTelInput.css')}}">
+    <!-- Global mobile adaptation (must load last to override) -->
+    <link rel="stylesheet" href="{{dynamicAsset('public/assets/admin/css/vendor-mobile.css?v=1.0')}}">
 
     @stack('css_or_js')
 
