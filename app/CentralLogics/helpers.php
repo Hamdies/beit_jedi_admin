@@ -1154,15 +1154,8 @@ class Helpers
 
     public static function currency_symbol()
     {
-        if (!config('currency_symbol') ){
-            $currency_symbol = Currency::where(['currency_code' => Helpers::currency_code()])->first()?->currency_symbol;
-            Config::set('currency_symbol', $currency_symbol );
-        }
-        else{
-            $currency_symbol =config('currency_symbol');
-        }
-
-        return $currency_symbol ;
+        $locale = app()->getLocale();
+        return $locale === 'ar' ? 'ج.م' : 'LE';
     }
 
 

@@ -93,9 +93,7 @@ class ConfigController extends Controller
             });
         }
 
-        $currency_symbol = Cache::rememberForever("business_settings_currency_symbol", function () {
-            return Currency::where(['currency_code' => Helpers::currency_code()])->first()?->currency_symbol;
-        });
+        $currency_symbol = app()->getLocale() === 'ar' ? 'ج.م' : 'LE';
         $cod = json_decode($settings['cash_on_delivery'], true);
         $business_plan = isset($settings['business_model']) ? json_decode($settings['business_model'], true) : [
             'commission'        =>  1,
