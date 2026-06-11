@@ -525,7 +525,7 @@ class ProductLogic
         if($limit != null && $offset != null)
         {
             $paginator = Food::where('restaurant_id', $restaurant_id)->whereHas('restaurant', function($q)use($zone_id){
-                $q->whereIn('zone_id', $zone_id)->Weekday();
+                $q->when(!empty($zone_id), fn($q) => $q->whereIn('zone_id', $zone_id))->Weekday();
             })
             ->when(isset($name) , function($query)use($name){
                 $query->where(function ($q) use ($name) {
@@ -546,7 +546,7 @@ class ProductLogic
         }
         else{
             $paginator = Food::where('restaurant_id', $restaurant_id)->active()->type($type)->whereHas('restaurant', function($q)use($zone_id){
-                $q->whereIn('zone_id', $zone_id)->Weekday();
+                $q->when(!empty($zone_id), fn($q) => $q->whereIn('zone_id', $zone_id))->Weekday();
             })->Recommended()
             ->when(isset($name) , function($query)use($name){
                 $query->where(function ($q) use ($name) {
