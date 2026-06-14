@@ -183,6 +183,7 @@ class Helpers
         $data['rating_count'] = (int)($data->rating ? array_sum(json_decode($data->rating, true)) : 0);
         $data['avg_rating'] = (float)($data->avg_rating ? $data->avg_rating : 0);
         $data['recommended'] =(int) $data->recommended;
+        $data['is_onboarded'] =(int) $data->is_onboarded;
 
         $data['halal_tag_status'] =  (int) $data->restaurant->restaurant_config?->halal_tag_status??0;
         $data['nutritions_name']= $data?->nutritions ? Nutrition::whereIn('id',$data?->nutritions->pluck('id') )->pluck('nutrition') : null;
@@ -235,6 +236,7 @@ class Helpers
                     unset($item['end_date']);
                 }
                 $item['recommended'] =(int) $item->recommended;
+                $item['is_onboarded'] =(int) $item->is_onboarded;
                 $categories = [];
                 foreach (json_decode($item?->category_ids) as $value) {
                     if (is_object($value)) {
@@ -344,6 +346,7 @@ class Helpers
                 $data['rating_count'] = $reviewsInfo?->rating_count ?? 0;
                 $data['avg_rating'] = $reviewsInfo?->average ?? 0;
             $data['recommended'] =(int) $data->recommended;
+            $data['is_onboarded'] =(int) $data->is_onboarded;
 
 
 
@@ -406,6 +409,7 @@ class Helpers
                     unset($item['end_date']);
                 }
                 $item['recommended'] =(int) $item->recommended;
+                $item['is_onboarded'] =(int) $item->is_onboarded;
                 $categories = [];
                 foreach (json_decode($item['category_ids']) as $value) {
                     if (is_object($value)) {
