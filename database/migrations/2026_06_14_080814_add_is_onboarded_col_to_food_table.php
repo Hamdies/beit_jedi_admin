@@ -8,14 +8,14 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('foods', function (Blueprint $table) {
+        Schema::table('food', function (Blueprint $table) {
             $table->boolean('is_onboarded')->default(false)->after('is_halal');
         });
     }
 
     public function down(): void
     {
-        Schema::table('foods', function (Blueprint $table) {
+        Schema::table('food', function (Blueprint $table) {
             $table->dropColumn('is_onboarded');
         });
     }
