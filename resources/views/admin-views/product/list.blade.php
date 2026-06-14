@@ -245,6 +245,7 @@
                                     <th class="w-120px">{{ translate('messages.restaurant') }}</th>
                                     <th class="w-100px">{{ translate('messages.price') }}</th>
                                     <th class="w-100px">{{ translate('messages.status') }}</th>
+                                    <th class="w-120px">{{ translate('messages.onboarded') }}</th>
                                     <th class="w-120px text-center">
                                         {{ translate('messages.action') }}
                                     </th>
@@ -318,6 +319,18 @@
                                                     data-url="{{ route('admin.food.status', [$food['id'], $food->status ? 0 : 1]) }}"
                                                     class="toggle-switch-input redirect-url" id="stocksCheckbox{{ $food->id }}"
                                                     {{ $food->status ? 'checked' : '' }}>
+                                                <span class="toggle-switch-label">
+                                                    <span class="toggle-switch-indicator"></span>
+                                                </span>
+                                            </label>
+                                        </td>
+                                        <td>
+                                            <label class="toggle-switch toggle-switch-sm"
+                                                for="onboardedCheckbox{{ $food->id }}">
+                                                <input type="checkbox"
+                                                    data-url="{{ route('admin.food.is_onboarded', [$food['id'], $food->is_onboarded ? 0 : 1]) }}"
+                                                    class="toggle-switch-input redirect-url" id="onboardedCheckbox{{ $food->id }}"
+                                                    {{ $food->is_onboarded ? 'checked' : '' }}>
                                                 <span class="toggle-switch-label">
                                                     <span class="toggle-switch-indicator"></span>
                                                 </span>

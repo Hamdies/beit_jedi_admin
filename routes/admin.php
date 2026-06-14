@@ -74,6 +74,7 @@ Route::group(['namespace' => 'Admin', 'as' => 'admin.'], function () {
             Route::get('list', 'FoodController@list')->name('list');
             Route::delete('delete/{id}', 'FoodController@delete')->name('delete');
             Route::get('status/{id}/{status}', 'FoodController@status')->name('status');
+            Route::get('is-onboarded/{id}/{status}', 'FoodController@is_onboarded')->name('is_onboarded');
             Route::get('review-status/{id}/{status}', 'FoodController@reviews_status')->name('reviews.status');
             // Route::post('search', 'FoodController@search')->name('search');
             Route::post('search-restaurant', 'FoodController@search_vendor')->name('search-restaurant');

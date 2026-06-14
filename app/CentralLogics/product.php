@@ -575,6 +575,36 @@ class ProductLogic
     }
 
 
+    public static function onboarded_products($zone_id, $limit = null, $offset = null, $type = 'all', $name = null)
+    {
+        $query = Food::whereHas('restaurant', function ($q) use ($zone_id) {
+            $q->when(!empty($zone_id), fn($q) => $q->whereIn('zone_id', $zone_id))->Weekday();
+        })
+        ->when(isset($name), function ($query) use ($name) {
+            $query->where(function ($q) use ($name) {
+                foreach ($name as $value) {
+                    $q->orWhere('name', 'like', "%{$value}%");
+                }
+            });
+        })
+        ->active()->type($type)->Onboarded();
+
+        if ($limit != null && $offset != null) {
+            $paginator = $query->paginate($limit, ['*'], 'page', $offset);
+            $data = $paginator->items();
+        } else {
+            $paginator = $query->limit(50)->get();
+            $data = $paginator;
+        }
+
+        return [
+            'total_size' => $paginator->count(),
+            'limit' => $limit,
+            'offset' => $offset,
+            'products' => $data,
+        ];
+    }
+
     public static function format_export_addons($addons)
     {
         $storage = [];

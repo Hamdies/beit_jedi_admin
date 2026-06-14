@@ -448,6 +448,22 @@ class ProductController extends Controller
         }
     }
 
+    public function get_onboarded(Request $request)
+    {
+        if (!$request->hasHeader('zoneId')) {
+            return response()->json(['errors' => [['code' => 'zoneId', 'message' => translate('messages.zone_id_required')]]], 403);
+        }
+        try {
+            $type = $request->query('type', 'all');
+            $key = isset($request['name']) ? explode(' ', $request['name']) : null;
+            $zone_id = json_decode($request->header('zoneId'), true);
+            $products = ProductLogic::onboarded_products(zone_id: $zone_id, limit: $request['limit'], offset: $request['offset'], type: $type, name: $key);
+            $products['products'] = Helpers::product_data_formatting(data: $products['products'], multi_data: true, trans: false, local: app()->getLocale());
+            return response()->json($products, 200);
+        } catch (\Exception $e) {
+            return response()->json(['errors' => [['code' => 'onboarded', 'message' => $e->getMessage()]]], 500);
+        }
+    }
 
 
 

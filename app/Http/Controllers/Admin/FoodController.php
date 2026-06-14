@@ -248,6 +248,15 @@ class FoodController extends Controller
         return back();
     }
 
+    public function is_onboarded(Request $request)
+    {
+        $product = Food::withoutGlobalScope(RestaurantScope::class)->findOrFail($request->id);
+        $product->is_onboarded = $request->status;
+        $product->save();
+        Toastr::success(translate('messages.food_onboarded_status_updated'));
+        return back();
+    }
+
     public function update(Request $request, $id)
     {
         $validator = Validator::make($request->all(), [

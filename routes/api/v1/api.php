@@ -280,6 +280,7 @@ Route::group(['namespace' => 'Api\V1', 'middleware'=>['localization','react']], 
         Route::get('popular', 'ProductController@get_popular_products');
         Route::get('restaurant-popular-products', 'ProductController@get_restaurant_popular_products');
         Route::get('recommended', 'ProductController@get_recommended');
+        Route::get('onboarded', 'ProductController@get_onboarded');
         Route::get('most-reviewed', 'ProductController@get_most_reviewed_products');
         Route::get('set-menu', 'ProductController@get_set_menus');
         Route::get('search', 'ProductController@get_searched_products');

@@ -36,6 +36,7 @@ class Food extends Model
         'order_count'=>'integer',
         'rating_count'=>'integer',
         'is_halal'=>'integer',
+        'is_onboarded' => 'boolean',
     ];
 
     protected $appends = ['image_full_url'];
@@ -72,6 +73,11 @@ class Food extends Model
     public function scopeRecommended($query)
     {
         return $query->where('recommended',1);
+    }
+
+    public function scopeOnboarded($query)
+    {
+        return $query->where('is_onboarded', true);
     }
 
     public function carts()
