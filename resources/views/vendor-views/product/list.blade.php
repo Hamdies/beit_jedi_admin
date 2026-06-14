@@ -344,6 +344,7 @@
                             <th>السعر</th>
                             <th>المخزون</th>
                             <th class="center">موصى به</th>
+                            <th class="center">مُدرج في الإعداد</th>
                             <th class="center">الحالة</th>
                             <th style="width: 120px;"></th>
                         </tr>
@@ -432,6 +433,12 @@
                             <td class="center">
                                 <label class="toggle-switch toggle-switch-sm" for="recCheckbox{{ $food->id }}" title="{{ translate('messages.Recommend_to_customers') }}">
                                     <input type="checkbox" data-url="{{ route('vendor.food.recommended', [$food->id, $food->recommended ? 0 : 1]) }}" class="toggle-switch-input redirect-url" id="recCheckbox{{ $food->id }}" {{ $food->recommended ? 'checked' : '' }}>
+                                    <span class="toggle-switch-label"><span class="toggle-switch-indicator"></span></span>
+                                </label>
+                            </td>
+                            <td class="center">
+                                <label class="toggle-switch toggle-switch-sm" for="onboardedCheckbox{{ $food->id }}" title="{{ translate('messages.onboarded') }}">
+                                    <input type="checkbox" data-url="{{ route('vendor.food.is_onboarded', [$food->id, $food->is_onboarded ? 0 : 1]) }}" class="toggle-switch-input redirect-url" id="onboardedCheckbox{{ $food->id }}" {{ $food->is_onboarded ? 'checked' : '' }}>
                                     <span class="toggle-switch-label"><span class="toggle-switch-indicator"></span></span>
                                 </label>
                             </td>

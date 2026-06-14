@@ -298,6 +298,20 @@ class FoodController extends Controller
         return back();
     }
 
+    public function is_onboarded(Request $request)
+    {
+        if(!Helpers::get_restaurant_data()->food_section)
+        {
+            Toastr::warning(translate('messages.permission_denied'));
+            return back();
+        }
+        $product = Food::find($request->id);
+        $product->is_onboarded = $request->status;
+        $product->save();
+        Toastr::success(translate('messages.food_onboarded_status_updated'));
+        return back();
+    }
+
     public function update(Request $request, $id)
     {
         if(!Helpers::get_restaurant_data()->food_section)
