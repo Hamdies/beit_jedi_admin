@@ -618,9 +618,9 @@ class OrderController extends Controller
             $data['delivery_address'] = $data['delivery_address']?json_decode($data['delivery_address']):$data['delivery_address'];
             $data['restaurant'] = $data['restaurant']?Helpers::restaurant_data_formatting($data['restaurant']):$data['restaurant'];
             $data['delivery_man'] = $data['delivery_man']?Helpers::deliverymen_data_formatting([$data['delivery_man']]):$data['delivery_man'];
-            $data['is_reviewed'] =   $data['details_count'] >  Review::whereOrderId($data->id)->count() ? False :True ;
-            $data['is_dm_reviewed'] = $data['delivery_man'] ? DMReview::whereOrderId($data->id)->exists()  : True ;
-            $data['items_images'] = \App\Models\OrderDetail::with('food.storage')->where('order_id', $data->id)->limit(3)->get()->map(fn($d) => optional($d->food)->image_full_url)->filter()->values()->toArray();
+            $data['is_reviewed'] =   $data['details_count'] >  Review::whereOrderId($data['id'])->count() ? False :True ;
+            $data['is_dm_reviewed'] = $data['delivery_man'] ? DMReview::whereOrderId($data['id'])->exists()  : True ;
+            $data['items_images'] = \App\Models\OrderDetail::with('food.storage')->where('order_id', $data['id'])->limit(3)->get()->map(fn($d) => optional($d->food)->image_full_url)->filter()->values()->toArray();
             return $data;
         }, $paginator->items());
         $data = [
@@ -701,7 +701,7 @@ class OrderController extends Controller
             $data['delivery_address'] = $data['delivery_address']?json_decode($data['delivery_address']):$data['delivery_address'];
             $data['restaurant'] = $data['restaurant']?Helpers::restaurant_data_formatting($data['restaurant']):$data['restaurant'];
             $data['delivery_man'] = $data['delivery_man']?Helpers::deliverymen_data_formatting([$data['delivery_man']]):$data['delivery_man'];
-            $data['items_images'] = \App\Models\OrderDetail::with('food.storage')->where('order_id', $data->id)->limit(3)->get()->map(fn($d) => optional($d->food)->image_full_url)->filter()->values()->toArray();
+            $data['items_images'] = \App\Models\OrderDetail::with('food.storage')->where('order_id', $data['id'])->limit(3)->get()->map(fn($d) => optional($d->food)->image_full_url)->filter()->values()->toArray();
             return $data;
         }, $paginator->items());
         $data = [
