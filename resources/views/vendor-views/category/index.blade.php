@@ -567,6 +567,14 @@
                         <input type="file" name="image" id="bj-image-input" accept="image/*" onchange="bjPreviewImage(this)">
                     </div>
                 </div>
+
+                {{-- Cart upsell toggle --}}
+                <div class="bj-field" style="margin-bottom:0;">
+                    <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+                        <input type="checkbox" name="is_cart_upsell" id="bj-cart-upsell" value="1" style="width:16px;height:16px;">
+                        إظهار منتجات هذا التصنيف كاقتراحات إتمام الطلب في السلة
+                    </label>
+                </div>
             </div>
             <div class="bj-modal-foot">
                 <button type="submit" class="bj-btn primary"><i class="tio-checkmark"></i> <span id="bj-submit-text">حفظ</span></button>
@@ -593,11 +601,13 @@
     const $submitText  = document.getElementById('bj-submit-text');
     const $preview     = document.getElementById('bj-preview');
     const $imgInput    = document.getElementById('bj-image-input');
+    const $cartUpsell  = document.getElementById('bj-cart-upsell');
 
     function resetForm(){
         $form.reset();
         $form.querySelectorAll('.bj-name-input').forEach(i => i.value = '');
         $preview.innerHTML = '<i class="tio-image"></i>';
+        $cartUpsell.checked = false;
         bjSwitchLang('default');
     }
 
@@ -624,6 +634,7 @@
                 if (data.image) {
                     $preview.innerHTML = '<img src="' + data.image + '" alt="" onerror="this.parentElement.innerHTML=\'<i class=tio-image></i>\'">';
                 }
+                $cartUpsell.checked = !!data.is_cart_upsell;
             })
             .catch(() => {});
     };

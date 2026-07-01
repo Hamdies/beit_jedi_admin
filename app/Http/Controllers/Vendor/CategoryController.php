@@ -70,6 +70,7 @@ class CategoryController extends Controller
         $category->image     = $request->has('image') ? Helpers::upload(dir:'category/',format: 'png',image: $request->file('image')) : 'def.png';
         $category->parent_id = 0;
         $category->position  = 0;
+        $category->is_cart_upsell = $request->has('is_cart_upsell') ? 1 : 0;
         $category->save();
 
         $data = [];
@@ -111,9 +112,10 @@ class CategoryController extends Controller
     {
         $category = Category::withoutGlobalScope('translate')->findOrFail($id);
         return response()->json([
-            'id'    => $category->id,
-            'name'  => $category->name,
-            'image' => $category->image_full_url,
+            'id'             => $category->id,
+            'name'           => $category->name,
+            'image'          => $category->image_full_url,
+            'is_cart_upsell' => (bool) $category->is_cart_upsell,
         ]);
     }
 
@@ -132,6 +134,7 @@ class CategoryController extends Controller
         $category->slug  = $category->slug ?: "{$slug}{$category->id}";
         $category->name  = $request->name[array_search('default', $request->lang)];
         $category->image = $request->has('image') ? Helpers::update(dir:'category/', old_image:$category->image, format:'png', image:$request->file('image')) : $category->image;
+        $category->is_cart_upsell = $request->has('is_cart_upsell') ? 1 : 0;
         $category->save();
 
         $default_lang = str_replace('_', '-', app()->getLocale());
