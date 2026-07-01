@@ -99,6 +99,18 @@
 
                         <div class="col-12">
                             <div class="form-group pt-2 mb-0">
+                                <label class="toggle-switch toggle-switch-sm d-inline-flex align-items-center">
+                                    <input type="checkbox" name="is_cart_upsell" value="1" class="toggle-switch-input">
+                                    <span class="toggle-switch-label text mr-2">
+                                        <span class="toggle-switch-indicator"></span>
+                                    </span>
+                                    {{ translate('Show products from this category as cart upsell suggestions') }}
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <div class="form-group pt-2 mb-0">
                                 <div class="btn--container justify-content-end">
                                     <!-- Static Button -->
                                     <button id="reset_btn" type="reset" class="btn btn--reset">{{translate('messages.reset')}}</button>

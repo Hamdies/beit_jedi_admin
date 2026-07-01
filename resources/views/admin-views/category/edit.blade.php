@@ -105,6 +105,17 @@
                         </div>
                         @endif
                     </div>
+                    @if ($category->position == 0)
+                        <div class="form-group pt-2">
+                            <label class="toggle-switch toggle-switch-sm d-inline-flex align-items-center">
+                                <input type="checkbox" name="is_cart_upsell" value="1" class="toggle-switch-input" {{$category->is_cart_upsell?'checked':''}}>
+                                <span class="toggle-switch-label text mr-2">
+                                    <span class="toggle-switch-indicator"></span>
+                                </span>
+                                {{ translate('Show products from this category as cart upsell suggestions') }}
+                            </label>
+                        </div>
+                    @endif
                     <div class="btn--container justify-content-end">
                         <button id="reset_btn" type="button" class="btn btn--reset">{{translate('messages.reset')}}</button>
                         <button type="submit" class="btn btn--primary">{{translate('messages.update')}}</button>

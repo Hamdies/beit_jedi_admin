@@ -291,6 +291,7 @@ Route::group(['namespace' => 'Api\V1', 'middleware'=>['localization','react']], 
         Route::post('reviews/submit', 'ProductController@submit_product_review')->middleware('auth:api');
         Route::get('food-or-restaurant-search', 'ProductController@food_or_restaurant_search');
         Route::get('recommended/most-reviewed', 'ProductController@recommended_most_reviewed');
+        Route::get('recommended/cart-upsell', 'ProductController@cart_upsell_products');
     });
 
     Route::group(['prefix' => 'restaurants'], function () {

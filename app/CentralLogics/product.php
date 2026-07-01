@@ -675,4 +675,17 @@ class ProductLogic
             return  $paginator;
 
     }
+
+    public static function cart_upsell_products($zone_id, $restaurant_id, $type = 'all')
+    {
+        return Food::where('restaurant_id', $restaurant_id)
+            ->whereHas('restaurant', function ($q) use ($zone_id) {
+                $q->whereIn('zone_id', $zone_id)->Weekday();
+            })
+            ->whereHas('category', function ($q) {
+                $q->where('is_cart_upsell', 1);
+            })
+            ->active()->type($type)
+            ->limit(20)->get();
+    }
 }

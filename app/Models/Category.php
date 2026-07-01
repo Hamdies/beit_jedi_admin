@@ -20,6 +20,7 @@ class Category extends Model
         'status' => 'integer',
         'products_count' => 'integer',
         'childes_count' => 'integer',
+        'is_cart_upsell' => 'boolean',
     ];
     protected $appends = ['image_full_url'];
 

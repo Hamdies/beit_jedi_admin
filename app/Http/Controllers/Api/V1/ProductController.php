@@ -619,6 +619,35 @@ class ProductController extends Controller
         }
     }
 
+    public function cart_upsell_products(Request $request)
+    {
+        if (!$request->hasHeader('zoneId')) {
+            $errors = [];
+            array_push($errors, ['code' => 'zoneId', 'message' => translate('messages.zone_id_required')]);
+            return response()->json([
+                'errors' => $errors
+            ], 403);
+        }
+        $validator = Validator::make($request->all(), [
+            'restaurant_id' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => Helpers::error_processor($validator)], 403);
+        }
+
+        try {
+            $type = $request->query('type', 'all');
+            $zone_id = json_decode($request->header('zoneId'), true);
+            $products = ProductLogic::cart_upsell_products(zone_id: $zone_id, restaurant_id: $request->restaurant_id, type: $type);
+
+            $products = Helpers::product_data_formatting(data: $products, multi_data: true, trans: false, local: app()->getLocale());
+            return response()->json($products, 200);
+        } catch (\Exception $e) {
+            return response()->json(['errors' => [['code' => 'cart-upsell', 'message' => $e->getMessage()]]], 500);
+        }
+    }
+
     public function getAllergyNameList(){
         $names= Allergy::select(['allergy'])->pluck('allergy');
         return response()->json($names, 200);

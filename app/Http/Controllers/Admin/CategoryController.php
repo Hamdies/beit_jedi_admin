@@ -79,6 +79,7 @@ class CategoryController extends Controller
         $category->image = $request->has('image') ? Helpers::upload(dir:'category/',format: 'png',image: $request->file('image')) : 'def.png';
         $category->parent_id = $request?->parent_id ??  0 ;
         $category->position = $request->position;
+        $category->is_cart_upsell = $request->has('is_cart_upsell') ? 1 : 0;
         $category->save();
         $data = [];
         $default_lang = str_replace('_', '-', app()->getLocale());
@@ -156,6 +157,7 @@ class CategoryController extends Controller
         $category->slug = $category->slug? $category->slug :"{$slug}{$category->id}";
         $category->name = $request->name[array_search('default', $request->lang)];
         $category->image = $request->has('image') ? Helpers::update(dir:'category/', old_image:$category->image,format: 'png', image:$request->file('image')) : $category->image;
+        $category->is_cart_upsell = $request->has('is_cart_upsell') ? 1 : 0;
         $category->save();
         $default_lang = str_replace('_', '-', app()->getLocale());
 
