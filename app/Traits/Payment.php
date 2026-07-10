@@ -40,6 +40,7 @@ trait Payment
             'ssl_commerz' => 'payment/sslcommerz/pay',
             'stripe' => 'payment/stripe/pay',
             'paymob_accept' => 'payment/paymob/pay',
+            'geidea' => 'payment/geidea/pay',
             'flutterwave' => 'payment/flutterwave-v3/pay',
             'paytm' => 'payment/paytm/pay',
             'paypal' => 'payment/paypal/pay',

@@ -280,6 +280,16 @@
                                     </div>
                                 @endif
 
+                                @if($payment['key_name'] == 'geidea')
+                                    <div class="form-floating mb-2" >
+                                        <label for="Geidea_Callback_Url" class="form-label">{{translate('Callback Url')}} ({{translate('set_this_in_your_Geidea_merchant_portal')}})</label>
+                                        <input id="Geidea_Callback_Url" type="text"
+                                               class="form-control"
+                                               readonly
+                                               value="{{env('APP_ENV')=='demo'?'': route('geidea.callback')}}">
+                                    </div>
+                                @endif
+
                                 <div class="form-floating mb-2" >
                                     <label for="payment_gateway_title-{{$payment_key}}"
                                            class="form-label">{{translate('payment_gateway_title')}}</label>

@@ -63,6 +63,12 @@ trait PaymentGatewayTrait
                 "TZS" => "Tanzanian Shilling",
                 "ZMW" => "Zambian Kwacha"
             ],
+            "geidea" => [
+                "EGP" => "Egyptian Pound",
+                "SAR" => "Saudi Riyal",
+                "AED" => "United Arab Emirates Dirham",
+                "USD" => "United States Dollar"
+            ],
             "foloosi" => [
                 "AED" => "United Arab Emirates Dirham",
                 "SAR" => "Saudi Riyal",

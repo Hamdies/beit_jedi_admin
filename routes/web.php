@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PaytmController;
 use App\Http\Controllers\LiqPayController;
 use App\Http\Controllers\PaymobController;
+use App\Http\Controllers\GeideaPaymentController;
 use App\Http\Controllers\PaytabsController;
 use App\Http\Controllers\FirebaseController;
 use App\Http\Controllers\PaystackController;
@@ -203,6 +204,14 @@ if (!$is_published) {
         });
     });
 }
+
+//GEIDEA - registered outside the addon gate: the customer app's native Geidea
+//SDK posts to the callback route regardless of the payment addon status.
+Route::group(['prefix' => 'payment/geidea', 'as' => 'geidea.'], function () {
+    Route::get('pay', [GeideaPaymentController::class, 'pay'])->name('pay');
+    Route::any('return', [GeideaPaymentController::class, 'returnPage'])->name('return')->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class]);
+    Route::any('callback', [GeideaPaymentController::class, 'callback'])->name('callback')->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class]);
+});
 
 
 

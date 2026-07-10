@@ -849,9 +849,44 @@ class BusinessSettingsController extends Controller
                 }
             }
         }
-        $data_values = Setting::whereIn('settings_type', ['payment_config'])->whereIn('key_name', ['ssl_commerz','paypal','stripe','razor_pay','senang_pay','paytabs','paystack','paymob_accept','paytm','flutterwave','liqpay','bkash','mercadopago'])->get();
+        $this->seedGeideaConfigRow();
+
+        $data_values = Setting::whereIn('settings_type', ['payment_config'])->whereIn('key_name', ['ssl_commerz','paypal','stripe','razor_pay','senang_pay','paytabs','paystack','paymob_accept','geidea','paytm','flutterwave','liqpay','bkash','mercadopago'])->get();
 
         return view('admin-views.business-settings.payment-index', compact('published_status', 'payment_url','data_values'));
+    }
+
+    // Geidea is a custom-added gateway, so its addon_settings row is not part
+    // of the vendor install data; create it on first visit so it can be configured.
+    private function seedGeideaConfigRow()
+    {
+        $exists = Setting::where('key_name', 'geidea')->where('settings_type', 'payment_config')->exists();
+        if ($exists) {
+            return;
+        }
+
+        $values = [
+            'gateway' => 'geidea',
+            'mode' => 'live',
+            'status' => '0',
+            'public_key' => '',
+            'api_password' => '',
+            'api_base_url' => 'https://api.merchant.geidea.net',
+        ];
+
+        Setting::create([
+            'key_name' => 'geidea',
+            'live_values' => $values,
+            'test_values' => $values,
+            'settings_type' => 'payment_config',
+            'mode' => 'live',
+            'is_active' => 0,
+            'additional_data' => json_encode([
+                'gateway_title' => 'Geidea',
+                'gateway_image' => '',
+                'storage' => 'public',
+            ]),
+        ]);
     }
 
     public function payment_config_update(Request $request)
@@ -867,7 +902,7 @@ class BusinessSettingsController extends Controller
         $request['status'] = $request->status ?? 0;
 
         $validation = [
-            'gateway' => 'required|in:ssl_commerz,paypal,stripe,razor_pay,senang_pay,paytabs,paystack,paymob_accept,paytm,flutterwave,liqpay,bkash,mercadopago',
+            'gateway' => 'required|in:ssl_commerz,paypal,stripe,razor_pay,senang_pay,paytabs,paystack,paymob_accept,geidea,paytm,flutterwave,liqpay,bkash,mercadopago',
             'mode' => 'required|in:live,test'
         ];
 
@@ -938,6 +973,13 @@ class BusinessSettingsController extends Controller
                 'hmac' => 'required_if:status,1',
                 'public_key' => 'required_if:status,1',
                 'secret_key' => 'required_if:status,1',
+            ];
+        } elseif ($request['gateway'] == 'geidea') {
+            $additional_data = [
+                'status' => 'required|in:1,0',
+                'public_key' => 'required_if:status,1',
+                'api_password' => 'required_if:status,1',
+                'api_base_url' => 'required_if:status,1',
             ];
         } elseif ($request['gateway'] == 'mercadopago') {
             $additional_data = [

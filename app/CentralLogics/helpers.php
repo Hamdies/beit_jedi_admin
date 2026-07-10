@@ -178,21 +178,7 @@ class Helpers
         $data['restaurant_status'] = (int) $data->restaurant->status;
         $data['restaurant_discount'] = self::get_restaurant_discount($data->restaurant) ? $data->restaurant->discount->discount : 0;
         $data['restaurant_opening_time'] = $data->restaurant->opening_time ? $data->restaurant->opening_time->format('H:i') : null;
-        $data['restaurant_closing_time'] = $data->restaurant->closeing_time ? $data->restaurant->closeing_time->format('H:i') : null;
-        $data['schedule_order'] = $data->restaurant->schedule_order;
-        $data['rating_count'] = (int)($data->rating ? array_sum(json_decode($data->rating, true)) : 0);
-        $data['avg_rating'] = (float)($data->avg_rating ? $data->avg_rating : 0);
-        $data['recommended'] =(int) $data->recommended;
-        $data['is_onboarded'] =(int) $data->is_onboarded;
-
-        $data['halal_tag_status'] =  (int) $data->restaurant->restaurant_config?->halal_tag_status??0;
-        $data['nutritions_name']= $data?->nutritions ? Nutrition::whereIn('id',$data?->nutritions->pluck('id') )->pluck('nutrition') : null;
-        $data['allergies_name']= $data?->allergies ?Allergy::whereIn('id',$data?->allergies->pluck('id') )->pluck('allergy') : null;
-        $data['free_delivery'] =  (int) $data->restaurant->free_delivery ?? 0;
-        $data['min_delivery_time'] =  (int) explode('-',$data->restaurant->delivery_time)[0] ?? 0;
-        $data['max_delivery_time'] =  (int) explode('-',$data->restaurant->delivery_time)[1] ?? 0;
-        $cuisine =[];
-        $cui =$data->restaurant->load('cuisine');
+       $cui =$data->restaurant->load('cuisine');
         if(isset($cui->cuisine)){
             foreach($cui->cuisine as $cu){
                 $cuisine[]= ['id' => (int) $cu->id, 'name' => $cu->name , 'image' => $cu->image];
