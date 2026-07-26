@@ -417,9 +417,15 @@ class CustomerAuthController extends Controller
     }
     public function register(Request $request)
     {
+        // Email is optional; treat a blank submission as absent so the unique
+        // rule skips it instead of colliding on a stored empty string.
+        if (blank($request->input('email'))) {
+            $request->merge(['email' => null]);
+        }
+
         $validator = Validator::make($request->all(), [
             'name' => 'required',
-            'email' => 'unique:users',
+            'email' => 'nullable|unique:users',
             'phone' => 'required|unique:users',
             'password' => ['required', Password::min(8)],
 
