@@ -26,7 +26,7 @@ class SMSModuleController extends Controller
                 }
             }
         }
-        $data_values=  Setting::where('settings_type','sms_config')->whereIn('key_name', ['twilio','nexmo','2factor','msg91','alphanet_sms'])->get() ?? [];
+        $data_values=  Setting::where('settings_type','sms_config')->whereIn('key_name', ['twilio','nexmo','2factor','msg91','alphanet_sms','akedly'])->get() ?? [];
         return view('admin-views.business-settings.sms-index',compact('data_values','published_status','payment_url'));
     }
 
@@ -74,6 +74,21 @@ class SMSModuleController extends Controller
                 'template_id' => $request['template_id'],
                 'auth_key' => $request['auth_key'],
             ];
+        } elseif ($module == 'akedly') {
+            // Activating with blank credentials would leave OTP silently falling
+            // back to the old SMS path, so reject it here instead.
+            if ($request['status'] == 1 && (blank($request['api_key']) || blank($request['pipeline_id']))) {
+                Toastr::warning(translate('API_key_and_Pipeline_ID_are_required_to_activate_Akedly.'));
+                return redirect()->back();
+            }
+
+            // Akedly generates, delivers and verifies the OTP itself, so there is
+            // no otp_template here -- message content lives in the Akedly pipeline.
+            $additional_data = [
+                'status' => $request['status'],
+                'api_key' => $request['api_key'],
+                'pipeline_id' => $request['pipeline_id'],
+            ];
         } elseif ($request['gateway'] == 'alphanet_sms') {
             $additional_data = [
                 'status' => $request['status'],
@@ -98,7 +113,7 @@ class SMSModuleController extends Controller
     ]);
 
     if ($request['status'] == 1) {
-        foreach (['twilio','nexmo','2factor','msg91','alphanet_sms'] as $gateway) {
+        foreach (['twilio','nexmo','2factor','msg91','alphanet_sms','akedly'] as $gateway) {
             if ($module != $gateway) {
                 $keep = Setting::where(['key_name' => $gateway, 'settings_type' => 'sms_config'])->first();
                 if (isset($keep)) {

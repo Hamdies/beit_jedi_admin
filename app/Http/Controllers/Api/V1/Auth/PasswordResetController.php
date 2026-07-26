@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use App\CentralLogics\Helpers;
 use Illuminate\Support\Carbon;
 use App\CentralLogics\SMS_module;
+use App\CentralLogics\AkedlyGateway;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Http;
@@ -51,6 +52,18 @@ class PasswordResetController extends Controller
 
 
 
+            if(env('APP_MODE') != 'test' && AkedlyGateway::is_active()){
+                $akedly = AkedlyGateway::send($customer['phone']);
+                $response = $akedly['response'];
+
+                DB::table('password_resets')->updateOrInsert(['phone' => $customer['phone']],
+                [
+                    'token' => null,
+                    'akedly_transaction_req_id' => $akedly['transaction_req_id'],
+                    'akedly_main_transaction_id' => $akedly['main_transaction_id'],
+                    'created_at' => now(),
+                ]);
+            }else{
             $token = rand(100000,999999);
             if(env('APP_MODE') == 'test'){
                 $token = '123456';
@@ -58,6 +71,8 @@ class PasswordResetController extends Controller
             DB::table('password_resets')->updateOrInsert(['phone' => $customer['phone']],
             [
                 'token' => $token,
+                'akedly_transaction_req_id' => null,
+                'akedly_main_transaction_id' => null,
                 'created_at' => now(),
             ]);
 
@@ -74,6 +89,7 @@ class PasswordResetController extends Controller
                 $response = SmsGateway::send($request['phone'],$token);
             }else{
                 $response = SMS_module::send($request['phone'],$token);
+            }
             }
 
             if($response == 'success' || env('APP_MODE') == 'test')
@@ -121,7 +137,7 @@ class PasswordResetController extends Controller
             ]], 400);
         }
 
-        $data = DB::table('password_resets')->where(['token' => $request['reset_token'],'phone'=>$user->phone])->first();
+        $data = AkedlyGateway::match_otp('password_resets', $user->phone, $request['reset_token']);
         if (isset($data)) {
             return response()->json(['message'=> translate('OTP_found,_you_can_proceed')], 200);
         } else{
@@ -217,13 +233,13 @@ class PasswordResetController extends Controller
         }
 
         $user= User::where(['phone' => $request->phone])->first();
-        $data = DB::table('password_resets')->where(['token' => $request['reset_token'], 'phone' => $user?->phone])->first();
+        $data = AkedlyGateway::match_otp('password_resets', $user?->phone, $request['reset_token']);
 
         if (isset($data)) {
             if ($request['password'] == $request['confirm_password']) {
                 $user->password = bcrypt($request['confirm_password']);
                 $user->save();
-                DB::table('password_resets')->where(['token' => $request['reset_token']])->delete();
+                DB::table('password_resets')->where('phone', $user->phone)->delete();
                 return response()->json(['message' => translate('Password changed successfully.')], 200);
             }
             return response()->json(['errors' => [

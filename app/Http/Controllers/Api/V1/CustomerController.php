@@ -16,6 +16,7 @@ use App\Mail\EmailVerification;
 use App\Models\BusinessSetting;
 use App\Models\CustomerAddress;
 use App\CentralLogics\SMS_module;
+use App\CentralLogics\AkedlyGateway;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use App\Models\EmailVerifications;
@@ -400,6 +401,22 @@ class CustomerController extends Controller
             return ['is_success' => false,  'message' => translate('messages.please_try_again_after_') . $time . ' ' . translate('messages.seconds'), 'code' => 403];
         }
 
+        if (env('APP_MODE') != 'test' && AkedlyGateway::is_active()) {
+            $akedly = AkedlyGateway::send($phone);
+            $response = $akedly['response'];
+
+            DB::table('phone_verifications')->updateOrInsert(
+                ['phone' => $phone],
+                [
+                    'token' => null,
+                    'akedly_transaction_req_id' => $akedly['transaction_req_id'],
+                    'akedly_main_transaction_id' => $akedly['main_transaction_id'],
+                    'otp_hit_count' => 0,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]
+            );
+        } else {
         $otp = rand(100000, 999999);
         if(env('APP_MODE') == 'test'){
             $otp = '123456';
@@ -408,6 +425,8 @@ class CustomerController extends Controller
             ['phone' => $phone],
             [
                 'token' => $otp,
+                'akedly_transaction_req_id' => null,
+                'akedly_main_transaction_id' => null,
                 'otp_hit_count' => 0,
                 'created_at' => now(),
                 'updated_at' => now(),
@@ -424,6 +443,7 @@ class CustomerController extends Controller
             $response = SmsGateway::send($phone, $otp);
         } else {
             $response = SMS_module::send($phone, $otp);
+        }
         }
         if (env('APP_MODE') != 'test' && $response !== 'success') {
             return ['is_success' => false,  'message' => translate('failed_to_send_otp'), 'code' => 403];
@@ -568,9 +588,8 @@ class CustomerController extends Controller
     }
     private function check_SMS_otp($request)
     {
-        $phone_verification =  PhoneVerification::where(['phone' => $request['phone'], 'token' => $request['otp']])->first();
-        if ($phone_verification) {
-            $phone_verification->delete();
+        if (AkedlyGateway::match_otp('phone_verifications', $request['phone'], $request['otp'])) {
+            PhoneVerification::where('phone', $request['phone'])->delete();
             return ['is_success' => true, 'verification_medium' => 'SMS',  'message' => translate('Otp_verification_successful'), 'code' => 200];
         }
 

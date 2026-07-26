@@ -14,6 +14,7 @@ use Illuminate\Support\Carbon;
 use App\Mail\EmailVerification;
 use App\Models\BusinessSetting;
 use App\CentralLogics\SMS_module;
+use App\CentralLogics\AkedlyGateway;
 use App\Models\WalletTransaction;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
@@ -106,10 +107,7 @@ class CustomerAuthController extends Controller
                     'token' => $request['otp'],
                 ])->first();
             }elseif ($request->verification_type == 'phone'){
-                $data = DB::table('phone_verifications')->where([
-                    'phone' => $request['phone'],
-                    'token' => $request['otp'],
-                ])->first();
+                $data = AkedlyGateway::match_otp('phone_verifications', $request['phone'], $request['otp']);
             }
 
 
@@ -123,10 +121,7 @@ class CustomerAuthController extends Controller
 
                     $user->is_email_verified = 1;
                 }elseif ($request->verification_type == 'phone'){
-                    DB::table('phone_verifications')->where([
-                        'phone' => $request['phone'],
-                        'token' => $request['otp'],
-                    ])->delete();
+                    DB::table('phone_verifications')->where('phone', $request['phone'])->delete();
 
                     $user->is_phone_verified = 1;
                 }
@@ -213,10 +208,7 @@ class CustomerAuthController extends Controller
             }
         }
         if($request->login_type== 'otp'){
-            $data = DB::table('phone_verifications')->where([
-                'phone' => $request['phone'],
-                'token' => $request['otp'],
-            ])->first();
+            $data = AkedlyGateway::match_otp('phone_verifications', $request['phone'], $request['otp']);
 
             if($data){
                 if($user && $user->is_phone_verified == 0){
@@ -227,10 +219,7 @@ class CustomerAuthController extends Controller
                     }
                     return response()->json(['token' => $temporaryToken, 'is_phone_verified'=>1, 'is_email_verified'=>1, 'is_personal_info' => 1, 'is_exist_user' =>$is_exist_user, 'login_type' => 'otp', 'email' => $user_email], 200);
                 }elseif ($user && $user->is_phone_verified == 1){
-                    DB::table('phone_verifications')->where([
-                        'phone' => $request['phone'],
-                        'token' => $request['otp'],
-                    ])->delete();
+                    DB::table('phone_verifications')->where('phone', $request['phone'])->delete();
                     $is_personal_info = 0;
                     if($user->f_name){
                         $is_personal_info = 1;
@@ -513,6 +502,20 @@ class CustomerAuthController extends Controller
                         ], 405);
                     }
 
+                    if(env('APP_MODE') != 'test' && AkedlyGateway::is_active()){
+                        $akedly = AkedlyGateway::send($request['phone']);
+                        $response = $akedly['response'];
+
+                        DB::table('phone_verifications')->updateOrInsert(['phone' => $request['phone']],
+                            [
+                                'token' => null,
+                                'akedly_transaction_req_id' => $akedly['transaction_req_id'],
+                                'akedly_main_transaction_id' => $akedly['main_transaction_id'],
+                                'otp_hit_count' => 0,
+                                'created_at' => now(),
+                                'updated_at' => now(),
+                            ]);
+                    }else{
                     $otp = rand(100000, 999999);
                     if(env('APP_MODE') == 'test'){
                         $otp = '123456';
@@ -520,6 +523,8 @@ class CustomerAuthController extends Controller
                     DB::table('phone_verifications')->updateOrInsert(['phone' => $request['phone']],
                         [
                             'token' => $otp,
+                            'akedly_transaction_req_id' => null,
+                            'akedly_main_transaction_id' => null,
                             'otp_hit_count' => 0,
                             'created_at' => now(),
                             'updated_at' => now(),
@@ -537,6 +542,7 @@ class CustomerAuthController extends Controller
                         $response = SmsGateway::send($request['phone'],$otp);
                     }else{
                         $response = SMS_module::send($request['phone'],$otp);
+                    }
                     }
 
                     $token = null;
@@ -833,10 +839,7 @@ class CustomerAuthController extends Controller
         }
     }
     private function otp_login($request_data){
-        $data = DB::table('phone_verifications')->where([
-            'phone' => $request_data['phone'],
-            'token' => $request_data['otp'],
-        ])->first();
+        $data = AkedlyGateway::match_otp('phone_verifications', $request_data['phone'], $request_data['otp']);
 
         if($data){
             if($request_data['verified'] == 'no'){
@@ -871,10 +874,7 @@ class CustomerAuthController extends Controller
                 $is_personal_info = 1;
             }
 
-            DB::table('phone_verifications')->where([
-                'phone' => $request_data['phone'],
-                'token' => $request_data['otp'],
-            ])->delete();
+            DB::table('phone_verifications')->where('phone', $request_data['phone'])->delete();
 
             $token = null;
             if ($is_personal_info == 1 && auth()->loginUsingId($user->id)) {
@@ -1016,6 +1016,20 @@ class CustomerAuthController extends Controller
                 return $errors;
             }
 
+            if(env('APP_MODE') != 'test' && AkedlyGateway::is_active()){
+                $akedly = AkedlyGateway::send($request_data['phone']);
+                $response = $akedly['response'];
+
+                DB::table('phone_verifications')->updateOrInsert(['phone' => $request_data['phone']],
+                    [
+                        'token' => null,
+                        'akedly_transaction_req_id' => $akedly['transaction_req_id'],
+                        'akedly_main_transaction_id' => $akedly['main_transaction_id'],
+                        'otp_hit_count' => 0,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]);
+            }else{
             $otp = rand(100000, 999999);
             if(env('APP_MODE') == 'test'){
                 $otp = '123456';
@@ -1023,6 +1037,8 @@ class CustomerAuthController extends Controller
             DB::table('phone_verifications')->updateOrInsert(['phone' => $request_data['phone']],
                 [
                     'token' => $otp,
+                    'akedly_transaction_req_id' => null,
+                    'akedly_main_transaction_id' => null,
                     'otp_hit_count' => 0,
                     'created_at' => now(),
                     'updated_at' => now(),
@@ -1041,6 +1057,7 @@ class CustomerAuthController extends Controller
                 $response = SmsGateway::send($request_data['phone'],$otp);
             }else{
                 $response = SMS_module::send($request_data['phone'],$otp);
+            }
             }
 
            if((env('APP_MODE') != 'test') && $response !== 'success')
