@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 
 /**
- * Akedly OTP gateway (V1.0 REST API).
+ * Akedly OTP gateway (V1.2 REST API).
  *
  * Unlike the gateways in SMS_module, Akedly is OTP-as-a-service: it generates the
  * code, delivers it over its own channel fallback chain (WhatsApp -> Telegram ->
@@ -14,15 +14,23 @@ use Illuminate\Support\Facades\Http;
  * of storing a token we store the returned transaction id and hand the user's
  * input back to Akedly at verify time.
  *
- * V1.0 sunsets 2026-12-30. V1.2 adds a Proof-of-Work + Turnstile challenge that
- * has to be solved client side; when we move, only this class should change.
+ * V1.2 gates sending behind a Proof-of-Work challenge, which is mandatory and
+ * cannot be turned off per pipeline. PoW is only a hash puzzle, so we solve it
+ * here on the server rather than pushing it into the mobile apps. Cloudflare
+ * Turnstile genuinely needs a browser, so the pipeline must have Turnstile
+ * DISABLED for this server-to-server flow to work.
  *
- * @see https://docs.akedly.io/authentication/v1
+ * Flow: GET /challenge -> solve nonce -> POST /send -> POST /verify
+ *
+ * @see https://docs.akedly.io/authentication/v1-2
  */
 class AkedlyGateway
 {
-    const BASE_URL = 'https://api.akedly.io/api/v1';
+    const BASE_URL = 'https://api.akedly.io/api/v1.2/transactions';
     const TIMEOUT = 10;
+
+    /** Safety cap so a misconfigured difficulty can never hang a login request. */
+    const POW_MAX_ITERATIONS = 5000000;
 
     public static function is_active(): bool
     {
@@ -48,43 +56,94 @@ class AkedlyGateway
         $config = self::get_settings('akedly');
 
         try {
-            $create = Http::timeout(self::TIMEOUT)
-                ->post(self::BASE_URL . '/transactions', [
+            $challenge = Http::timeout(self::TIMEOUT)
+                ->get(self::BASE_URL . '/challenge', [
                     'APIKey' => $config['api_key'],
                     'pipelineID' => $config['pipeline_id'],
-                    'verificationAddress' => [
-                        'phoneNumber' => self::normalize_phone($receiver),
-                    ],
-                    'digits' => 6,
                 ]);
 
-            $main_transaction_id = data_get($create->json(), 'data.transactionID');
-
-            if (!$create->successful() || !$main_transaction_id) {
-                info('Akedly create transaction failed: ' . $create->body());
+            if (!$challenge->successful()) {
+                info('Akedly challenge failed: ' . $challenge->body());
                 return $failed;
             }
 
-            $activate = Http::timeout(self::TIMEOUT)
-                ->post(self::BASE_URL . '/transactions/activate/' . $main_transaction_id, []);
+            $data = $challenge->json('data') ?? [];
 
-            $transaction_req_id = data_get($activate->json(), 'data._id');
+            // Turnstile needs a real browser. If the pipeline still has it on we
+            // cannot complete the send from the server, so fail loudly here rather
+            // than sending a request we know Cloudflare will reject.
+            if (data_get($data, 'turnstile.required')) {
+                info('Akedly: Turnstile is enabled on this pipeline; disable it for server-to-server OTP.');
+                return $failed;
+            }
 
-            if (!$activate->successful() || !$transaction_req_id) {
-                info('Akedly activate transaction failed: ' . $activate->body());
+            $payload = [
+                'APIKey' => $config['api_key'],
+                'pipelineID' => $config['pipeline_id'],
+                'verificationAddress' => [
+                    'phoneNumber' => self::normalize_phone($receiver),
+                ],
+                'digits' => 6,
+            ];
+
+            if (data_get($data, 'challengeRequired')) {
+                $nonce = self::solve_pow(data_get($data, 'challenge'), (int) data_get($data, 'difficulty', 4));
+
+                if ($nonce === null) {
+                    info('Akedly: could not solve PoW challenge within the iteration cap.');
+                    return $failed;
+                }
+
+                $payload['powSolution'] = [
+                    'challengeToken' => data_get($data, 'challengeToken'),
+                    'nonce' => $nonce,
+                ];
+            }
+
+            $send = Http::timeout(self::TIMEOUT)
+                ->post(self::BASE_URL . '/send', $payload);
+
+            $transaction_req_id = data_get($send->json(), 'data.transactionReqID');
+
+            if (!$send->successful() || !$transaction_req_id) {
+                info('Akedly send failed: ' . $send->body());
                 return $failed;
             }
 
             return [
                 'response' => 'success',
                 'transaction_req_id' => $transaction_req_id,
-                'main_transaction_id' => $main_transaction_id,
-                'channels' => data_get($activate->json(), 'channels', []),
+                'main_transaction_id' => data_get($send->json(), 'data.transactionID'),
+                'channels' => data_get($send->json(), 'data.channels', []),
             ];
         } catch (\Exception $exception) {
             info('Akedly send exception: ' . $exception->getMessage());
             return $failed;
         }
+    }
+
+    /**
+     * Solve the Proof-of-Work challenge: find a nonce where the hex digest of
+     * sha256("<challenge>:<nonce>") begins with `difficulty` zeros.
+     *
+     * Difficulty is set per pipeline; at the "Light" setting this costs a few
+     * milliseconds. The iteration cap keeps a bad setting from stalling a login.
+     */
+    public static function solve_pow($challenge, int $difficulty): ?int
+    {
+        if (empty($challenge) || $difficulty < 1) {
+            return null;
+        }
+
+        $prefix = str_repeat('0', $difficulty);
+
+        for ($nonce = 0; $nonce < self::POW_MAX_ITERATIONS; $nonce++) {
+            if (strncmp(hash('sha256', $challenge . ':' . $nonce), $prefix, $difficulty) === 0) {
+                return $nonce;
+            }
+        }
+
+        return null;
     }
 
     /**
@@ -100,7 +159,8 @@ class AkedlyGateway
 
         try {
             $response = Http::timeout(self::TIMEOUT)
-                ->post(self::BASE_URL . '/transactions/verify/' . $transaction_req_id, [
+                ->post(self::BASE_URL . '/verify', [
+                    'transactionReqID' => $transaction_req_id,
                     'otp' => (string) $otp,
                 ]);
 
@@ -108,9 +168,9 @@ class AkedlyGateway
                 return 'success';
             }
 
-            // 403 is a wrong code; anything else (expired, not found, outage) is an error
-            // so the caller can tell "try again" apart from "that code was wrong".
-            if ($response->status() === 403) {
+            // A wrong code is a normal outcome; expiry/outage is not, so the caller
+            // can tell "that code was wrong" apart from "something broke".
+            if (data_get($response->json(), 'code') === 'INVALID_OTP' || $response->status() === 403) {
                 return 'invalid';
             }
 
