@@ -1111,14 +1111,16 @@ class CustomerAuthController extends Controller
             'name' => 'required',
             'login_type' => 'required|in:otp,social',
             'phone' => 'required|min:9|max:14',
-            'email' => 'required|email',
+            'email' => 'nullable|email',
         ];
 
         if ($request->login_type == 'social') {
             $rules['phone'] .= '|unique:users,phone';
+            // Social login looks up the user by email, so it must be present here.
+            $rules['email'] = 'required|email';
         }
 
-        if ($request->login_type == 'otp') {
+        if ($request->login_type == 'otp' && $request->filled('email')) {
             $rules['email'] .= '|unique:users,email';
         }
 
