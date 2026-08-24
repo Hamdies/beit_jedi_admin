@@ -175,7 +175,10 @@ class GeideaPaymentController extends Controller
     // flow (merchantReferenceId = app order id).
     public function callback(Request $request)
     {
-        $geideaOrderId = $request->input('order.id') ?? $request->input('orderId') ?? $request->input('order_id');
+        // Geidea sends the gateway order id as order.orderId; the other spellings
+        // are kept as fallbacks only.
+        $geideaOrderId = $request->input('order.orderId') ?? $request->input('order.id')
+            ?? $request->input('orderId') ?? $request->input('order_id');
         $geideaOrder = $this->verifiedGeideaOrder($geideaOrderId);
 
         if (!isset($geideaOrder)) {
