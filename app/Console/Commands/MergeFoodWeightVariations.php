@@ -270,10 +270,16 @@ class MergeFoodWeightVariations extends Command
 
         // Rename to the weightless base name and clear the legacy column so the
         // API serves the new-style variations.
+        //
+        // It must be the STRING '[]', not NULL: Food::getVariationsAttribute
+        // gates on is_string($value), so a NULL column skips the branch that
+        // builds JSON from the variations/variation_options tables and the API
+        // returns no variations at all. json_encode([]) is what the admin
+        // panel writes too.
         Food::withoutGlobalScopes()->where('id', $survivor->id)->update([
             'name'       => $baseName,
             'price'      => $basePrice,
-            'variations' => null,
+            'variations' => json_encode([]),
         ]);
 
         foreach ($items as $item) {
