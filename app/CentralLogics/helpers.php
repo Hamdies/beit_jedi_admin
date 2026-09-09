@@ -1173,11 +1173,16 @@ class Helpers
                 'Content-Type' => 'application/json',
             ];
             try {
-                Http::withHeaders($headers)->post($url, $data);
+                $response = Http::withHeaders($headers)->post($url, $data);
+                if (!$response->successful()) {
+                    info('FCM send failed: status '.$response->status().' | '.$response->body());
+                }
             }catch (\Exception $exception){
                 info($exception->getMessage());
                 return false;
             }
+        } else {
+            info('FCM send skipped: push_notification_service_file_content is missing or has no project_id.');
         }
         return false;
     }
@@ -1666,6 +1671,9 @@ class Helpers
 
 
             $customer_push_notification_status=Helpers::getNotificationStatusData('customer','customer_order_notification');
+            if ($customer_push_notification_status?->push_notification_status  == 'active' && !$value) {
+                info('Order '.$order->id.' ('.$order->order_status.'): customer push skipped, no notification message template is enabled for this status.');
+            }
             if ($customer_push_notification_status?->push_notification_status  == 'active' && $value && $user_fcm) {
                 $data = [
                     'title' => translate('messages.order_push_title'),

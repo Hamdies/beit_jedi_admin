@@ -1501,7 +1501,7 @@
   'item_price' => 'Item price',
   'order_placed_successfully' => 'Order placed successfully',
   'order_push_title' => 'Order Notification',
-  'new_order_push_description' => 'New order push description',
+  'new_order_push_description' => 'You have a new order',
   'Review' => 'Review',
   'User' => 'User',
   'browse_web' => 'Browse web',
