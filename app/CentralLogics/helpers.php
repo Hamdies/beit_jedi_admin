@@ -123,7 +123,7 @@ class Helpers
         }
         $data['category_ids'] = $categories;
 
-        $add_ons = gettype($data['add_ons']) == 'array' ? $data['add_ons'] : json_decode($data['add_ons'],true);
+        $add_ons = self::safe_json_array($data['add_ons']);
         $data_addons = self::addon_data_formatting(AddOn::whereIn('id', $add_ons)->active()->get(), true, $trans, $local);
         $selected_data = array_combine($selected_addons, $selected_addon_quantity);
         foreach ($data_addons as $addon) {
@@ -194,6 +194,31 @@ class Helpers
         return $data;
     }
 
+    /**
+     * Decode a nullable JSON column into an array that is always safe to
+     * iterate or hand to whereIn().
+     *
+     * `food.add_ons`, `food.category_ids` and `food.variations` are all
+     * nullable with a NULL default, so an item saved without add-ons or
+     * categories stores NULL rather than "[]". Passing that straight into
+     * whereIn() raises a TypeError on PHP 8 and turns one bad row into a 500
+     * for the whole listing endpoint.
+     */
+    public static function safe_json_array($value)
+    {
+        if (is_array($value)) {
+            return $value;
+        }
+
+        if ($value === null || $value === '') {
+            return [];
+        }
+
+        $decoded = json_decode($value, true);
+
+        return is_array($decoded) ? $decoded : [];
+    }
+
     public static function product_data_formatting($data, $multi_data = false, $trans = false, $local = 'en')
     {
         $storage = [];
@@ -224,9 +249,9 @@ class Helpers
                 $item['recommended'] =(int) $item->recommended;
                 $item['is_onboarded'] =(int) $item->is_onboarded;
                 $categories = [];
-                foreach (json_decode($item?->category_ids) as $value) {
-                    if (is_object($value)) {
-                        $categories[] = ['id' => (string)$value->id, 'position' => $value->position];
+                foreach (self::safe_json_array($item?->category_ids) as $value) {
+                    if (is_array($value)) {
+                        $categories[] = ['id' => (string)$value['id'], 'position' => $value['position'] ?? 0];
                     } else {
                         $categories[] = ['id' => (string)$value, 'position' => 0];
                     }
@@ -234,7 +259,7 @@ class Helpers
                 $item['category_ids'] = $categories;
                 // $item['attributes'] = json_decode($item['attributes']);
                 // $item['choice_options'] = json_decode($item['choice_options']);
-                $item['add_ons'] = self::addon_data_formatting(AddOn::whereIn('id', json_decode($item['add_ons']))->active()->get(), true, $trans, $local);
+                $item['add_ons'] = self::addon_data_formatting(AddOn::whereIn('id', self::safe_json_array($item['add_ons']))->active()->get(), true, $trans, $local);
                 $item['tags'] = $item->tags;
                 $item['variations'] = json_decode($item['variations'], true);
                 $item['restaurant_name'] = $item->restaurant->name;
@@ -251,8 +276,11 @@ class Helpers
                 }
                 $item['rating_count'] = $reviewsInfo?->rating_count ?? 0;
                 $item['avg_rating'] = $reviewsInfo?->average ?? 0;
-                $item['min_delivery_time'] =  (int) explode('-',$item->restaurant->delivery_time)[0] ?? 0;
-                $item['max_delivery_time'] =  (int) explode('-',$item->restaurant->delivery_time)[1] ?? 0;
+                // `?? 0` never fired here: the index is read before the coalesce, so a
+                // delivery_time of null or without a '-' warned on a missing key.
+                $delivery_time_parts = explode('-', $item->restaurant->delivery_time ?? '');
+                $item['min_delivery_time'] =  (int) ($delivery_time_parts[0] ?? 0);
+                $item['max_delivery_time'] =  (int) ($delivery_time_parts[1] ?? 0);
 
 
                 if( $item->restaurant->restaurant_model == 'subscription'  && isset($item->restaurant->restaurant_sub)){
@@ -287,16 +315,16 @@ class Helpers
         } else {
             $variations = [];
             $categories = [];
-            foreach (json_decode($data?->category_ids) as $value) {
-                if (is_object($value)) {
-                    $categories[] = ['id' => (string)$value->id, 'position' => $value->position];
+            foreach (self::safe_json_array($data?->category_ids) as $value) {
+                if (is_array($value)) {
+                    $categories[] = ['id' => (string)$value['id'], 'position' => $value['position'] ?? 0];
                 } else {
                     $categories[] = ['id' => (string)$value, 'position' => 0];
                 }
             }
             $data['category_ids'] = $categories;
 
-            $data['add_ons'] = self::addon_data_formatting(AddOn::whereIn('id', json_decode($data['add_ons']))->active()->get(), true, $trans, $local);
+            $data['add_ons'] = self::addon_data_formatting(AddOn::whereIn('id', self::safe_json_array($data['add_ons']))->active()->get(), true, $trans, $local);
             if ($data->title) {
                 $data['name'] = $data->title;
                 unset($data['title']);
@@ -349,8 +377,9 @@ class Helpers
                 $data['free_delivery'] =  (int)  1;
             }
 
-            $data['min_delivery_time'] =  (int) explode('-',$data->restaurant->delivery_time)[0] ?? 0;
-            $data['max_delivery_time'] =  (int) explode('-',$data->restaurant->delivery_time)[1] ?? 0;
+            $delivery_time_parts = explode('-', $data->restaurant->delivery_time ?? '');
+            $data['min_delivery_time'] =  (int) ($delivery_time_parts[0] ?? 0);
+            $data['max_delivery_time'] =  (int) ($delivery_time_parts[1] ?? 0);
             $cuisine =[];
             $cui =$data->restaurant->load('cuisine');
             if(isset($cui->cuisine)){
@@ -397,9 +426,9 @@ class Helpers
                 $item['recommended'] =(int) $item->recommended;
                 $item['is_onboarded'] =(int) $item->is_onboarded;
                 $categories = [];
-                foreach (json_decode($item['category_ids']) as $value) {
-                    if (is_object($value)) {
-                        $categories[] = ['id' => (string)$value->id, 'position' => $value->position];
+                foreach (self::safe_json_array($item['category_ids']) as $value) {
+                    if (is_array($value)) {
+                        $categories[] = ['id' => (string)$value['id'], 'position' => $value['position'] ?? 0];
                     } else {
                         $categories[] = ['id' => (string)$value, 'position' => 0];
                     }
@@ -407,7 +436,7 @@ class Helpers
                 $item['category_ids'] = $categories;
                 $item['attributes'] = json_decode($item['attributes']);
                 $item['choice_options'] = json_decode($item['choice_options']);
-                $item['add_ons'] = self::addon_data_formatting(AddOn::whereIn('id', json_decode($item['add_ons'], true))->active()->get(), true, $trans, $local);
+                $item['add_ons'] = self::addon_data_formatting(AddOn::whereIn('id', self::safe_json_array($item['add_ons']))->active()->get(), true, $trans, $local);
 
                 $item['variations'] = json_decode($item['variations'], true);
                 $item['restaurant_name'] = $item->restaurant->name;
@@ -484,7 +513,7 @@ class Helpers
 
             $data['attributes'] = json_decode($data['attributes']);
             $data['choice_options'] = json_decode($data['choice_options']);
-            $data['add_ons'] = self::addon_data_formatting(AddOn::whereIn('id', json_decode($data['add_ons']))->active()->get(), true, $trans, $local);
+            $data['add_ons'] = self::addon_data_formatting(AddOn::whereIn('id', self::safe_json_array($data['add_ons']))->active()->get(), true, $trans, $local);
 
             if ($data->title) {
                 $data['name'] = $data->title;
@@ -3747,7 +3776,7 @@ class Helpers
         public static function get_addon_data($id){
             try{
                 $data=[];
-                $addon= AddOn::whereIn('id',json_decode($id, true))->get(['name','price'])->toArray();
+                $addon= AddOn::whereIn('id',self::safe_json_array($id))->get(['name','price'])->toArray();
                     foreach($addon as $key => $value){
                         $data[$key]= $value['name'] .' - ' .\App\CentralLogics\Helpers::format_currency($value['price']);
                     }

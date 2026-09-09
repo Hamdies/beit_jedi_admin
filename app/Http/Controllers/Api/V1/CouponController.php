@@ -45,9 +45,10 @@ class CouponController extends Controller
             if ($coupon->coupon_type == 'restaurant_wise') {
                 $temp = Restaurant::active()
                     ->whereIn('zone_id', $zone_id)
-                    ->whereIn('id', json_decode($coupon->data, true))
+                    ->whereIn('id', Helpers::safe_json_array($coupon->data))
                     ->first();
-                if ($temp && (in_array("all", json_decode($coupon->customer_id, true)) || in_array($customer_id, json_decode($coupon->customer_id, true)))) {
+                $coupon_customers = Helpers::safe_json_array($coupon->customer_id);
+                if ($temp && (in_array("all", $coupon_customers) || in_array($customer_id, $coupon_customers))) {
                     // $coupon->data = $temp->name;
                     $visible = true;
                 }
@@ -242,8 +243,8 @@ class CouponController extends Controller
             {
                 if($coupon->coupon_type == 'restaurant_wise')
                 {
-                    $temp = Restaurant::active()->whereIn('zone_id', $zone_id)->whereIn('id', json_decode($coupon->data, true))->first();
-                    if($temp && (in_array("all", json_decode($coupon->customer_id, true)) ))
+                    $temp = Restaurant::active()->whereIn('zone_id', $zone_id)->whereIn('id', Helpers::safe_json_array($coupon->data))->first();
+                    if($temp && (in_array("all", Helpers::safe_json_array($coupon->customer_id)) ))
                     {
                         $coupon->data = $temp->name;
                         $data[] = $coupon;
