@@ -1273,7 +1273,7 @@ class OrderController extends Controller
 
         $settings =  array_column(BusinessSetting::whereIn('key', $settings_key)->get()->toArray(), 'value', 'key');
 
-        $restaurant = Restaurant::with(['discount', 'restaurant_sub','restaurant_config'])->selectRaw('*, IF(((select count(*) from `restaurant_schedule` where `restaurants`.`id` = `restaurant_schedule`.`restaurant_id` and `restaurant_schedule`.`day` = '.$schedule_at->format('w').' and `restaurant_schedule`.`opening_time` < "'.$schedule_at->format('H:i:s').'" and `restaurant_schedule`.`closing_time` >"'.$schedule_at->format('H:i:s').'") > 0), true, false) as open')->where('id', $request->restaurant_id)->first();
+        $restaurant = Restaurant::with(['discount', 'restaurant_sub','restaurant_config'])->selectRaw('*, IF(`restaurants`.`active` = 1, true, false) as open')->where('id', $request->restaurant_id)->first();
 
         $response = match (true) {
             !$restaurant => [
@@ -1503,7 +1503,7 @@ class OrderController extends Controller
 
         $settings =  array_column(BusinessSetting::whereIn('key', $settings_key)->get()->toArray(), 'value', 'key');
 
-        $restaurant = Restaurant::with(['discount', 'restaurant_sub','restaurant_config'])->selectRaw('*, IF(((select count(*) from `restaurant_schedule` where `restaurants`.`id` = `restaurant_schedule`.`restaurant_id` and `restaurant_schedule`.`day` = '.$schedule_at->format('w').' and `restaurant_schedule`.`opening_time` < "'.$schedule_at->format('H:i:s').'" and `restaurant_schedule`.`closing_time` >"'.$schedule_at->format('H:i:s').'") > 0), true, false) as open')->where('id', $request->restaurant_id)->first();
+        $restaurant = Restaurant::with(['discount', 'restaurant_sub','restaurant_config'])->selectRaw('*, IF(`restaurants`.`active` = 1, true, false) as open')->where('id', $request->restaurant_id)->first();
 
         $response = match (true) {
             !$restaurant => [

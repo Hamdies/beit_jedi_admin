@@ -108,7 +108,7 @@ class CampaignController extends Controller
                         ->whereColumn('restaurants.id', 'item_campaigns.restaurant_id');
                 }, 'temp_available')
                 ->selectSub(function ($subQuery) {
-                    $subQuery->selectRaw('IF(((select count(*) from `restaurant_schedule` where `restaurants`.`id` = `restaurant_schedule`.`restaurant_id` and `restaurant_schedule`.`day` = ? and `restaurant_schedule`.`opening_time` < ? and `restaurant_schedule`.`closing_time` > ?) > 0), true, false) as open', [now()->dayOfWeek, now()->format('H:i:s'), now()->format('H:i:s')])
+                    $subQuery->selectRaw('IF(`restaurants`.`active` = 1, true, false) as open')
                         ->from('restaurants')
                         ->whereColumn('restaurants.id', 'item_campaigns.restaurant_id');
                 }, 'open');

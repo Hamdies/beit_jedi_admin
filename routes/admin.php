@@ -238,6 +238,8 @@ Route::group(['namespace' => 'Admin', 'as' => 'admin.'], function () {
                 //Restaurant shcedule
                 Route::post('add-schedule', 'VendorController@add_schedule')->name('add-schedule');
                 Route::get('remove-schedule/{restaurant_schedule}', 'VendorController@remove_schedule')->name('remove-schedule');
+                //Restaurant open/close switch
+                Route::get('update-active-status/{restaurant}', 'VendorController@active_status')->name('update-active-status');
 
                 Route::post('update-meta-data/{restaurant}', 'VendorController@updateStoreMetaData')->name('update-meta-data');
                 Route::post('qrcode/store/{restaurant}', 'VendorController@qr_store')->name('qrcode.store');

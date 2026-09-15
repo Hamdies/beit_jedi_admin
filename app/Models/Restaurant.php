@@ -62,7 +62,7 @@ class Restaurant extends Model
         'distance' => 'float',
     ];
 
-    protected $appends = ['gst_status','gst_code','free_delivery_distance_status','free_delivery_distance_value','logo_full_url','cover_photo_full_url','meta_image_full_url'];
+    protected $appends = ['gst_status','gst_code','free_delivery_distance_status','free_delivery_distance_value','logo_full_url','cover_photo_full_url','meta_image_full_url','open'];
 
     /**
      * The attributes that should be hidden for arrays.
@@ -237,6 +237,15 @@ class Restaurant extends Model
     {
         return (boolean)(\App\CentralLogics\Helpers::schedule_order()?$value:0);
     }
+
+    /**
+     * Restaurants have no working hours anymore, they are always open.
+     * The only thing that closes a restaurant is the open/close switch (the `active` column).
+     */
+    public function getOpenAttribute()
+    {
+        return (int) $this->active;
+    }
     public function getRatingAttribute($value)
     {
         $ratings = $value ? json_decode($value, true) : [];
@@ -343,12 +352,16 @@ class Restaurant extends Model
 
     public function scopeWithOpen($query,$longitude,$latitude)
     {
-        $query->selectRaw('*, IF(((select count(*) from `restaurant_schedule` where `restaurants`.`id` = `restaurant_schedule`.`restaurant_id` and `restaurant_schedule`.`day` = '.now()->dayOfWeek.' and `restaurant_schedule`.`opening_time` < "'.now()->format('H:i:s').'" and `restaurant_schedule`.`closing_time` >"'.now()->format('H:i:s').'") > 0), true, false) as open,ST_Distance_Sphere(point(longitude, latitude),point('.$longitude.', '.$latitude.')) as distance');
+        $query->selectRaw('*, IF(`restaurants`.`active` = 1, true, false) as open,ST_Distance_Sphere(point(longitude, latitude),point('.$longitude.', '.$latitude.')) as distance');
     }
 
+    /**
+     * Kept for backward compatibility with the existing queries: restaurants are open every
+     * day of the week, so weekday off days no longer hide a restaurant.
+     */
     public function scopeWeekday($query)
     {
-        return $query->where('off_day', 'not like', "%".now()->dayOfWeek."%");
+        return $query;
     }
 
 

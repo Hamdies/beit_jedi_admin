@@ -6440,7 +6440,7 @@
   'Table_number_is_added' => 'Table number is added',
   'Table_number_is' => 'Table number is',
   'table_number_updated_successfully' => 'Table number updated successfully',
-  'restaurant_is_closed_at_order_time' => 'Restaurant is closed at order time',
+  'restaurant_is_closed_at_order_time' => 'Restaurant is currently closed',
   'Dine_date_is_not_available' => 'Dine date is not available',
   'Credential_do_not_match,_please_try_again.' => 'Credential do not match, please try again.',
   'dine_in_orders' => 'Dine in orders',
@@ -6633,4 +6633,9 @@
   'veg_non_veg_disable_warning' => 'Veg non veg disable warning',
   'create_personalized_discounts_for_your_customers' => 'Create personalized discounts for your customers',
   'product_status_updated' => 'Product status updated',
+  'Restaurant_Open_Close' => 'Restaurant open / close',
+  'restaurant_is_open' => 'Restaurant is open',
+  'Want_to_make_this_restaurant_available_for_all' => 'Want to make this restaurant available for all',
+  'Want_to_close_this_restaurant_temporarily' => 'Want to close this restaurant temporarily',
+  'Restaurant_is_open_24_7_turn_this_off_to_close_it_temporarily' => 'This restaurant is open around the clock. Turn this off to close it temporarily and hide it from the customer app and web.',
 );

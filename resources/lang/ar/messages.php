@@ -6440,7 +6440,7 @@
   'Table_number_is_added' => 'Table number is added',
   'Table_number_is' => 'Table number is',
   'table_number_updated_successfully' => 'Table number updated successfully',
-  'restaurant_is_closed_at_order_time' => 'Restaurant is closed at order time',
+  'restaurant_is_closed_at_order_time' => 'المطعم مغلق حالياً',
   'Dine_date_is_not_available' => 'Dine date is not available',
   'Credential_do_not_match,_please_try_again.' => 'Credential do not match, please try again.',
   'dine_in_orders' => 'Dine in orders',
@@ -6606,4 +6606,9 @@
   'until I change' => 'حتى أتغير',
   'Item_already_exists' => 'Item already exists',
   'The order proof field is required.' => 'The order proof field is required.',
+  'Restaurant_Open_Close' => 'فتح / إغلاق المطعم',
+  'restaurant_is_open' => 'المطعم مفتوح',
+  'Want_to_make_this_restaurant_available_for_all' => 'تريد أن تجعل هذا المطعم متاحًا للجميع',
+  'Want_to_close_this_restaurant_temporarily' => 'تريد إغلاق هذا المطعم مؤقتًا',
+  'Restaurant_is_open_24_7_turn_this_off_to_close_it_temporarily' => 'هذا المطعم مفتوح على مدار الساعة. أوقف هذا المفتاح لإغلاقه مؤقتًا وإخفائه من تطبيق العميل والموقع.',
 );

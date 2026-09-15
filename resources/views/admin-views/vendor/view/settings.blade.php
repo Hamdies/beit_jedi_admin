@@ -686,53 +686,29 @@
                 <span class="card-header-icon">
                     <i class="tio-clock"></i>
                 </span> &nbsp;
-                <span>{{translate('messages.Schedule_Working_Hours')}}</span>
+                <span>{{translate('messages.Restaurant_Open_Close')}}</span>
                 <span data-toggle="tooltip" data-placement="right"
-                        data-original-title='{{translate("Set_the_daily_opening_and_closing_times_for_this_restaurant.")}}'
+                        data-original-title='{{translate("Restaurant_is_open_24_7_turn_this_off_to_close_it_temporarily")}}'
                         class="input-label-secondary">
                     <i class="tio-info-outined"></i>
                 </span>
             </h5>
         </div>
-        <div class="card-body" id="schedule">
-            @include('admin-views.vendor.view.partials._schedule', $restaurant)
-        </div>
-    </div>
-    </div>
-
-    <!-- Create schedule modal -->
-
-    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-         aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">{{translate('messages.Create Schedule')}}</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <form action="javascript:" method="post" id="add-schedule">
-                        @csrf
-                        <input type="hidden" name="day" id="day_id_input">
-                        <input type="hidden" name="restaurant_id" value="{{$restaurant->id}}">
-                        <div class="form-group">
-                            <label for="start_time" class="col-form-label">{{translate('messages.Start_time')}}
-                                :</label>
-                            <input id="start_time" type="time" class="form-control" name="start_time" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="end_time" class="col-form-label">{{translate('messages.End_time')}}:</label>
-                            <input id="end_time" type="time" class="form-control" name="end_time" required>
-                        </div>
-                        <div class="text-right">
-                            <button type="submit" class="btn btn--primary">{{translate('messages.Submit')}}</button>
-                        </div>
-                    </form>
-                </div>
+        <div class="card-body">
+            <div class="d-flex flex-row justify-content-between align-items-center">
+                <span>
+                    {{ $restaurant->active ? translate('messages.restaurant_is_open') : translate('messages.restaurant_temporarily_closed') }}
+                </span>
+                <label class="switch toggle-switch-lg m-0">
+                    <input type="checkbox" class="toggle-switch-input restaurant-open-status"
+                           {{ $restaurant->active ? 'checked' : '' }}>
+                    <span class="toggle-switch-label">
+                        <span class="toggle-switch-indicator"></span>
+                    </span>
+                </label>
             </div>
         </div>
+    </div>
     </div>
 
 @endsection
@@ -742,15 +718,6 @@
 "use strict";
         $(document).ready(function () {
             $('#dataTable').DataTable();
-
-            $('#exampleModal').on('show.bs.modal', function (event) {
-                let button = $(event.relatedTarget);
-                let day_name = button.data('day');
-                let day_id = button.data('dayid');
-                let modal = $(this);
-                modal.find('.modal-title').text('{{translate('messages.Create_Schedule_For_')}} ' + day_name);
-                modal.find('.modal-body input[name=day]').val(day_id);
-            })
         });
 
         $(document).on('ready', function () {
@@ -765,11 +732,11 @@
         });
 
 
-        $(document).on('click', '.delete-schedule', function () {
-            let route = $(this).data('url');
+        $(document).on('click', '.restaurant-open-status', function (event) {
+            let is_open = $(this).is(':checked');
             Swal.fire({
-                title: '{{translate('messages.Want_to_delete_this_schedule_?')}}',
-                text: '{{translate('messages.If_you_select_Yes,_the_time_schedule_will_be_deleted')}}',
+                title: (is_open ? '{{translate('messages.Want_to_make_this_restaurant_available_for_all')}}' : '{{translate('messages.Want_to_close_this_restaurant_temporarily')}}') + ' ?',
+                text: is_open ? '{{translate('messages.If_yes_this_restaurant_will_be_available_for_customers_in_app_and_web')}}' : '{{translate('messages.If_yes_this_restaurant_will_be_unavailable_for_customers_in_apps_and_web')}}',
                 type: 'warning',
                 showCancelButton: true,
                 cancelButtonColor: 'default',
@@ -780,84 +747,23 @@
             }).then((result) => {
                 if (result.value) {
                     $.get({
-                        url: route,
+                        url: '{{route('admin.restaurant.update-active-status', $restaurant->id)}}',
                         beforeSend: function () {
                             $('#loading').show();
                         },
                         success: function (data) {
-                            if (data.errors) {
-                                for (let i = 0; i < data.errors.length; i++) {
-                                    toastr.error(data.errors[i].message, {
-                                        CloseButton: true,
-                                        ProgressBar: true
-                                    });
-                                }
-                            } else {
-                                $('#schedule').empty().html(data.view);
-                                toastr.success('{{translate('messages.Schedule_removed_successfully')}}', {
-                                    CloseButton: true,
-                                    ProgressBar: true
-                                });
-                            }
-                        },
-                        error: function () {
-                            toastr.error('{{translate('messages.Schedule_not_found')}}', {
-                                CloseButton: true,
-                                ProgressBar: true
-                            });
+                            toastr.success(data.message);
                         },
                         complete: function () {
                             $('#loading').hide();
+                            location.reload();
                         },
                     });
+                } else {
+                    location.reload();
                 }
             })
         });
 
-        $('#add-schedule').on('submit', function (e) {
-            e.preventDefault();
-            let formData = new FormData(this);
-            $.ajaxSetup({
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                }
-            });
-            $.post({
-                url: '{{route('admin.restaurant.add-schedule')}}',
-                data: formData,
-                cache: false,
-                contentType: false,
-                processData: false,
-                beforeSend: function () {
-                    $('#loading').show();
-                },
-                success: function (data) {
-                    if (data.errors) {
-                        for (let i = 0; i < data.errors.length; i++) {
-                            toastr.error(data.errors[i].message, {
-                                CloseButton: true,
-                                ProgressBar: true
-                            });
-                        }
-                    } else {
-                        $('#schedule').empty().html(data.view);
-                        $('#exampleModal').modal('hide');
-                        toastr.success('{{translate('messages.Schedule_added_successfully')}}', {
-                            CloseButton: true,
-                            ProgressBar: true
-                        });
-                    }
-                },
-                error: function (XMLHttpRequest) {
-                    toastr.error(XMLHttpRequest.responseText, {
-                        CloseButton: true,
-                        ProgressBar: true
-                    });
-                },
-                complete: function () {
-                    $('#loading').hide();
-                },
-            });
-        });
     </script>
 @endpush

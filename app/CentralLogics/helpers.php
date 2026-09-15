@@ -796,7 +796,7 @@ class Helpers
                 $item['customer_date_order_sratus'] =   (bool) $item?->restaurant_config?->customer_date_order_sratus;
                 $item['instant_order'] =   (bool) $item?->restaurant_config?->instant_order;
                 $item['halal_tag_status'] =   (bool) $item?->restaurant_config?->halal_tag_status;
-                $item['current_opening_time'] = self::getNextOpeningTime($item['schedules']) ?? 'closed';
+                $item['current_opening_time'] = '00:00';
 
                 $item['is_extra_packaging_active'] =   (bool) ($extra_packaging_data == 1 ? $item?->restaurant_config?->is_extra_packaging_active:false);
                 $item['extra_packaging_status'] =   (bool) ($item['is_extra_packaging_active']  == 1   ? $item?->restaurant_config?->extra_packaging_status:false);
@@ -866,7 +866,7 @@ class Helpers
             $data['extra_packaging_status'] =   (bool)  ($data['is_extra_packaging_active'] == 1  ? $data?->restaurant_config?->extra_packaging_status:false);
             $data['extra_packaging_amount'] =   (float)  ($data['is_extra_packaging_active'] == 1 ? $data?->restaurant_config?->extra_packaging_amount:0);
             $data['delivery_fee'] = self::getDeliveryFee($data);
-            $data['current_opening_time'] = self::getNextOpeningTime($data['schedules']) ?? 'closed';
+            $data['current_opening_time'] = '00:00';
 
             $data['is_dine_in_active'] =   (bool) $data?->restaurant_config?->dine_in;
             $data['schedule_advance_dine_in_booking_duration'] =   (int)  $data?->restaurant_config?->schedule_advance_dine_in_booking_duration;
@@ -3520,17 +3520,11 @@ class Helpers
 
     public static function create_subscription_order_logs()
     {
-        $order_schedule_day=now()->dayOfWeek;
-            $o=Order::HasSubscriptionTodayGet()->with(['restaurant.schedule_today','subscription.schedule_today'])->whereHas('restaurant.schedules',function ($q)use($order_schedule_day){
-                $q->where('day',$order_schedule_day);
-            })
-            ->get();
+        // Restaurants are open around the clock, so subscription logs are no longer
+        // limited to the restaurant's working hours for the day.
+        $o=Order::HasSubscriptionTodayGet()->with(['subscription.schedule_today'])->get();
             foreach($o as $order){
-                foreach($order->restaurant->schedule_today as $rest_sh){
-                    if(Carbon::parse($rest_sh->opening_time) <= Carbon::parse($order->subscription->schedule_today->time) && Carbon::parse($rest_sh->closing_time) >= Carbon::parse($order->subscription->schedule_today->time) ){
-                    OrderLogic::create_subscription_log($order->id);
-                    }
-                }
+                OrderLogic::create_subscription_log($order->id);
             }
         return true;
     }
@@ -3983,19 +3977,8 @@ class Helpers
 
 
    public static function getNextOpeningTime($schedule) {
-    $currentTime =now()->format('H:i');
-    if ($schedule) {
-        foreach($schedule as $entry) {
-            if ($entry['day'] == now()->format('w')) {
-                    if ($currentTime >= $entry['opening_time'] && $currentTime <= $entry['closing_time']) {
-                        return $entry['opening_time'];
-                    } elseif($currentTime < $entry['opening_time']){
-                        return $entry['opening_time'];
-                    }
-            }
-        }
-    }
-        return 'closed';
+        // Restaurants no longer have working hours, they are open around the clock.
+        return '00:00';
     }
 
     public static function generateDatesForSubscriptionOrders($start_at, $end_at, $scheduleDates,$scheduleTime,$pauseArray,$scheduleType) {

@@ -107,7 +107,7 @@
   'Table_number_is_added' => 'تمت إضافة رقم الطاولة',
   'Table_number_is' => 'رقم الطاولة هو',
   'table_number_updated_successfully' => 'تم تحديث رقم الطاولة بنجاح',
-  'restaurant_is_closed_at_order_time' => 'المطعم مغلق في وقت الطلب',
+  'restaurant_is_closed_at_order_time' => 'المطعم مغلق حالياً',
   'Dine_date_is_not_available' => 'الموعد المختار غير متاح',
   'Credential_do_not_match,_please_try_again.' => 'بيانات الدخول غير صحيحة، يرجى المحاولة مجدداً.',
   'dine_in_orders' => 'طلبات الجلوس داخل المطعم',

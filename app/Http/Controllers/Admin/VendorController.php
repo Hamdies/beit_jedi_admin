@@ -1674,6 +1674,13 @@ class VendorController extends Controller
         ]);
     }
 
+    public function active_status(Restaurant $restaurant)
+    {
+        $restaurant->active = $restaurant->active ? 0 : 1;
+        $restaurant->save();
+        return response()->json(['message' => !$restaurant->active ? translate('messages.restaurant_temporarily_closed') : translate('messages.restaurant_opened')], 200);
+    }
+
 
 
 
