@@ -795,7 +795,10 @@ class VendorController extends Controller
 
         try {
             if ($request->status == 0) {
-                $vendor->auth_token = null;
+                // Beit Jedi is a single owner-operated restaurant: toggling the
+                // restaurant inactive is a normal day-to-day action, not an account
+                // suspension. Clearing auth_token here logged the owner out of the
+                // phone app every time, so the session is deliberately left intact.
                 $push_notification_status=Helpers::getNotificationStatusData('restaurant','restaurant_account_block');
                 $reataurant_push_notification_status=Helpers::getRestaurantNotificationStatusData($restaurant->id,'restaurant_account_block');
 
