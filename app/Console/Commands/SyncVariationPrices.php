@@ -32,13 +32,24 @@ class SyncVariationPrices extends Command
         '1 كيلو' => 'كيلو', '1كيلو' => 'كيلو', 'كيلو' => 'كيلو',
         '1/4 كيلو' => '1/4 ك', '1/4 ك' => '1/4 ك', 'ربع كيلو' => '1/4 ك',
         '1/2 كيلو' => '1/2 ك', '1/2 ك' => '1/2 ك', '1/2ك' => '1/2 ك', 'نص كيلو' => '1/2 ك',
+        // Live pizzas offer صغير/وسط; the sheet writes the same two sizes as
+        // صغيرة/كبيرة. Fold both vocabularies onto small/large.
         'صغيرة' => 'صغير', 'صغير' => 'صغير',
-        'كبيرة' => 'كبير', 'كبير' => 'كبير', 'وسط' => 'وسط',
+        'كبيرة' => 'كبير', 'كبير' => 'كبير', 'وسط' => 'كبير',
         'خبز سياحي' => 'سياحي', 'سياحى' => 'سياحي', 'سياحي' => 'سياحي',
         'خبز كيزر' => 'كايزر', 'كيزر' => 'كايزر', 'كايزر' => 'كايزر',
         'خبز صاج' => 'صاج', 'صاج' => 'صاج',
         'خبز فينو' => 'فينو', 'فينو' => 'فينو',
     ];
+
+    /**
+     * DB dish names carry a trailing مشوي/مشوية that the sheet omits
+     * (كفتة فراخ مشوية vs كفتة فراخ). Strip it for matching only.
+     */
+    private function dishKey(string $s): string
+    {
+        return trim(preg_replace('/\s*(مشوي|مشويه|مشوى|مشويا)$/u', '', $this->normalize($s)));
+    }
 
     private function normalize(string $s): string
     {
@@ -125,7 +136,7 @@ class SyncVariationPrices extends Command
             if ($label === null) {
                 continue;
             }
-            $wanted[$base][$label] = $row['price'];
+            $wanted[$this->dishKey($base)][$label] = $row['price'];
         }
 
         $groups = DB::table('variations as v')
@@ -140,7 +151,7 @@ class SyncVariationPrices extends Command
         $skipped = [];
 
         foreach ($groups as $g) {
-            $key = $this->normalize($g->food);
+            $key = $this->dishKey($g->food);
 
             if (!isset($wanted[$key])) {
                 $skipped[] = [$g, 'no sheet rows for this dish'];

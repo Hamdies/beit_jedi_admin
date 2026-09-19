@@ -30,7 +30,7 @@ class ArchiveDuplicateShawarma extends Command
         202 => 'superseded by #339 (الوزن set)',
         203 => 'superseded by #342 (الوزن set)',
         337 => 'weight sibling absorbed into #336',
-        338 => 'weight sibling absorbed into #338 parent (#336)',
+        338 => 'weight sibling absorbed into #336',
     ];
 
     /** Must stay live; archiving one of these would remove a real product. */
