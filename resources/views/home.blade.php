@@ -11,6 +11,10 @@
     $configuredAndroid = is_string($configuredAndroid) ? trim($configuredAndroid) : '';
     $isPlaceholder = $configuredAndroid === '' || rtrim($configuredAndroid, '/') === 'https://play.google.com';
     $playStoreLink = $isPlaceholder ? $beitJediPlayStore : $configuredAndroid;
+    // Cache-buster: filemtime changes whenever the stylesheet is edited, so browsers
+    // never pair new markup with a stale cached stylesheet.
+    $cssPath = public_path('assets/landing/beitjedi/landing.css');
+    $assetVersion = file_exists($cssPath) ? filemtime($cssPath) : '1';
     $icon = \App\CentralLogics\Helpers::get_settings('icon');
 @endphp
 <!doctype html>
@@ -36,7 +40,7 @@
 <meta name="twitter:title" content="{{ $businessName }} — شامي، يمني، إيطالي، كله من مطبخ واحد">
 <meta name="twitter:description" content="شاورما ومندي وباستا وبرجر — طلب واحد، فاتورة واحدة، وتوصيل واحد يوصلك سخن.">
 <meta name="twitter:image" content="{{ dynamicAsset('/public/assets/landing/beitjedi/share-card.jpg') }}">
-<link rel="stylesheet" href="{{ dynamicAsset('/public/assets/landing/beitjedi/landing.css') }}">
+<link rel="stylesheet" href="{{ dynamicAsset('/public/assets/landing/beitjedi/landing.css') }}?v={{ $assetVersion }}">
 </head>
 <body>
 <main>
