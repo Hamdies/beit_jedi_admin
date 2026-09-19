@@ -208,7 +208,7 @@ class CustomerController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'name' => 'required',
-            'email' => 'required|unique:users,email,' . $request?->user()?->id,
+            'email' => 'nullable|email|unique:users,email,' . $request?->user()?->id,
             'image' => 'nullable|max:2048',
             'password' => ['nullable', Password::min(8)],
 
@@ -240,14 +240,14 @@ class CustomerController extends Controller
                     return response()->json(['verification_on' => 'phone', 'verification_medium' => 'SMS', 'otp_send' => $verification_data['is_success'], 'message' => $verification_data['message']], $verification_data['code']);
                 }
 
-            } elseif ( data_get($login_settings, 'email_verification_status') == 1 && ($user->email != $request->email || $request->button_type == 'email' || !$user->is_email_verified && !$request->button_type )) {
+            } elseif ( data_get($login_settings, 'email_verification_status') == 1 && filled($request->email) && ($user->email != $request->email || $request->button_type == 'email' || !$user->is_email_verified && !$request->button_type )) {
                 $verification_data =  $this->verification_check_email(['email' => $request->email, 'name' => $user?->f_name . ' ' . $user?->l_name]);
                 return response()->json(['verification_on' => 'email', 'verification_medium' => 'email', 'otp_send' => $verification_data['is_success'], 'message' => $verification_data['message']], $verification_data['code']);
             }
         }
 
 
-        if($user->is_email_verified  == 1 && $user->email != $request->email ){
+        if($user->is_email_verified  == 1 && filled($request->email) && $user->email != $request->email ){
             $user->is_email_verified = 0;
             $user->save();
         }
@@ -507,15 +507,15 @@ class CustomerController extends Controller
         $user->l_name = $lastName;
         $user->image = $imageName;
         $user->password = $pass;
-        $user->phone = $request->phone;
-        $user->email = $request->email;
+        $user->phone = $request->phone ?? $user->phone;
+        $user->email = filled($request->email) ? $request->email : $user->email;
         $user->save();
 
         if ($user->userinfo) {
             UserInfo::where(['user_id' => $user?->id])->update([
                 'f_name' => $firstName,
                 'l_name' => $lastName,
-                'email' => $request->email,
+                'email' => $user->email,
                 'image' => $imageName
             ]);
         }
