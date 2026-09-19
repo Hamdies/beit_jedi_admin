@@ -88,8 +88,22 @@ class SyncMenuPrices extends Command
 
         $changes = $unchanged = $ambiguous = $missing = [];
 
+        // The sheet itself can list the same name twice under different
+        // categories at different prices (e.g. a sandwich and a platter).
+        // Those must never be applied: two rows would target the same food
+        // and the last write would silently win. Collect and skip them.
+        $sheetCounts = [];
+        foreach ($items as $item) {
+            $sheetCounts[$this->normalize($item['name'])][] = $item;
+        }
+        $sheetDupes = array_filter($sheetCounts, fn ($g) => count($g) > 1);
+
         foreach ($items as $item) {
             $key = $this->normalize($item['name']);
+
+            if (isset($sheetDupes[$key])) {
+                continue; // reported separately below
+            }
 
             if (!isset($byName[$key])) {
                 $missing[] = $item;
@@ -114,6 +128,19 @@ class SyncMenuPrices extends Command
             $this->line(sprintf('  #%-5d %-45s %8.2f -> %8.2f', $c['id'], mb_strimwidth($c['name'], 0, 45, '…'), $c['old'], $c['new']));
         }
 
+        if ($sheetDupes) {
+            $this->newLine();
+            $this->line('<comment>Duplicate names IN THE SHEET (SKIPPED - ambiguous, fix the sheet): '.count($sheetDupes).'</comment>');
+            foreach ($sheetDupes as $key => $group) {
+                $detail = implode(' | ', array_map(
+                    fn ($g) => sprintf('%.2f [%s]', $g['price'], $g['category'] ?: '-'),
+                    $group
+                ));
+                $inDb = isset($byName[$key]) ? ' -> db#'.implode(',', array_map(fn ($r) => $r->id, $byName[$key])) : ' -> not in db';
+                $this->line('  '.$group[0]['name'].'  '.$detail.$inDb);
+            }
+        }
+
         if ($ambiguous) {
             $this->newLine();
             $this->line('<comment>Ambiguous (duplicate names, SKIPPED): '.count($ambiguous).'</comment>');
@@ -132,8 +159,8 @@ class SyncMenuPrices extends Command
         }
 
         $this->newLine();
-        $this->info(sprintf('Summary: %d to change, %d already correct, %d ambiguous, %d not in DB.',
-            count($changes), count($unchanged), count($ambiguous), count($missing)));
+        $this->info(sprintf('Summary: %d to change, %d already correct, %d sheet-duplicates, %d ambiguous, %d not in DB.',
+            count($changes), count($unchanged), count($sheetDupes), count($ambiguous), count($missing)));
 
         if (!$apply) {
             $this->newLine();
@@ -144,6 +171,14 @@ class SyncMenuPrices extends Command
         if (!$changes) {
             $this->info('Nothing to write.');
             return self::SUCCESS;
+        }
+
+        // Belt and braces: never let two updates target the same row.
+        $ids = array_column($changes, 'id');
+        if (count($ids) !== count(array_unique($ids))) {
+            $dupIds = array_unique(array_diff_assoc($ids, array_unique($ids)));
+            $this->error('Refusing to write: food ids targeted more than once: '.implode(',', $dupIds));
+            return self::FAILURE;
         }
 
         DB::beginTransaction();
