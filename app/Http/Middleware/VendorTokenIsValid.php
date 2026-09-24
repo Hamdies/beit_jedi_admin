@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\CentralLogics\Helpers;
 use App\Models\Vendor;
+use App\Models\VendorDevice;
 
 class VendorTokenIsValid
 {
@@ -30,7 +31,12 @@ class VendorTokenIsValid
                 ]
             ], 401);
         }
-        $vendor = Vendor::where('auth_token', $token)->first();
+        // Each signed-in phone has its own token in vendor_devices. The single
+        // vendors.auth_token column is still accepted so sessions issued before
+        // vendor_devices existed keep working.
+        $device = VendorDevice::with('vendor')->where('auth_token', $token)->first();
+        $device?->markUsed();
+        $vendor = $device?->vendor ?? Vendor::where('auth_token', $token)->first();
         if($vendor)
         {
             $request['vendor']=$vendor;

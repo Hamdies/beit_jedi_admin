@@ -6,6 +6,7 @@ use App\Models\Food;
 use App\Models\Order;
 use App\Library\Payer;
 use App\Models\Vendor;
+use App\Models\VendorDevice;
 use App\Traits\Payment;
 use App\Models\Campaign;
 use App\Library\Receiver;
@@ -572,6 +573,9 @@ class VendorController extends Controller
 
         Vendor::where(['id' => $vendor?->id])->update([
             'firebase_token' => $request['fcm_token']
+        ]);
+        VendorDevice::where('auth_token', $request->bearerToken())->update([
+            'fcm_token' => $request['fcm_token']
         ]);
 
         return response()->json(['message'=>'successfully updated!'], 200);

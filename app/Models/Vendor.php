@@ -40,6 +40,22 @@ class Vendor extends Authenticatable
         return Helpers::get_full_url('vendor',$value,'public');
     }
 
+    public function devices()
+    {
+        return $this->hasMany(VendorDevice::class);
+    }
+
+    /** Every FCM token the owner's signed-in phones registered, plus the legacy single column. */
+    public function pushTokens(): array
+    {
+        return $this->devices()->whereNotNull('fcm_token')->pluck('fcm_token')
+            ->push($this->firebase_token)
+            ->filter()
+            ->unique()
+            ->values()
+            ->all();
+    }
+
     public function order_transaction()
     {
         return $this->hasMany(OrderTransaction::class);

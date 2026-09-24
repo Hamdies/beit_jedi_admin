@@ -6,6 +6,7 @@ use App\Models\Tag;
 use App\Models\Zone;
 use App\Models\Admin;
 use App\Models\Vendor;
+use App\Models\VendorDevice;
 use App\Models\Restaurant;
 use App\Models\Translation;
 use Illuminate\Support\Str;
@@ -48,6 +49,7 @@ class VendorLoginController extends Controller
             }
             $vendor->auth_token = $token;
             $vendor?->save();
+            VendorDevice::register($vendor, $token);
             return response()->json(['token' => $token, 'zone_wise_topic' => $vendor?->restaurants[0]?->zone?->restaurant_wise_topic], 200);
         } else {
             $errors = [];
@@ -258,6 +260,7 @@ class VendorLoginController extends Controller
         if ($restaurant?->restaurant_model == 'none') {
             $vendor->auth_token = $token;
             $vendor?->save();
+            VendorDevice::register($vendor, $token);
             return [
                 'type' => 'subscribed',
                 'code' => 200,
@@ -324,6 +327,7 @@ class VendorLoginController extends Controller
         if ($restaurant?->restaurant_model == 'unsubscribed' && !isset($restaurant?->restaurant_sub_update_application)) {
             $vendor->auth_token = $token;
             $vendor?->save();
+            VendorDevice::register($vendor, $token);
             return [
                 'type' => 'subscribed',
                 'code' => 200,

@@ -1312,6 +1312,18 @@ class Helpers
         return self::sendNotificationToHttp($postData);
     }
 
+    /** Sends to every phone the restaurant owner is signed in on, not just the last one. */
+    public static function send_push_notif_to_vendor($vendor, $data, $web_push_link = null)
+    {
+        if (!$vendor) {
+            return false;
+        }
+        foreach ($vendor->pushTokens() as $fcm_token) {
+            self::send_push_notif_to_device($fcm_token, $data, $web_push_link);
+        }
+        return true;
+    }
+
     public static function send_push_notif_to_topic($data, $topic, $type, $web_push_link = null)
     {
         if(isset($data['order_type'])){
@@ -1750,7 +1762,7 @@ class Helpers
                     'type' => 'order_status',
                     'order_status' => $order->order_status,
                 ];
-                self::send_push_notif_to_device($order->restaurant->vendor->firebase_token, $data);
+                self::send_push_notif_to_vendor($order->restaurant->vendor, $data);
                 DB::table('user_notifications')->insert([
                     'data' => json_encode($data),
                     'vendor_id' => $order->restaurant->vendor_id,
@@ -1775,7 +1787,7 @@ class Helpers
                             'image' => '',
                             'type' => 'new_order',
                         ];
-                        self::send_push_notif_to_device($order->restaurant->vendor->firebase_token, $data);
+                        self::send_push_notif_to_vendor($order->restaurant->vendor, $data);
                         DB::table('user_notifications')->insert([
                             'data' => json_encode($data),
                             'vendor_id' => $order->restaurant->vendor_id,
@@ -1814,7 +1826,7 @@ class Helpers
                     'type' => 'new_order',
                 ];
                 if($order?->restaurant?->vendor?->firebase_token){
-                    self::send_push_notif_to_device($order->restaurant->vendor->firebase_token, $data);
+                    self::send_push_notif_to_vendor($order->restaurant->vendor, $data);
                 }
                 DB::table('user_notifications')->insert([
                     'data' => json_encode($data),
@@ -1835,7 +1847,7 @@ class Helpers
                     'type' => 'new_order',
                 ];
                 if($order?->restaurant?->vendor?->firebase_token){
-                    self::send_push_notif_to_device($order->restaurant->vendor->firebase_token, $data);
+                    self::send_push_notif_to_vendor($order->restaurant->vendor, $data);
                 }
 
                 DB::table('user_notifications')->insert([
@@ -1872,7 +1884,7 @@ class Helpers
                     if($push_notification_status?->push_notification_status  == 'active' && $restaurant_push_notification_status?->push_notification_status  == 'active' ){
 
                         if($order?->restaurant?->vendor?->firebase_token){
-                            self::send_push_notif_to_device($order->restaurant->vendor->firebase_token, $data);
+                            self::send_push_notif_to_vendor($order->restaurant->vendor, $data);
                         }
 
                         DB::table('user_notifications')->insert([
@@ -3021,7 +3033,7 @@ class Helpers
                     'type' => 'subscription',
                     'order_status' => '',
                 ];
-                Helpers::send_push_notif_to_device($restaurant?->vendor?->firebase_token, $data);
+                Helpers::send_push_notif_to_vendor($restaurant?->vendor, $data);
                 DB::table('user_notifications')->insert([
                     'data' => json_encode($data),
                     'vendor_id' => $restaurant?->vendor_id,
@@ -3058,7 +3070,7 @@ class Helpers
                     'type' => 'subscription',
                     'order_status' => '',
                 ];
-                Helpers::send_push_notif_to_device($restaurant?->vendor?->firebase_token, $data);
+                Helpers::send_push_notif_to_vendor($restaurant?->vendor, $data);
                 DB::table('user_notifications')->insert([
                     'data' => json_encode($data),
                     'vendor_id' => $restaurant?->vendor_id,

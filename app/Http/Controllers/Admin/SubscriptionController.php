@@ -169,7 +169,7 @@ class SubscriptionController extends Controller
                         'type' => 'subscription',
                         'order_status' => '',
                     ];
-                        Helpers::send_push_notif_to_device($subscriber?->restaurant->vendor?->firebase_token, $data);
+                        Helpers::send_push_notif_to_vendor($subscriber?->restaurant->vendor, $data);
                         DB::table('user_notifications')->insert([
                             'data' => json_encode($data),
                             'vendor_id' => $subscriber?->restaurant->vendor_id,
@@ -665,7 +665,7 @@ class SubscriptionController extends Controller
                     'type' => 'subscription',
                     'order_status' => '',
                 ];
-                Helpers::send_push_notif_to_device($restaurant?->vendor?->firebase_token, $data);
+                Helpers::send_push_notif_to_vendor($restaurant?->vendor, $data);
                 DB::table('user_notifications')->insert([
                     'data' => json_encode($data),
                     'vendor_id' => $restaurant?->vendor_id,

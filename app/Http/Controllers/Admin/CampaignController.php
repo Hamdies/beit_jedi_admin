@@ -747,7 +747,7 @@ class CampaignController extends Controller
                     'data_id'=> $campaign->id,
                     'order_status' => '',
                 ];
-                Helpers::send_push_notif_to_device($restaurant->vendor->firebase_token, $data);
+                Helpers::send_push_notif_to_vendor($restaurant->vendor, $data);
                 DB::table('user_notifications')->insert([
                     'data' => json_encode($data),
                     'vendor_id' => $restaurant->vendor_id,

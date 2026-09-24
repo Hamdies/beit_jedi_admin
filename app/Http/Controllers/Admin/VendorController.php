@@ -810,7 +810,7 @@ class VendorController extends Controller
                         'image' => '',
                         'type' => 'block'
                     ];
-                    Helpers::send_push_notif_to_device($vendor->firebase_token, $data);
+                    Helpers::send_push_notif_to_vendor($vendor, $data);
                     DB::table('user_notifications')->insert([
                         'data' => json_encode($data),
                         'vendor_id' => $vendor->id,
@@ -842,7 +842,7 @@ class VendorController extends Controller
                                 'image' => '',
                                 'type' => 'unblock'
                             ];
-                            Helpers::send_push_notif_to_device($vendor->firebase_token, $data);
+                            Helpers::send_push_notif_to_vendor($vendor, $data);
                             DB::table('user_notifications')->insert([
                                 'data' => json_encode($data),
                                 'vendor_id' => $vendor->id,
@@ -1158,7 +1158,7 @@ class VendorController extends Controller
                         'type' => 'withdraw',
                         'order_status' => '',
                     ];
-                    Helpers::send_push_notif_to_device($withdraw->vendor->firebase_token, $data);
+                    Helpers::send_push_notif_to_vendor($withdraw->vendor, $data);
                     DB::table('user_notifications')->insert([
                         'data' => json_encode($data),
                         'vendor_id' => $withdraw->vendor_id,
@@ -1197,7 +1197,7 @@ class VendorController extends Controller
                         'type' => 'withdraw',
                         'order_status' => '',
                     ];
-                    Helpers::send_push_notif_to_device($withdraw->vendor->firebase_token, $data);
+                    Helpers::send_push_notif_to_vendor($withdraw->vendor, $data);
                     DB::table('user_notifications')->insert([
                         'data' => json_encode($data),
                         'vendor_id' => $withdraw->vendor_id,

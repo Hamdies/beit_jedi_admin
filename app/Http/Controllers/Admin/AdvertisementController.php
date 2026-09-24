@@ -177,7 +177,7 @@ class AdvertisementController extends Controller
                     'type' => 'advertisement',
                     'order_status' => '',
                 ];
-                Helpers::send_push_notif_to_device($advertisement->restaurant->vendor->firebase_token, $data);
+                Helpers::send_push_notif_to_vendor($advertisement->restaurant->vendor, $data);
                 DB::table('user_notifications')->insert([
                     'data' => json_encode($data),
                     'vendor_id' => $advertisement->restaurant->vendor_id,
@@ -313,7 +313,7 @@ class AdvertisementController extends Controller
                     'type' => 'advertisement',
                     'order_status' => '',
                 ];
-                Helpers::send_push_notif_to_device($advertisement->restaurant->vendor->firebase_token, $data);
+                Helpers::send_push_notif_to_vendor($advertisement->restaurant->vendor, $data);
                 DB::table('user_notifications')->insert([
                     'data' => json_encode($data),
                     'vendor_id' => $advertisement->restaurant->vendor_id,
@@ -516,7 +516,7 @@ class AdvertisementController extends Controller
                     'type' => 'advertisement',
                     'order_status' => '',
                 ];
-                Helpers::send_push_notif_to_device($advertisement->restaurant->vendor->firebase_token, $data);
+                Helpers::send_push_notif_to_vendor($advertisement->restaurant->vendor, $data);
                 DB::table('user_notifications')->insert([
                     'data' => json_encode($data),
                     'vendor_id' => $advertisement->restaurant->vendor_id,
@@ -639,7 +639,7 @@ class AdvertisementController extends Controller
                         'type' => 'advertisement',
                         'order_status' => '',
                     ];
-                    Helpers::send_push_notif_to_device($newAdvertisement->restaurant->vendor->firebase_token, $data);
+                    Helpers::send_push_notif_to_vendor($newAdvertisement->restaurant->vendor, $data);
                     DB::table('user_notifications')->insert([
                         'data' => json_encode($data),
                         'vendor_id' => $newAdvertisement->restaurant->vendor_id,
