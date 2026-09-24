@@ -6638,4 +6638,5 @@
   'Want_to_make_this_restaurant_available_for_all' => 'Want to make this restaurant available for all',
   'Want_to_close_this_restaurant_temporarily' => 'Want to close this restaurant temporarily',
   'Restaurant_is_open_24_7_turn_this_off_to_close_it_temporarily' => 'This restaurant is open around the clock. Turn this off to close it temporarily and hide it from the customer app and web.',
+  'otp_expired_request_a_new_code' => 'This code has expired. Please request a new code.',
 );

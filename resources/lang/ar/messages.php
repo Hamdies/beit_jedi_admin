@@ -6611,4 +6611,5 @@
   'Want_to_make_this_restaurant_available_for_all' => 'تريد أن تجعل هذا المطعم متاحًا للجميع',
   'Want_to_close_this_restaurant_temporarily' => 'تريد إغلاق هذا المطعم مؤقتًا',
   'Restaurant_is_open_24_7_turn_this_off_to_close_it_temporarily' => 'هذا المطعم مفتوح على مدار الساعة. أوقف هذا المفتاح لإغلاقه مؤقتًا وإخفائه من تطبيق العميل والموقع.',
+  'otp_expired_request_a_new_code' => 'انتهت صلاحية الرمز. من فضلك اطلب رمزًا جديدًا.',
 );

@@ -2,6 +2,7 @@
 
 namespace App\CentralLogics;
 
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 
@@ -31,6 +32,31 @@ class AkedlyGateway
 
     /** Safety cap so a misconfigured difficulty can never hang a login request. */
     const POW_MAX_ITERATIONS = 5000000;
+
+    /** Result of the most recent verify() in this request, so callers can explain a failure. */
+    protected static ?string $last_verify_result = null;
+
+    /**
+     * Atomically claim the right to send an OTP to this phone for `$seconds`.
+     *
+     * The callers' throttle reads `updated_at`, but that is only written after the
+     * send finishes (challenge + PoW + /send take seconds). Two taps inside that
+     * window both passed the throttle, both sent, and whichever finished last
+     * overwrote the stored transaction id - often with the OLDER one, so the code
+     * in the user's newest message could never verify. The lock closes that gap.
+     */
+    public static function claim_send_slot(string $scope, $phone, int $seconds = 60): bool
+    {
+        return Cache::lock('otp-send:' . $scope . ':' . self::normalize_phone($phone), $seconds)->get();
+    }
+
+    /** The message to show after match_otp() returns null. */
+    public static function mismatch_message(): string
+    {
+        return self::$last_verify_result === 'expired'
+            ? translate('messages.otp_expired_request_a_new_code')
+            : translate('OTP does not match');
+    }
 
     public static function is_active(): bool
     {
@@ -149,9 +175,14 @@ class AkedlyGateway
     /**
      * Verify the user's OTP against Akedly.
      *
-     * @return string 'success' | 'invalid' | 'error'
+     * @return string 'success' | 'invalid' | 'expired' | 'error'
      */
     public static function verify($transaction_req_id, $otp): string
+    {
+        return self::$last_verify_result = self::do_verify($transaction_req_id, $otp);
+    }
+
+    protected static function do_verify($transaction_req_id, $otp): string
     {
         if (empty($transaction_req_id)) {
             return 'error';
@@ -174,6 +205,11 @@ class AkedlyGateway
                 return 'invalid';
             }
 
+            // Retrying an expired transaction can never succeed; the user needs a new code.
+            if (data_get($response->json(), 'code') === 'TRANSACTION_EXPIRED' || $response->status() === 410) {
+                return 'expired';
+            }
+
             info('Akedly verify failed: ' . $response->body());
             return 'error';
         } catch (\Exception $exception) {
@@ -193,6 +229,8 @@ class AkedlyGateway
      */
     public static function match_otp(string $table, $phone, $otp)
     {
+        self::$last_verify_result = null;
+
         if (empty($phone) || $otp === null || $otp === '') {
             return null;
         }

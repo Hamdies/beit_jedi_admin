@@ -401,6 +401,10 @@ class CustomerController extends Controller
             return ['is_success' => false,  'message' => translate('messages.please_try_again_after_') . $time . ' ' . translate('messages.seconds'), 'code' => 403];
         }
 
+        if (!AkedlyGateway::claim_send_slot('phone_verifications', $phone, $otp_interval_time)) {
+            return ['is_success' => false,  'message' => translate('messages.please_try_again_after_') . $otp_interval_time . ' ' . translate('messages.seconds'), 'code' => 403];
+        }
+
         if (env('APP_MODE') != 'test' && AkedlyGateway::is_active()) {
             $akedly = AkedlyGateway::send($phone);
             $response = $akedly['response'];

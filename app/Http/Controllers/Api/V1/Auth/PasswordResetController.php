@@ -50,7 +50,11 @@ class PasswordResetController extends Controller
                 ], 405);
             }
 
-
+            if(!AkedlyGateway::claim_send_slot('password_resets', $customer['phone'], $otp_interval_time)){
+                return response()->json([
+                    'errors' => [['code' => 'otp', 'message' => translate('messages.please_try_again_after_').$otp_interval_time.' '.translate('messages.seconds')]]
+                ], 405);
+            }
 
             if(env('APP_MODE') != 'test' && AkedlyGateway::is_active()){
                 $akedly = AkedlyGateway::send($customer['phone']);
@@ -228,7 +232,7 @@ class PasswordResetController extends Controller
                 return response()->json(['message' => translate('Password changed successfully.')], 200);
             }
             return response()->json([
-                'message' => translate('OTP does not match')
+                'message' => AkedlyGateway::mismatch_message()
             ], 404);
         }
 

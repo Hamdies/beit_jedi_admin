@@ -97,7 +97,7 @@ class CustomerAuthController extends Controller
                     return response()->json(['token' => isset($token)?$token:$temporaryToken, 'is_phone_verified'=>1, 'is_email_verified'=>1, 'is_personal_info' => $is_personal_info, 'is_exist_user' =>null, 'login_type' => $request->login_type, 'email' => $user_email], 200);
                 }
                 return response()->json([
-                    'message' => translate('OTP does not match')
+                    'message' => AkedlyGateway::mismatch_message()
                 ], 404);
             }
 
@@ -203,7 +203,7 @@ class CustomerAuthController extends Controller
                         ]);
                 }
                 return response()->json([
-                    'message' => translate('OTP does not match')
+                    'message' => AkedlyGateway::mismatch_message()
                 ], 404);
             }
         }
@@ -256,7 +256,7 @@ class CustomerAuthController extends Controller
                 }
             }else{
                 return response()->json([
-                    'message' => translate('OTP does not match')
+                    'message' => AkedlyGateway::mismatch_message()
                 ], 404);
             }
         }
@@ -499,6 +499,12 @@ class CustomerAuthController extends Controller
                         array_push($errors, ['code' => 'otp', 'message' =>  translate('messages.please_try_again_after_').$time.' '.translate('messages.seconds')]);
                         return response()->json([
                             'errors' => $errors
+                        ], 405);
+                    }
+
+                    if(!AkedlyGateway::claim_send_slot('phone_verifications', $request['phone'], $otp_interval_time)){
+                        return response()->json([
+                            'errors' => [['code' => 'otp', 'message' => translate('messages.please_try_again_after_').$otp_interval_time.' '.translate('messages.seconds')]]
                         ], 405);
                     }
 
@@ -893,7 +899,7 @@ class CustomerAuthController extends Controller
         }
 
         return response()->json([
-            'message' => translate('OTP does not match')
+            'message' => AkedlyGateway::mismatch_message()
         ], 404);
 
 
@@ -1014,6 +1020,10 @@ class CustomerAuthController extends Controller
                 array_push($errors, ['code' => 'otp', 'message' =>  translate('messages.please_try_again_after_').$time.' '.translate('messages.seconds')]);
 
                 return $errors;
+            }
+
+            if(!AkedlyGateway::claim_send_slot('phone_verifications', $request_data['phone'], $otp_interval_time)){
+                return [['code' => 'otp', 'message' => translate('messages.please_try_again_after_').$otp_interval_time.' '.translate('messages.seconds')]];
             }
 
             if(env('APP_MODE') != 'test' && AkedlyGateway::is_active()){
