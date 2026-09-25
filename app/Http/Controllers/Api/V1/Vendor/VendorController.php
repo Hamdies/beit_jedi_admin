@@ -165,7 +165,14 @@ class VendorController extends Controller
     public function active_status(Request $request)
     {
         $restaurant = $request?->vendor?->restaurants[0];
-        $restaurant->active = $restaurant->active?0:1;
+        // The owner app runs on several phones; an explicit status lets a phone
+        // showing a stale state set what the owner asked for instead of
+        // flipping it back. Without it, keep the old toggle behaviour.
+        if ($request->has('status')) {
+            $restaurant->active = $request->boolean('status') ? 1 : 0;
+        } else {
+            $restaurant->active = $restaurant->active?0:1;
+        }
         $restaurant?->save();
         return response()->json(['message' => $restaurant->active?translate('messages.restaurant_opened'):translate('messages.restaurant_temporarily_closed')], 200);
     }
