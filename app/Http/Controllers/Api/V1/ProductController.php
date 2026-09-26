@@ -636,14 +636,22 @@ class ProductController extends Controller
             return response()->json(['errors' => Helpers::error_processor($validator)], 403);
         }
 
+        // An empty/invalid zoneId header decodes to null, and whereIn() on null
+        // throws a TypeError (an Error, not an Exception) -> HTML 500.
+        $zone_id = json_decode($request->header('zoneId'), true);
+        if (!is_array($zone_id) || empty($zone_id)) {
+            return response()->json([
+                'errors' => [['code' => 'zoneId', 'message' => translate('messages.zone_id_required')]]
+            ], 403);
+        }
+
         try {
             $type = $request->query('type', 'all');
-            $zone_id = json_decode($request->header('zoneId'), true);
             $products = ProductLogic::cart_upsell_products(zone_id: $zone_id, restaurant_id: $request->restaurant_id, type: $type);
 
             $products = Helpers::product_data_formatting(data: $products, multi_data: true, trans: false, local: app()->getLocale());
             return response()->json($products, 200);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             return response()->json(['errors' => [['code' => 'cart-upsell', 'message' => $e->getMessage()]]], 500);
         }
     }
