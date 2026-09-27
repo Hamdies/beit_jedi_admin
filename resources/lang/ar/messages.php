@@ -3386,7 +3386,7 @@
   'Wallet_payment' => 'دفع محفظة',
   'invalid_order_data' => 'بيانات الطلب غير صالحة',
   'add_fund_bonus' => 'إضافة مكافأة الصندوق',
-  'user_account_delete_warning' => 'حساب المستخدم حذف تحذير',
+  'user_account_delete_warning' => 'لا يمكنك حذف حسابك قبل اكتمال طلباتك الحالية. يرجى الانتظار حتى يتم توصيل الطلب أو إلغاؤه.',
   'Take_Picture_For_Completing_Delivery' => 'التقط صورة لاستكمال التسليم',
   'If_enabled,_deliverymen_will_see_an_option_to_take_pictures_of_the_delivered_products_when_he_swipes_the_delivery_confirmation_slide.' => 'إذا تم تمكينه ، سيرى رجال التسليم خيارًا لالتقاط صور للمنتجات التي يتم تسليمها عندما يمرد شريحة تأكيد التسليم.',
   'picture_upload_before_complete?' => 'تحميل الصورة قبل الانتهاء؟',

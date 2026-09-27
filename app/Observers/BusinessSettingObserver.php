@@ -51,15 +51,23 @@ class BusinessSettingObserver
 
     private function refreshBusinessSettingsCache()
     {
+        // Forget the known keys directly: the prefix-stripping sweep below only
+        // works when APP_NAME happens to match Laravel's slugged cache prefix.
+        foreach (['business_settings_all_data', 'business_settings_keys', 'business_settings_logo_storage', 'business_settings_icon_storage'] as $key) {
+            Cache::forget($key);
+        }
+
+        if (config('cache.default') !== 'database') {
+            return;
+        }
+
         $prefix = 'business_settings_';
         $cacheKeys = DB::table('cache')
             ->where('key', 'like', "%" . $prefix . "%")
             ->pluck('key');
-        $appName = env('APP_NAME').'_cache';
-        $remove_prefix = strtolower(str_replace('=', '', $appName));
+        $remove_prefix = config('cache.prefix');
         $sanitizedKeys = $cacheKeys->map(function ($key) use ($remove_prefix) {
-            $key = str_replace($remove_prefix, '', $key);
-            return $key;
+            return str_starts_with($key, $remove_prefix) ? substr($key, strlen($remove_prefix)) : $key;
         });
         foreach ($sanitizedKeys as $key) {
             Cache::forget($key);

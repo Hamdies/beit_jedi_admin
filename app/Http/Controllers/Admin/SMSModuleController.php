@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use App\Models\Setting;
+use App\Models\BusinessSetting;
 
 class SMSModuleController extends Controller
 {
@@ -32,14 +33,22 @@ class SMSModuleController extends Controller
 
     public function sms_update(Request $request, $module)
     {
-        $login_setup_status = Helpers::get_business_settings('otp_login_status')??0;
-        $is_firebase_active=Helpers::get_business_settings('firebase_otp_verification') ?? 0;
-        $phone_verification_status = Helpers::get_business_settings('phone_verification_status')??0;
-        if(!$is_firebase_active && $login_setup_status && ($request['status']==0)){
+        // Read straight from the DB so a stale settings cache can't block this.
+        $settings = BusinessSetting::whereIn('key', ['otp_login_status', 'firebase_otp_verification', 'phone_verification_status'])->pluck('value', 'key');
+        $login_setup_status = (int) ($settings['otp_login_status'] ?? 0);
+        $is_firebase_active = (int) ($settings['firebase_otp_verification'] ?? 0);
+        $phone_verification_status = (int) ($settings['phone_verification_status'] ?? 0);
+
+        // Only one gateway is active at a time; saving an already-inactive one
+        // as inactive doesn't leave OTP without a sender, so let it through.
+        $is_this_gateway_active = Setting::where(['key_name' => $module, 'settings_type' => 'sms_config', 'is_active' => 1])->exists();
+        $otp_still_available = $is_firebase_active || !$is_this_gateway_active;
+
+        if(!$otp_still_available && $login_setup_status && ($request['status']==0)){
             Toastr::warning(translate('otp_login_status_is_enabled_in_login_setup._First_disable_from_login_setup.'));
             return redirect()->back();
         }
-        if(!$is_firebase_active && $phone_verification_status && ($request['status']==0)){
+        if(!$otp_still_available && $phone_verification_status && ($request['status']==0)){
             Toastr::warning(translate('phone_verification_status_is_enabled_in_login_setup._First_disable_from_login_setup.'));
             return redirect()->back();
         }
