@@ -1229,6 +1229,43 @@
                                         </label>
                                     </div>
                                 </div>
+                                <div class="col-sm-6 col-lg-4">
+                                    @php($browse_outside_zone_status = \App\Models\BusinessSetting::where('key', 'browse_outside_zone_status')->first()?->value ?? 0)
+                                    @php($browse_outside_zone_id = \App\Models\BusinessSetting::where('key', 'browse_outside_zone_id')->first()?->value ?? 0)
+                                    <div class="form-group mb-0">
+                                        <label
+                                            class="toggle-switch h--45px toggle-switch-sm d-flex justify-content-between border rounded px-3 py-0 form-control">
+                                            <span class="pr-1 d-flex align-items-center switch--label">
+                                                <span class="line--limit-1">
+                                                    {{ translate('messages.browse_outside_delivery_zones') }}
+                                                </span>
+                                                <span class="form-label-secondary text-danger d-flex"
+                                                    data-toggle="tooltip" data-placement="right"
+                                                    data-original-title="{{ translate('messages.If_enabled,_customers_outside_every_zone_can_still_browse_the_menu_of_the_zone_below._Delivery_addresses_and_orders_are_still_checked_against_the_real_zones.') }}"><img
+                                                        src="{{ dynamicAsset('/public/assets/admin/img/info-circle.svg') }}"
+                                                        alt="{{ translate('messages.browse_outside_delivery_zones') }}">
+                                                </span>
+                                            </span>
+                                            <input type="checkbox" class="toggle-switch-input" value="1"
+                                                name="browse_outside_zone_status" id="browse_outside_zone_status"
+                                                {{ $browse_outside_zone_status == 1 ? 'checked' : '' }}>
+                                            <span class="toggle-switch-label text">
+                                                <span class="toggle-switch-indicator"></span>
+                                            </span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6 col-lg-4">
+                                    <div class="form-group mb-0">
+                                        <select name="browse_outside_zone_id" id="browse_outside_zone_id" class="form-control h--45px"
+                                            title="{{ translate('messages.zone_to_show_outside_delivery_zones') }}">
+                                            <option value="0">{{ translate('messages.zone_to_show_outside_delivery_zones') }}</option>
+                                            @foreach (\App\Models\Zone::active()->get() as $browse_zone)
+                                                <option value="{{ $browse_zone->id }}" {{ $browse_outside_zone_id == $browse_zone->id ? 'selected' : '' }}>{{ $browse_zone->name }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                </div>
 
                             </div>
                             <div class="btn--container justify-content-end">

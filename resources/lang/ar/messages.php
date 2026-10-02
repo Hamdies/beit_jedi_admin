@@ -6612,4 +6612,7 @@
   'Want_to_close_this_restaurant_temporarily' => 'تريد إغلاق هذا المطعم مؤقتًا',
   'Restaurant_is_open_24_7_turn_this_off_to_close_it_temporarily' => 'هذا المطعم مفتوح على مدار الساعة. أوقف هذا المفتاح لإغلاقه مؤقتًا وإخفائه من تطبيق العميل والموقع.',
   'otp_expired_request_a_new_code' => 'انتهت صلاحية الرمز. من فضلك اطلب رمزًا جديدًا.',
+  'browse_outside_delivery_zones' => 'التصفح خارج مناطق التوصيل',
+  'zone_to_show_outside_delivery_zones' => 'المنطقة المعروضة خارج مناطق التوصيل',
+  'If_enabled,_customers_outside_every_zone_can_still_browse_the_menu_of_the_zone_below._Delivery_addresses_and_orders_are_still_checked_against_the_real_zones.' => 'عند التفعيل، يستطيع العميل الموجود خارج كل المناطق تصفح قائمة المنطقة المختارة. عناوين التوصيل والطلبات تُفحص دائمًا على المناطق الحقيقية.',
 );

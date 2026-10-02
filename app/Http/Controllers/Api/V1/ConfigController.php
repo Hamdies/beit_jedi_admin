@@ -309,9 +309,20 @@ class ConfigController extends Controller
         if ($validator->errors()->count() > 0) {
             return response()->json(['errors' => Helpers::error_processor($validator)], 403);
         }
-        $zones = Zone::whereContains('coordinates', new Point($request->lat, $request->lng, POINT_SRID))->latest()->get(['id', 'status', 'minimum_shipping_charge',
-        'increased_delivery_fee','increased_delivery_fee_status','increase_delivery_charge_message','per_km_shipping_charge','max_cod_order_amount','maximum_shipping_charge']);
+        $zone_columns = ['id', 'status', 'minimum_shipping_charge',
+        'increased_delivery_fee','increased_delivery_fee_status','increase_delivery_charge_message','per_km_shipping_charge','max_cod_order_amount','maximum_shipping_charge'];
+        $zones = Zone::whereContains('coordinates', new Point($request->lat, $request->lng, POINT_SRID))->latest()->get($zone_columns);
         if (count($zones) < 1) {
+            // Outside every zone: let the customer browse the chosen zone's menu.
+            // Saving a delivery address and pricing delivery still check the real
+            // polygons, so nothing can be ordered to this location.
+            if (BusinessSetting::where('key', 'browse_outside_zone_status')->first()?->value == 1) {
+                $browse_zone = Zone::active()->find(BusinessSetting::where('key', 'browse_outside_zone_id')->first()?->value, $zone_columns);
+                if ($browse_zone) {
+                    return response()->json(['zone_id' => json_encode([$browse_zone->id]), 'zone_data' => [$browse_zone->toArray()]], 200);
+                }
+            }
+
             return response()->json([
                 'errors' => [
                     ['code' => 'coordinates', 'message' => translate('messages.service_not_available_in_this_area')]

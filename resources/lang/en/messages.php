@@ -6639,4 +6639,7 @@
   'Want_to_close_this_restaurant_temporarily' => 'Want to close this restaurant temporarily',
   'Restaurant_is_open_24_7_turn_this_off_to_close_it_temporarily' => 'This restaurant is open around the clock. Turn this off to close it temporarily and hide it from the customer app and web.',
   'otp_expired_request_a_new_code' => 'This code has expired. Please request a new code.',
+  'browse_outside_delivery_zones' => 'Browse outside delivery zones',
+  'zone_to_show_outside_delivery_zones' => 'Zone to show outside delivery zones',
+  'If_enabled,_customers_outside_every_zone_can_still_browse_the_menu_of_the_zone_below._Delivery_addresses_and_orders_are_still_checked_against_the_real_zones.' => 'If enabled, customers outside every zone can still browse the menu of the selected zone. Delivery addresses and orders are still checked against the real zones.',
 );
