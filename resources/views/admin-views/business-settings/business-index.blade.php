@@ -1230,6 +1230,31 @@
                                     </div>
                                 </div>
                                 <div class="col-sm-6 col-lg-4">
+                                    @php($english_language_status = \App\Models\BusinessSetting::where('key', 'english_language_status')->first()?->value ?? 0)
+                                    <div class="form-group mb-0">
+                                        <label
+                                            class="toggle-switch h--45px toggle-switch-sm d-flex justify-content-between border rounded px-3 py-0 form-control">
+                                            <span class="pr-1 d-flex align-items-center switch--label">
+                                                <span class="line--limit-1">
+                                                    {{ translate('messages.english_language_option') }}
+                                                </span>
+                                                <span class="form-label-secondary text-danger d-flex"
+                                                    data-toggle="tooltip" data-placement="right"
+                                                    data-original-title="{{ translate('messages.If_enabled,_the_customer_app_shows_a_button_to_switch_between_Arabic_and_English._The_app_stays_Arabic_by_default.') }}"><img
+                                                        src="{{ dynamicAsset('/public/assets/admin/img/info-circle.svg') }}"
+                                                        alt="{{ translate('messages.english_language_option') }}">
+                                                </span>
+                                            </span>
+                                            <input type="checkbox" class="toggle-switch-input" value="1"
+                                                name="english_language_status" id="english_language_status"
+                                                {{ $english_language_status == 1 ? 'checked' : '' }}>
+                                            <span class="toggle-switch-label text">
+                                                <span class="toggle-switch-indicator"></span>
+                                            </span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6 col-lg-4">
                                     @php($browse_outside_zone_status = \App\Models\BusinessSetting::where('key', 'browse_outside_zone_status')->first()?->value ?? 0)
                                     @php($browse_outside_zone_id = \App\Models\BusinessSetting::where('key', 'browse_outside_zone_id')->first()?->value ?? 0)
                                     <div class="form-group mb-0">

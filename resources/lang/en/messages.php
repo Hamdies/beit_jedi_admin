@@ -6642,4 +6642,6 @@
   'browse_outside_delivery_zones' => 'Browse outside delivery zones',
   'zone_to_show_outside_delivery_zones' => 'Zone to show outside delivery zones',
   'If_enabled,_customers_outside_every_zone_can_still_browse_the_menu_of_the_zone_below._Delivery_addresses_and_orders_are_still_checked_against_the_real_zones.' => 'If enabled, customers outside every zone can still browse the menu of the selected zone. Delivery addresses and orders are still checked against the real zones.',
+  'english_language_option' => 'English language option',
+  'If_enabled,_the_customer_app_shows_a_button_to_switch_between_Arabic_and_English._The_app_stays_Arabic_by_default.' => 'If enabled, the customer app shows a button to switch between Arabic and English. The app stays Arabic by default.',
 );

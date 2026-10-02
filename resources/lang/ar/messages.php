@@ -6615,4 +6615,6 @@
   'browse_outside_delivery_zones' => 'التصفح خارج مناطق التوصيل',
   'zone_to_show_outside_delivery_zones' => 'المنطقة المعروضة خارج مناطق التوصيل',
   'If_enabled,_customers_outside_every_zone_can_still_browse_the_menu_of_the_zone_below._Delivery_addresses_and_orders_are_still_checked_against_the_real_zones.' => 'عند التفعيل، يستطيع العميل الموجود خارج كل المناطق تصفح قائمة المنطقة المختارة. عناوين التوصيل والطلبات تُفحص دائمًا على المناطق الحقيقية.',
+  'english_language_option' => 'خيار اللغة الإنجليزية',
+  'If_enabled,_the_customer_app_shows_a_button_to_switch_between_Arabic_and_English._The_app_stays_Arabic_by_default.' => 'عند التفعيل، يعرض تطبيق العميل زرًا للتبديل بين العربية والإنجليزية. يبقى التطبيق بالعربية افتراضيًا.',
 );

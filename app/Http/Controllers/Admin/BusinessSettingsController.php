@@ -474,6 +474,9 @@ class BusinessSettingsController extends Controller
         Helpers::businessUpdateOrInsert(['key' => 'country_picker_status'], [
             'value' => $request['country_picker_status'] ? $request['country_picker_status'] : 0
         ]);
+        Helpers::businessUpdateOrInsert(['key' => 'english_language_status'], [
+            'value' => $request['english_language_status'] ? 1 : 0
+        ]);
         Helpers::businessUpdateOrInsert(['key' => 'browse_outside_zone_status'], [
             'value' => $request['browse_outside_zone_status'] ? 1 : 0
         ]);
