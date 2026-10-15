@@ -112,6 +112,10 @@ class AkedlyGateway
                 'digits' => 6,
             ];
 
+            // The app's X-localization header has already set the locale; Akedly
+            // only knows en/ar, so anything else falls back to English.
+            $payload['otpLanguage'] = app()->getLocale() === 'ar' ? 'ar' : 'en';
+
             if (data_get($data, 'challengeRequired')) {
                 $nonce = self::solve_pow(data_get($data, 'challenge'), (int) data_get($data, 'difficulty', 4));
 
@@ -206,7 +210,9 @@ class AkedlyGateway
             }
 
             // Retrying an expired transaction can never succeed; the user needs a new code.
-            if (data_get($response->json(), 'code') === 'TRANSACTION_EXPIRED' || $response->status() === 410) {
+            // The 10th wrong code force-expires the transaction, so treat it the same.
+            if (in_array(data_get($response->json(), 'code'), ['TRANSACTION_EXPIRED', 'MAX_ATTEMPTS_EXCEEDED'], true)
+                || in_array($response->status(), [410, 429], true)) {
                 return 'expired';
             }
 

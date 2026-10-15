@@ -23,7 +23,7 @@ class CategoryController extends Controller
             $zone_id=  $request->header('zoneId') ? json_decode($request->header('zoneId'), true) : [];
             $name= $request->query('name');
             $categories = Category::withCount(['products','childes'])->with(['childes' => function($query)  {
-                $query->withCount(['products','childes']);
+                $query->where('status', 1)->withCount(['products','childes']);
             }])
             ->where(['position'=>0,'status'=>1])
 

@@ -241,6 +241,16 @@ Route::group(['namespace' => 'Api\V1', 'middleware'=>['localization','react']], 
 
         });
 
+        // Categories
+        Route::group(['prefix'=>'categories'], function(){
+            Route::get('/', 'CategoryController@index');
+            Route::get('childes/{category_id}', 'CategoryController@childes');
+            Route::get('category-wise-products', 'CategoryController@products');
+            Route::post('store', 'CategoryController@store');
+            Route::post('update', 'CategoryController@update');
+            Route::put('status', 'CategoryController@status');
+        });
+
         // POS
         Route::group(['prefix'=>'pos'], function(){
             Route::get('orders', 'POSController@order_list');
