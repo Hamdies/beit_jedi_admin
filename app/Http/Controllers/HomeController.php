@@ -335,6 +335,12 @@ class HomeController extends Controller
         }
     }
 
+    // Public page linked from the Google Play Data safety form; must always be reachable.
+    public function account_deletion()
+    {
+        return view('account-deletion');
+    }
+
     public function privacy_policy(Request $request)
     {
         $data = self::get_settings('privacy_policy');
