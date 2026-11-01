@@ -1421,12 +1421,25 @@ class OrderController extends Controller
         $vehicle_id= (isset($data) ? (int) $data['vehicle_id']  : null);
 
         if($request->latitude && $request->longitude){
-            $zone = Zone::where('id', $restaurant->zone_id)->whereContains('coordinates', new Point($request->latitude, $request->longitude, POINT_SRID))->first();
+            $fixed_area = Zone::fixedChargeArea($restaurant->zone_id, $request->latitude, $request->longitude);
+            $zone = Zone::where('id', $restaurant->zone_id)->when(!$fixed_area, function ($query) use ($request) {
+                $query->whereContains('coordinates', new Point($request->latitude, $request->longitude, POINT_SRID));
+            })->first();
             if(!$zone)
             {
                 return ['code' => 'coordinates', 'message' => translate('messages.out_of_coverage') , 'status_code' => 403];
             }
-            if( $zone->per_km_shipping_charge && $zone->minimum_shipping_charge ) {
+            if($fixed_area) {
+                $per_km_shipping_charge = 0;
+                $minimum_shipping_charge = $fixed_area->fixed_delivery_charge;
+                $maximum_shipping_charge = $fixed_area->fixed_delivery_charge;
+                $extra_charges = 0;
+                $max_cod_order_amount_value= $zone->max_cod_order_amount;
+                if($zone->increased_delivery_fee_status == 1){
+                    $increased=$zone->increased_delivery_fee ?? 0;
+                }
+            }
+            elseif( $zone->per_km_shipping_charge && $zone->minimum_shipping_charge ) {
                 $per_km_shipping_charge = $zone->per_km_shipping_charge;
                 $minimum_shipping_charge = $zone->minimum_shipping_charge;
                 $maximum_shipping_charge = $zone->maximum_shipping_charge;

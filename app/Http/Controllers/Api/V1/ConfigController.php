@@ -312,7 +312,21 @@ class ConfigController extends Controller
         }
         $zone_columns = ['id', 'status', 'minimum_shipping_charge',
         'increased_delivery_fee','increased_delivery_fee_status','increase_delivery_charge_message','per_km_shipping_charge','max_cod_order_amount','maximum_shipping_charge'];
-        $zones = Zone::whereContains('coordinates', new Point($request->lat, $request->lng, POINT_SRID))->latest()->get($zone_columns);
+        $zones = Zone::whereContains('coordinates', new Point($request->lat, $request->lng, POINT_SRID))->latest()->get([...$zone_columns, 'parent_zone_id', 'fixed_delivery_charge']);
+
+        // Report a fixed price area as its parent zone, priced so the app's
+        // per-km formula (0/km, min = max = fixed charge) yields the fixed charge.
+        $zones = $zones->sortByDesc(fn ($zone) => $zone->parent_zone_id ? 1 : 0)->map(function ($zone) use ($zone_columns) {
+            $parent = $zone->parent_zone_id && $zone->fixed_delivery_charge !== null ? Zone::find($zone->parent_zone_id, $zone_columns) : null;
+            if (!$parent) {
+                return $zone->makeHidden(['parent_zone_id', 'fixed_delivery_charge']);
+            }
+            $parent->status = $zone->status && $parent->status ? 1 : 0;
+            $parent->per_km_shipping_charge = 0;
+            $parent->minimum_shipping_charge = $zone->fixed_delivery_charge;
+            $parent->maximum_shipping_charge = $zone->fixed_delivery_charge;
+            return $parent;
+        })->unique('id')->values();
         if (count($zones) < 1) {
             // Outside every zone: let the customer browse the chosen zone's menu.
             // Saving a delivery address and pricing delivery still check the real

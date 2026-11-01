@@ -104,7 +104,8 @@ class ZoneController extends Controller
             return back();
         }
         $zone=Zone::with('incentives')->selectRaw("*,ST_AsText(ST_Centroid(`coordinates`)) as center")->latest()->first();
-        return view('admin-views.zone.settings', compact('zone'));
+        $parent_zones = Zone::whereNull('parent_zone_id')->where('id', '!=', $zone->id)->get(['id', 'name']);
+        return view('admin-views.zone.settings', compact('zone', 'parent_zones'));
     }
     public function zone_settings($id)
     {
@@ -114,7 +115,8 @@ class ZoneController extends Controller
             return back();
         }
         $zone=Zone::with('incentives')->selectRaw("*,ST_AsText(ST_Centroid(`coordinates`)) as center")->findOrFail($id);
-        return view('admin-views.zone.settings', compact('zone'));
+        $parent_zones = Zone::whereNull('parent_zone_id')->where('id', '!=', $id)->get(['id', 'name']);
+        return view('admin-views.zone.settings', compact('zone', 'parent_zones'));
     }
 
     public function update(Request $request, $id)
@@ -171,6 +173,8 @@ class ZoneController extends Controller
             'maximum_shipping_charge' => 'nullable|numeric|between:0,999999999999.99|gt:minimum_delivery_charge',
             'max_cod_order_amount' => 'nullable|numeric|between:0,999999999999.99',
             'increased_delivery_fee' => 'nullable|numeric|between:0,999999999.99|required_if:increased_delivery_fee_status,1',
+            'parent_zone_id' => ['nullable', Rule::notIn([$id]), Rule::exists('zones', 'id')->whereNull('parent_zone_id')],
+            'fixed_delivery_charge' => 'nullable|numeric|between:0,999999999999.99|required_with:parent_zone_id',
             ], [
                 'increased_delivery_fee.required_if' => translate('messages.increased_delivery_fee_is_required')
             ]);
@@ -187,6 +191,8 @@ class ZoneController extends Controller
         $zone->increased_delivery_fee = $request->increased_delivery_fee ?? 0;
         $zone->increased_delivery_fee_status = $request->increased_delivery_fee_status ?? 0;
         $zone->increase_delivery_charge_message = $request->increase_delivery_charge_message ?? null;
+        $zone->parent_zone_id = $request->parent_zone_id ?: null;
+        $zone->fixed_delivery_charge = $zone->parent_zone_id ? $request->fixed_delivery_charge : null;
         $zone->save();
         Toastr::success(translate('messages.zone_settings_updated_successfully'));
         return back();

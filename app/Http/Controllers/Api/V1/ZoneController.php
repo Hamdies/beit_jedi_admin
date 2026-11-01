@@ -31,7 +31,8 @@ class ZoneController extends Controller
         if ($validator->errors()->count() > 0) {
             return response()->json(['errors' => Helpers::error_processor($validator)], 403);
         }
-        $zone = Zone::where('id',$request->zone_id)->whereContains('coordinates', new Point($request->lat, $request->lng, POINT_SRID))->exists();
+        $zone = Zone::where('id',$request->zone_id)->whereContains('coordinates', new Point($request->lat, $request->lng, POINT_SRID))->exists()
+            || Zone::fixedChargeArea($request->zone_id, $request->lat, $request->lng);
 
         return response()->json($zone, 200);
 

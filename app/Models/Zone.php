@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use MatanYadaev\EloquentSpatial\Objects\Point;
 use MatanYadaev\EloquentSpatial\Objects\Polygon;
 use MatanYadaev\EloquentSpatial\Traits\HasSpatial;
 use App\Scopes\ZoneScope;
@@ -23,6 +24,8 @@ class Zone extends Model
         'max_cod_order_amount'=>'float',
         'increased_delivery_fee'=>'float',
         'increased_delivery_fee_status'=>'integer',
+        'parent_zone_id'=>'integer',
+        'fixed_delivery_charge'=>'float',
         'coordinates' => Polygon::class,
     ];
 
@@ -61,6 +64,24 @@ class Zone extends Model
     public function scopeActive($query)
     {
         return $query->where('status', '=', 1);
+    }
+
+    public function parent_zone()
+    {
+        return $this->belongsTo(Zone::class, 'parent_zone_id');
+    }
+
+    // A zone with a parent zone is a fixed price area: it is served by the
+    // parent's restaurants and delivery men at a flat delivery charge.
+    public static function fixedChargeArea($parent_zone_id, $latitude, $longitude): ?self
+    {
+        return self::active()->where('parent_zone_id', $parent_zone_id)->whereNotNull('fixed_delivery_charge')
+            ->whereContains('coordinates', new Point($latitude, $longitude, POINT_SRID))->first();
+    }
+
+    public function servedZoneId(): int
+    {
+        return $this->parent_zone_id ?? $this->id;
     }
 
     protected static function booted()

@@ -61,7 +61,8 @@ class CustomerController extends Controller
             return response()->json(['errors' => Helpers::error_processor($validator)], 403);
         }
 
-        $zone = Zone::whereContains('coordinates', new Point($request->latitude, $request->longitude, POINT_SRID))->get(['id']);
+        $zone = Zone::whereContains('coordinates', new Point($request->latitude, $request->longitude, POINT_SRID))->get(['id', 'parent_zone_id'])
+            ->map(fn ($zone) => ['id' => $zone->servedZoneId()])->unique('id')->values();
         if (count($zone) == 0) {
             $errors = [];
             array_push($errors, ['code' => 'coordinates', 'message' => translate('messages.service_not_available_in_this_area')]);
@@ -81,7 +82,7 @@ class CustomerController extends Controller
             'house' => $request->house,
             'longitude' => $request->longitude,
             'latitude' => $request->latitude,
-            'zone_id' => $zone[0]->id,
+            'zone_id' => $zone[0]['id'],
             'created_at' => now(),
             'updated_at' => now()
         ];
@@ -122,12 +123,12 @@ class CustomerController extends Controller
             'house' => $request->house,
             'longitude' => $request->longitude,
             'latitude' => $request->latitude,
-            'zone_id' => $zone->id,
+            'zone_id' => $zone->servedZoneId(),
             'created_at' => now(),
             'updated_at' => now()
         ];
         DB::table('customer_addresses')->where('id', $id)->update($address);
-        return response()->json(['message' => translate('messages.address_updated'), 'zone_id' => $zone->id], 200);
+        return response()->json(['message' => translate('messages.address_updated'), 'zone_id' => $zone->servedZoneId()], 200);
     }
 
     public function delete_address(Request $request)

@@ -147,6 +147,36 @@
                                     placeholder="{{ translate('messages.Ex:_Rainy_season') }} " {{ ($zone->increased_delivery_fee_status == 1) ? ' ' : 'readonly' }}>
                         </div>
                     </div>
+                    <div class="col-sm-6 col-lg-4">
+                        <div class="form-group">
+                            <label class="input-label text-capitalize d-inline-flex alig-items-center" for="parent_zone_id">
+                                {{ translate('messages.served_by_zone') }}&nbsp;
+                                <span data-toggle="tooltip" data-placement="right"
+                                    data-original-title="{{ translate('messages.Customers_in_this_zone_will_order_from_the_selected_zone’s_restaurants_at_the_fixed_delivery_charge._Leave_it_empty_for_a_normal_zone') }}"
+                                    class="input-label-secondary"><img
+                                        src="{{ dynamicAsset('/public/assets/admin/img/info-circle.svg') }}"
+                                        alt="{{ translate('messages.served_by_zone') }}"></span>
+                            </label>
+                            <select name="parent_zone_id" id="parent_zone_id" class="form-control h--45px">
+                                <option value="">{{ translate('messages.none') }}</option>
+                                @foreach ($parent_zones as $parent_zone)
+                                    <option value="{{ $parent_zone->id }}" {{ $zone->parent_zone_id == $parent_zone->id ? 'selected' : '' }}>{{ $parent_zone->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-lg-4">
+                        <div class="form-group">
+                            <label class="input-label text-capitalize d-inline-flex alig-items-center" for="fixed_delivery_charge">
+                                {{ translate('messages.fixed_delivery_charge') }}
+                                ({{ \App\CentralLogics\Helpers::currency_symbol() }})
+                            </label>
+                            <input type="number" name="fixed_delivery_charge" class="form-control h--45px"
+                                id="fixed_delivery_charge" min="0" step=".001"
+                                value="{{ $zone->fixed_delivery_charge ?? '' }}"
+                                placeholder="{{ translate('messages.Ex:_100') }}">
+                        </div>
+                    </div>
 
                 </div>
                 <div class="btn--container mt-3 justify-content-end">

@@ -960,7 +960,8 @@ class OrderController extends Controller
             'contact_person_number' => 'required',
         ]);
         if ($request->latitude && $request->longitude) {
-            $zone = Zone::where('id', $order->restaurant->zone_id)->whereContains('coordinates', new Point($request->latitude, $request->longitude, POINT_SRID))->first();
+            $zone = Zone::where('id', $order->restaurant->zone_id)->whereContains('coordinates', new Point($request->latitude, $request->longitude, POINT_SRID))->first()
+                ?? Zone::fixedChargeArea($order->restaurant->zone_id, $request->latitude, $request->longitude);
             if (!$zone) {
                 Toastr::error(translate('messages.out_of_coverage'));
                 return back();
