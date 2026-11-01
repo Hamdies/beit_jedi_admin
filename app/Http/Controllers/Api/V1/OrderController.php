@@ -118,6 +118,12 @@ class OrderController extends Controller
             $restaurant = $order_validation_check;
         }
 
+        // In distance priced zones the app sends the delivery charge as the
+        // distance (see ConfigController::distance_priced_zone), so use the real one.
+        if ($request->order_type == 'delivery' && $restaurant->self_delivery_system != 1 && in_array($restaurant->zone_id, Zone::fixedChargeParentIds())) {
+            $request->merge(['distance' => Helpers::get_distance([$restaurant->latitude, $restaurant->longitude], [$request->latitude, $request->longitude])]);
+        }
+
         $coupon = null;
         $coupon_created_by = null;
         $delivery_charge = null;

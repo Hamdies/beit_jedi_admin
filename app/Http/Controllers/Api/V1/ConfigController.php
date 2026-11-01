@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Models\Zone;
+use App\Models\Restaurant;
 use App\Models\Vehicle;
 use App\Models\Currency;
 use App\Models\ReactFaq;
@@ -314,19 +315,15 @@ class ConfigController extends Controller
         'increased_delivery_fee','increased_delivery_fee_status','increase_delivery_charge_message','per_km_shipping_charge','max_cod_order_amount','maximum_shipping_charge'];
         $zones = Zone::whereContains('coordinates', new Point($request->lat, $request->lng, POINT_SRID))->latest()->get([...$zone_columns, 'parent_zone_id', 'fixed_delivery_charge']);
 
-        // Report a fixed price area as its parent zone, priced so the app's
-        // per-km formula (0/km, min = max = fixed charge) yields the fixed charge.
+        // Report a fixed price area as the parent zone that serves it.
         $zones = $zones->sortByDesc(fn ($zone) => $zone->parent_zone_id ? 1 : 0)->map(function ($zone) use ($zone_columns) {
             $parent = $zone->parent_zone_id && $zone->fixed_delivery_charge !== null ? Zone::find($zone->parent_zone_id, $zone_columns) : null;
             if (!$parent) {
                 return $zone->makeHidden(['parent_zone_id', 'fixed_delivery_charge']);
             }
             $parent->status = $zone->status && $parent->status ? 1 : 0;
-            $parent->per_km_shipping_charge = 0;
-            $parent->minimum_shipping_charge = $zone->fixed_delivery_charge;
-            $parent->maximum_shipping_charge = $zone->fixed_delivery_charge;
             return $parent;
-        })->unique('id')->values();
+        })->unique('id')->values()->map(fn ($zone) => $this->distance_priced_zone($zone));
         if (count($zones) < 1) {
             // Outside every zone: let the customer browse the chosen zone's menu.
             // Saving a delivery address and pricing delivery still check the real
@@ -334,7 +331,7 @@ class ConfigController extends Controller
             if (BusinessSetting::where('key', 'browse_outside_zone_status')->first()?->value == 1) {
                 $browse_zone = Zone::active()->find(BusinessSetting::where('key', 'browse_outside_zone_id')->first()?->value, $zone_columns);
                 if ($browse_zone) {
-                    return response()->json(['zone_id' => json_encode([$browse_zone->id]), 'zone_data' => [$browse_zone->toArray()]], 200);
+                    return response()->json(['zone_id' => json_encode([$browse_zone->id]), 'zone_data' => [$this->distance_priced_zone($browse_zone)->toArray()]], 200);
                 }
             }
 
@@ -359,6 +356,19 @@ class ConfigController extends Controller
                 ['code' => 'coordinates', 'message' => translate('messages.we_are_temporarily_unavailable_in_this_area')]
             ]
         ], 403);
+    }
+
+    // The app charges distance * per km within min/max. For zones that serve
+    // fixed price areas send 1 per km with no limits: distance_api then reports
+    // the delivery charge itself as the distance.
+    private function distance_priced_zone(Zone $zone): Zone
+    {
+        if (in_array($zone->id, Zone::fixedChargeParentIds())) {
+            $zone->per_km_shipping_charge = 1;
+            $zone->minimum_shipping_charge = 0;
+            $zone->maximum_shipping_charge = null;
+        }
+        return $zone;
     }
 
     public function place_api_autocomplete(Request $request)
@@ -416,6 +426,23 @@ class ConfigController extends Controller
             return response()->json(['errors' => Helpers::error_processor($validator)], 403);
         }
 
+        // See distance_priced_zone: report the delivery charge in km. The app
+        // sends the restaurant as either end, so check both.
+        $restaurant = $this->restaurant_at($request['destination_lat'], $request['destination_lng']);
+        $customer = [$request['origin_lat'], $request['origin_lng']];
+        if (!$restaurant) {
+            $restaurant = $this->restaurant_at($request['origin_lat'], $request['origin_lng']);
+            $customer = [$request['destination_lat'], $request['destination_lng']];
+        }
+        if ($restaurant && $restaurant->self_delivery_system != 1 && in_array($restaurant->zone_id, Zone::fixedChargeParentIds())) {
+            $distance = Helpers::get_distance([$restaurant->latitude, $restaurant->longitude], $customer);
+            $free_delivery_distance = BusinessSetting::where('key', 'free_delivery_distance')->first()?->value;
+            $charge = isset($free_delivery_distance) && $distance <= $free_delivery_distance ? 0
+                : Zone::find($restaurant->zone_id)->baseDeliveryCharge($customer[0], $customer[1], $distance);
+
+            return response()->json(['status' => 'OK', 'distanceMeters' => round($charge * 1000, 3), 'duration' => '0s'], 200, [], JSON_PRESERVE_ZERO_FRACTION);
+        }
+
         $apiKey = $this->map_api_key;
         $url = "https://routes.googleapis.com/distanceMatrix/v2:computeRouteMatrix";
 
@@ -450,6 +477,11 @@ class ConfigController extends Controller
         // old
         // $response = Http::get('https://maps.googleapis.com/maps/api/distancematrix/json?origins=' . $request['origin_lat'] . ',' . $request['origin_lng'] . '&destinations=' . $request['destination_lat'] . ',' . $request['destination_lng'] . '&key=' . $this->map_api_key . '&mode=walking');
         // return $response->json();
+    }
+
+    private function restaurant_at($lat, $lng): ?Restaurant
+    {
+        return Restaurant::whereRaw('ABS(latitude - ?) < 0.000001 AND ABS(longitude - ?) < 0.000001', [(float) $lat, (float) $lng])->first();
     }
 
 
@@ -584,6 +616,11 @@ class ConfigController extends Controller
         ]);
         if ($validator->errors()->count() > 0) {
             return response()->json(['errors' => Helpers::error_processor($validator)], 403);
+        }
+        // In distance priced zones the vehicle charge is already part of the
+        // charge distance_api reports as the distance.
+        if (array_intersect((array) json_decode($request->header('zoneId') ?? '', true), Zone::fixedChargeParentIds())) {
+            return response()->json(0.0, 200, [], JSON_PRESERVE_ZERO_FRACTION);
         }
         $distance_data = $request->distance ?? 0;
         $data = Helpers::vehicle_extra_charge(distance_data:$distance_data);
