@@ -343,7 +343,8 @@
 @endsection
 
 @push('script_2')
-<script src="https://maps.googleapis.com/maps/api/js?key={{ \App\Models\BusinessSetting::where('key', 'map_api_key')->first()->value }}&libraries=drawing,places&v=3.45.8"></script>
+<script src="https://maps.googleapis.com/maps/api/js?key={{ \App\Models\BusinessSetting::where('key', 'map_api_key')->first()->value }}&libraries=places"></script>
+<script src="{{ dynamicAsset('public/assets/admin/js/polygon-drawer.js') }}"></script>
 <script>
     "use strict";
 
@@ -461,18 +462,11 @@
                 mapTypeId: google.maps.MapTypeId.ROADMAP
             }
             map = new google.maps.Map(document.getElementById("map-canvas"), myOptions);
-            drawingManager = new google.maps.drawing.DrawingManager({
-                drawingMode: google.maps.drawing.OverlayType.POLYGON,
-                drawingControl: true,
-                drawingControlOptions: {
-                position: google.maps.ControlPosition.TOP_CENTER,
-                drawingModes: [google.maps.drawing.OverlayType.POLYGON]
-                },
-                polygonOptions: {
-                editable: true
-                }
+            drawingManager = new PolygonDrawer(map, { editable: true });
+            google.maps.event.addListener(drawingManager, "overlaychange", function(event) {
+                $('#coordinates').val(event.overlay.getPath().getArray());
+                auto_grow();
             });
-            drawingManager.setMap(map);
 
 
             //get current location block
@@ -580,6 +574,7 @@
                             strokeWeight: 2,
                             fillColor: "#FF0000",
                             fillOpacity: 0.1,
+                            clickable: false,
                         }));
                         polygons[i].setMap(map);
                     }
